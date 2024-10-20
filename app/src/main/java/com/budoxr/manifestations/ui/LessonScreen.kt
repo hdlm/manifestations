@@ -8,13 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.budoxr.manifestations.presentation.presenters.LessonViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LessonScreen(
     navController: NavController,
     innerPadding: PaddingValues,
-//    viewModel: LessonScreen = getViewModel()
-
+    viewModel: LessonViewModel = koinViewModel()
 ) {
     Log.i(TAG, "compose / recompose")
     Surface(modifier = Modifier.padding(innerPadding)) {
