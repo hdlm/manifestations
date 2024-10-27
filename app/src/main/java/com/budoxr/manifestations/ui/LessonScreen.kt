@@ -3,12 +3,14 @@ package com.budoxr.manifestations.ui
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
@@ -49,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
+import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.onStringType
@@ -67,9 +76,12 @@ import org.koin.androidx.compose.koinViewModel
 data class LessonState(
     val isDarkTheme: Boolean = false,
     val lessons: LessonsWrapper,
+    val selectedDay: Int,
+    val statusPlayer: CommonValues.STATUS_PLAYER,
     val onBackButtonClick: onDismissType,
     val onSearchApply: onStringType,
     val onItemClick: onIntType,
+    val onStatusPlayerClick: onIntType
 )
 
 @Composable
@@ -188,6 +200,7 @@ fun LessonScreenReady(
     var searchPattern by remember { mutableStateOf("") }
     var selectedDay by remember { mutableStateOf(0) }
     var showLessonDetails by remember { mutableStateOf(false) }
+    var statusPlayer by remember { mutableStateOf(CommonValues.STATUS_PLAYER.pause) }
 
     val onBackButtonClick: onDismissType = {
         val value = navController.popBackStack()
@@ -202,13 +215,20 @@ fun LessonScreenReady(
         selectedDay = day
         showLessonDetails = true
     }
+    val onStatusPlayerClick: onIntType = { status ->
+        Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $status")
+        statusPlayer = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status]
+    }
 
     val lessonState = LessonState(
         isDarkTheme = isDarkTheme,
         lessons = uiState.lessons,
+        selectedDay = selectedDay,
+        statusPlayer = statusPlayer,
         onBackButtonClick = onBackButtonClick,
         onSearchApply = onSearchApply,
         onItemClick = onItemClick,
+        onStatusPlayerClick = onStatusPlayerClick,
     )
 
     Surface(modifier = Modifier
@@ -217,6 +237,7 @@ fun LessonScreenReady(
     ) {
         LessonScreenBody(
             isDarkTheme = isDarkTheme,
+            showLessonDetails = showLessonDetails,
             lessonState = lessonState,
         )
     }
@@ -226,6 +247,7 @@ fun LessonScreenReady(
 @Composable
 fun LessonScreenBody(
     isDarkTheme: Boolean,
+    showLessonDetails: Boolean,
     lessonState: LessonState,
 ) {
     var search by remember { mutableStateOf("") }
@@ -246,19 +268,30 @@ fun LessonScreenBody(
 
         items(lessonState.lessons.lessons) { item ->
 
-            LessonListItem(
-                item = item,
-                isDarkTheme = isDarkTheme,
-                onItemClick = lessonState.onItemClick,
-                modifier = Modifier.padding(vertical = lineSpacing, horizontal = marginHorizontal)
-            )
+            if (showLessonDetails && item.day == lessonState.selectedDay) {
+                LessonListItemSelected(
+                    item = item,
+                    isDarkTheme = isDarkTheme,
+                    selectedDay = lessonState.selectedDay,
+                    statusPlayer = lessonState.statusPlayer,
+                    onItemClick = lessonState.onStatusPlayerClick,
+                    modifier = Modifier.padding(vertical = lineSpacing, horizontal = marginHorizontal)
+                )
+            } else {
+                LessonListItemNotSelected(
+                    item = item,
+                    isDarkTheme = isDarkTheme,
+                    onItemClick = lessonState.onItemClick,
+                    modifier = Modifier.padding(vertical = lineSpacing, horizontal = marginHorizontal)
+                )
+            }
+
             HorizontalDivider(modifier = Modifier,
                 thickness = 1.dp,
                 color = grayLight
             )
 
         }
-
 
 
         item {
@@ -271,13 +304,14 @@ fun LessonScreenBody(
 
 
 @Composable
-fun LessonListItem(
+fun LessonListItemNotSelected(
     item: LessonModel,
     isDarkTheme: Boolean,
     onItemClick: onIntType,
     modifier: Modifier
 ) {
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
+    val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
     val iconSize = dimensionResource(id = R.dimen.icon_tiny_size)
 
     Card(
@@ -287,12 +321,17 @@ fun LessonListItem(
         ),
         modifier = modifier
     ) {
-        Row( modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .clickable {
+                    onItemClick.invoke(item.day)
+                }
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column( modifier = Modifier
-                .weight(0.2f)
+            Column(
+                modifier = Modifier
+                    .weight(0.2f)
             ) {
                 Box {
                     Box(
@@ -320,11 +359,166 @@ fun LessonListItem(
                 }
 
             }
-
-            Column( modifier = Modifier
-                .weight(1f)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
             ) {
-                Text(text = item.subject)
+                Text(text = item.subject, style = MaterialTheme.typography.bodyMedium)
+            }
+
+        }
+    }
+}
+
+@Composable
+fun LessonListItemSelected(
+    item: LessonModel,
+    isDarkTheme: Boolean,
+    selectedDay: Int,
+    statusPlayer: CommonValues.STATUS_PLAYER,
+    onItemClick: onIntType,
+    modifier: Modifier
+) {
+    val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
+    val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
+    val iconTinySize = dimensionResource(id = R.dimen.icon_tiny_size)
+    val iconSize = dimensionResource(id = R.dimen.icon_large_size)
+
+    Card(
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        modifier = modifier
+    ) {
+        Column {
+            Row( modifier = Modifier
+                .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column( modifier = Modifier
+                    .weight(0.2f)
+                ) {
+                    Box {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(grayLight)
+                        ) {
+                            Text(
+                                text = item.day.toString(), style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+
+                        item.meditation?.let {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(start = 25.dp, top = 20.dp)
+                                    .size(iconTinySize),
+                                imageVector = Icons.Filled.MusicNote,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
+                        }
+
+                    }
+
+                }
+                Column( modifier = Modifier
+                    .weight(1f)
+                ) {
+                    Text(text = item.subject, style = MaterialTheme.typography.titleSmall )
+                }
+
+            }
+
+            Row( modifier = Modifier
+                .padding(top = lineSpacing)
+                .fillMaxWidth(),
+            ) {
+                Column( modifier = Modifier
+                    .weight(1f)
+                ) {
+                    item.summary.forEach { summary ->
+                        Text(
+                            text = "> $summary",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                }
+            }
+
+            Row( modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column( modifier = Modifier.fillMaxHeight())  {
+                    IconButton(
+                        onClick = {
+                            onItemClick.invoke(CommonValues.STATUS_PLAYER.previous.ordinal)
+                        }
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(iconSize),
+                            imageVector = Icons.Filled.SkipPrevious,
+                            contentDescription = stringResource(id = R.string.content_description_icon)
+                        )
+                    }
+                }
+                Column {
+                    IconButton(
+                        onClick = {
+                            onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
+                        }
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(iconSize),
+                            imageVector = Icons.Filled.FastRewind,
+                            contentDescription = stringResource(id = R.string.content_description_icon)
+                        )
+                    }
+
+                }
+                Column {
+                    IconButton(
+                        onClick = {
+                            if ( statusPlayer == CommonValues.STATUS_PLAYER.pause || statusPlayer == CommonValues.STATUS_PLAYER.playing) {
+                                val status = if (statusPlayer == CommonValues.STATUS_PLAYER.pause) CommonValues.STATUS_PLAYER.playing.ordinal else CommonValues.STATUS_PLAYER.pause.ordinal
+                                onItemClick.invoke( status )
+                            } else {
+                                val status = CommonValues.STATUS_PLAYER.pause.ordinal
+                                onItemClick.invoke( status )
+                            }
+                        }
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(iconSize),
+                            imageVector = if (statusPlayer == CommonValues.STATUS_PLAYER.playing) Icons.Filled.PauseCircle else Icons.Filled.PlayCircle,
+                            contentDescription = stringResource(id = R.string.content_description_icon)
+                        )
+                    }
+                }
+                Column {
+                    IconButton(
+                        onClick = {
+                            onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
+                        }
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(iconSize),
+                            imageVector = Icons.Filled.FastForward,
+                            contentDescription = stringResource(id = R.string.content_description_icon)
+                        )
+                    }
+                }
+
             }
 
         }
@@ -348,6 +542,7 @@ fun LessonScreenPreview() {
         emptyLessonModel().copy(
             day = 2,
             subject = "The Power of 2%. Take Control of Your Inner Reality",
+            summary = listOf("Summary 1", "Summary 2")
         ),
         emptyLessonModel().copy(
             day = 3,
@@ -364,9 +559,12 @@ fun LessonScreenPreview() {
         val lessonState = LessonState(
             isDarkTheme = false,
             lessons = LessonsWrapper(lessons),
+            selectedDay = 2,
+            statusPlayer = CommonValues.STATUS_PLAYER.pause,
             onBackButtonClick = { },
             onSearchApply = onSearchApply,
             onItemClick = onItemClick,
+            onStatusPlayerClick = onItemClick,
         )
 
         Surface(modifier = Modifier
@@ -374,6 +572,7 @@ fun LessonScreenPreview() {
         ) {
             LessonScreenBody(
                 isDarkTheme = false,
+                showLessonDetails = true,
                 lessonState = lessonState,
             )
         }

@@ -58,6 +58,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
                     return@combine LessonScreenUiState.Loading
                 }
 
+                delay(1000)
                 LessonScreenUiState.Ready(
                     lessons = lessons
                 )
