@@ -13,7 +13,8 @@ import com.budoxr.manifestations.ui.ManifestationScreen
 fun AppNavigation(
     navController: NavHostController,
     startDest: Screens,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    isDarkTheme: Boolean
 ) {
 
     NavHost(navController = navController, startDestination = startDest.route ) {
@@ -21,7 +22,8 @@ fun AppNavigation(
         composable(Screens.LessonScreen.route) {
             LessonScreen(
                 navController = navController,
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                isDarkTheme = isDarkTheme,
             )
         }
 

@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Manifestations</string>
     <string name="content_description_icon">Icon</string>
+    <string name="label_search">Search</string>
+
+    <!-- LessonScreen -->
+    <string name="title_lesson">Lessons</string>
+    <string name="content_description_logo">Logo image</string>
+    <string name="msg_an_error_has_ocurred">An error has occurred.</string>
+    <string name="label_retry">Retry</string>
+
 </resources>

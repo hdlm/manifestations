@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -32,11 +33,16 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        startKoin {
-            androidContext(this@MainActivity)
-            androidLogger()
-            modules(appModule)
+        try {
+            startKoin {
+                androidContext(this@MainActivity)
+                androidLogger()
+                modules(appModule)
+            }
+        } catch (ex: ApplicationAlreadyStartedException) {
+            // ignore
         }
+
 
         val pref = applicationContext.getSharedPreferences(LOCAL_PREF, MODE_PRIVATE)
         LocalPref.pref = pref

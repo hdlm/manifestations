@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.ksp.kotlin)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp.kotlin)
 }
 
 android {
@@ -31,11 +31,11 @@ android {
             )
         }
     }
+
     sourceSets {
         getByName("main").java.srcDirs("src/main/kotlin")
         getByName("test").java.srcDirs("src/test/kotlin")
     }
-
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -61,6 +61,8 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -72,13 +74,14 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     ksp(libs.moshi.ksp)
-//    implementation(libs.koin.core)
+    implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit)
+    implementation(libs.exoplayer)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

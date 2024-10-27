@@ -1,5 +1,7 @@
 package com.budoxr.manifestations.ui
 
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,9 +52,13 @@ fun MainScreen() {
         Screens.ManifestationScreen,
         Screens.ExerciseScreen
     )
+    val context = LocalContext.current
+
     val currentRoute = currentRoute(navController)
     var presses by remember { mutableIntStateOf(0) }
     var expanded by remember { mutableStateOf(false) }
+
+    val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
 
     PermanentNavigationDrawer(
         drawerContent = {
@@ -127,7 +133,8 @@ fun MainScreen() {
             AppNavigation(
                 navController = navController,
                 startDest = Screens.LessonScreen,
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                isDarkTheme = isDarkTheme,
             )
         }
     }

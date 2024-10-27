@@ -16,7 +16,7 @@ class SessionModelAdapter {
     @FromJson
     fun fromJson(json: Map<String, Any?>): SessionModel {
         return SessionModel(
-            currentScreen = json["current_screen"].toString(),
+            currentScreen = json["current_screen"] as String?,
             lesson = (json["lesson"] as Double).toInt() // Moshi may parse JSON numbers as Double
         )
     }
