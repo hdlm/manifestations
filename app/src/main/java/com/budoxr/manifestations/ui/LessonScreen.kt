@@ -26,12 +26,10 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
@@ -54,6 +51,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
@@ -92,6 +92,21 @@ fun LessonScreen(
     viewModel: LessonViewModel = koinViewModel()
 ) {
     Log.i(TAG, "compose / recompose")
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val observer = LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_DESTROY -> {
+                Log.d(TAG, "Composable destroyed")
+                viewModel.textToSpeech.shutdown()
+            }
+            else -> {
+                // Other lifecycle events can be handled here as needed
+            }
+        }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
 
     val lessonScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
     when (val uiState = lessonScreenUiState) {
@@ -201,6 +216,8 @@ fun LessonScreenReady(
     var selectedDay by remember { mutableStateOf(0) }
     var showLessonDetails by remember { mutableStateOf(false) }
     var statusPlayer by remember { mutableStateOf(CommonValues.STATUS_PLAYER.pause) }
+    var isPlaying by remember { mutableStateOf(false) }
+
 
     val onBackButtonClick: onDismissType = {
         val value = navController.popBackStack()
@@ -211,13 +228,74 @@ fun LessonScreenReady(
         searchPattern = pattern
     }
     val onItemClick: onIntType = { day ->
-        Log.d(TAG, "onItemClick() -> invoked, day: $day")
-        selectedDay = day
-        showLessonDetails = true
+        if (isPlaying) {
+            if (statusPlayer == CommonValues.STATUS_PLAYER.playing) {
+                Log.d(TAG, "onItemClick() -> invoked, cannot selected while is Playing")
+            } else {
+                isPlaying = false
+                Log.d(TAG, "onItemClick() -> invoked, it was playing, stop the speak, day: $day")
+                selectedDay = day
+                showLessonDetails = true
+                viewModel.stopSpeak()
+            }
+        } else {
+            Log.d(TAG, "onItemClick() -> invoked, day: $day")
+            selectedDay = day
+            showLessonDetails = true
+        }
+    }
+    val onDoneParagraph : onDismissType = {
+        if (statusPlayer == CommonValues.STATUS_PLAYER.playing) {
+            val newCount = viewModel.meditationContent.paragraphCount++
+            if (newCount >= viewModel.meditationContent.paragraphs.size) {
+                Log.i(TAG, "onDoneParagraph() -> invoked, Meditation finished")
+                statusPlayer = CommonValues.STATUS_PLAYER.stop
+                isPlaying = false
+            } else {
+                Log.d(TAG, "onDoneParagraph() -> invoked, next paragraph: $newCount")
+                viewModel.textToSpeech.speak(viewModel.meditationContent.paragraphs[newCount])
+            }
+        }
     }
     val onStatusPlayerClick: onIntType = { status ->
         Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $status")
         statusPlayer = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status]
+        when (statusPlayer) {
+            CommonValues.STATUS_PLAYER.stop -> {
+                viewModel.meditationContent.paragraphCount = 1
+            }
+            CommonValues.STATUS_PLAYER.rewind -> {
+                with(viewModel.meditationContent) {
+                    paragraphCount -= 5
+                    if (paragraphCount <= 0 ) paragraphCount = 0
+                }
+            }
+            CommonValues.STATUS_PLAYER.forward -> {
+                with(viewModel.meditationContent) {
+                    paragraphCount += 5
+                    if (paragraphCount >= paragraphs.size) paragraphCount = paragraphs.size - 1
+                }
+            }
+            CommonValues.STATUS_PLAYER.playing -> {
+                with(viewModel.meditationContent) {
+                    if (paragraphCount == 0) {
+                        // start playing
+                        val fileName = uiState.lessons.lessons[selectedDay].meditation!!
+                        viewModel.loadMeditation(fileName)
+                        viewModel.textToSpeech.onDone = onDoneParagraph
+                    }
+                    with(viewModel.meditationContent) {
+                        Log.i(TAG, "speak now")
+                        paragraphCount++
+                        viewModel.textToSpeech.speak(paragraphs[paragraphCount])
+                        isPlaying = true
+                    }
+
+                }
+            }
+            CommonValues.STATUS_PLAYER.pause -> {}
+            CommonValues.STATUS_PLAYER.previous -> {}
+        }
     }
 
     val lessonState = LessonState(
@@ -281,6 +359,7 @@ fun LessonScreenBody(
                 LessonListItemNotSelected(
                     item = item,
                     isDarkTheme = isDarkTheme,
+                    statusPlayer = lessonState.statusPlayer,
                     onItemClick = lessonState.onItemClick,
                     modifier = Modifier.padding(vertical = lineSpacing, horizontal = marginHorizontal)
                 )
@@ -307,6 +386,7 @@ fun LessonScreenBody(
 fun LessonListItemNotSelected(
     item: LessonModel,
     isDarkTheme: Boolean,
+    statusPlayer: CommonValues.STATUS_PLAYER,
     onItemClick: onIntType,
     modifier: Modifier
 ) {
@@ -324,7 +404,9 @@ fun LessonListItemNotSelected(
         Row(
             modifier = Modifier
                 .clickable {
-                    onItemClick.invoke(item.day)
+                    if (statusPlayer != CommonValues.STATUS_PLAYER.playing) {
+                        onItemClick.invoke(item.day)
+                    }
                 }
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically

@@ -6,22 +6,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.CommonValues.FLOW_WHILESUBSCRIBED
+import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.data.mapper.emptyLessonModel
 import com.budoxr.manifestations.data.repositories.LocalStorage
-import com.budoxr.manifestations.presentation.domain.LessonModel
 import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.SessionModel
+import com.budoxr.manifestations.presentation.domain.TextContent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.Reader
 
 class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent {
 
@@ -40,6 +41,14 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
     private val _sessionModel: SessionModel by inject()
     val session: SessionModel
         get() = _sessionModel
+
+    private var _meditationContent: TextContent = TextContent(paragraphs = listOf(), text = "", paragraphCount = 0)
+    val meditationContent: TextContent
+        get() = _meditationContent
+
+    private var _textToSpeech  = TextToSpeechHelper(context)
+    val textToSpeech: TextToSpeechHelper
+        get() = _textToSpeech
 
     /** this value avoid to show the same error twice */
     var errorShowed: Boolean = false
@@ -94,6 +103,38 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
             }
         }
     }
+
+
+    fun loadMeditation(fileName: String) {
+        val file = localStorage.loadFileFromAssets(context, fileName)
+        val reader = file.reader()
+        val paragraphs = getParagraphs(reader)
+        _meditationContent = TextContent(paragraphs = paragraphs, text = "", paragraphCount = 0)
+    }
+
+    private fun getParagraphs(reader: Reader): List<String> {
+        val paragraphs = mutableListOf<String>()
+        val currentParagraph = StringBuilder()
+        reader.forEachLine { line ->
+            if (line.isBlank()) {
+                if (currentParagraph.isNotEmpty()) {
+                    paragraphs.add(currentParagraph.toString().trim())
+                    currentParagraph.clear()
+                }
+            } else {
+                currentParagraph.append(line).append("\n")
+            }
+        }
+        if (currentParagraph.isNotEmpty()) {
+            paragraphs.add(currentParagraph.toString().trim())
+        }
+        return paragraphs
+    }
+
+    fun stopSpeak() {
+        _meditationContent = TextContent(paragraphs = listOf(), text = "", paragraphCount = 0)
+    }
+
 }
 
 
