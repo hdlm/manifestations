@@ -4,14 +4,20 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.util.Locale
+import java.util.UUID
 
-class TextToSpeechHelper(context: Context) : TextToSpeech.OnInitListener {
+class TextToSpeechHelper(context: Context) : KoinComponent, TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     var onDone : onDismissType = {}
+    var onError : onStringType = {}
 
     init {
-        tts = TextToSpeech(context, this)
+        initializeTTS(context)
     }
 
     override fun onInit(status: Int) {
@@ -23,29 +29,51 @@ class TextToSpeechHelper(context: Context) : TextToSpeech.OnInitListener {
                     Log.i(TAG, "Speech stared")
                 }
 
+                /**
+                 * Called when the utterance is done
+                 */
                 override fun onDone(utteranceId: String?) {
-                    // Called when the utterance is done
-                    Log.i(TAG, "Speech finished")
-                    onDone.invoke()
+                    Log.i(TAG, "Speak finished.")
+
+                    val scope: AppScope = get()
+                    scope.launch {
+                        delay(CommonValues.SPEAK_DELAY)
+                        onDone.invoke()
+                    }
+
                 }
 
                 override fun onError(utteranceId: String?) {
-                    // Called when an error occurs
+                    Log.e(TAG, "Speak error.")
+                    onError("There was a problem with the Speech To Speech (TTS).")
                 }
             })
         }
     }
 
     fun speak(text: String) {
+        val phrases: CharSequence = text
+        val utteranceId = UUID.randomUUID().toString()
         val params = HashMap<String, String>()
         params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = "utteranceId"
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params)
-//        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+//        tts?.speak(phrases, TextToSpeech.QUEUE_FLUSH, params, ) // deprecated
+        tts?.speak(phrases, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
     }
 
     fun shutdown() {
         tts?.shutdown()
     }
+
+    fun restart(context: Context) {
+        shutdown()
+        initializeTTS(context)
+        Log.i(TAG, "TextToSpeech restarted")
+    }
+
+    private fun initializeTTS(context: Context) {
+        tts = TextToSpeech(context, this)
+    }
+
 
     companion object {
         private const val TAG = "TextToSpeechHelper"

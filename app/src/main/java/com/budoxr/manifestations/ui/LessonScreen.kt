@@ -91,12 +91,15 @@ fun LessonScreen(
     isDarkTheme: Boolean,
     viewModel: LessonViewModel = koinViewModel()
 ) {
-    Log.i(TAG, "compose / recompose")
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val observer = LifecycleEventObserver { _, event ->
         when (event) {
+            Lifecycle.Event.ON_START -> {
+                Log.i(TAG, "compose / recompose")
+                viewModel.restartSpeak()
+            }
             Lifecycle.Event.ON_DESTROY -> {
                 Log.d(TAG, "Composable destroyed")
                 viewModel.textToSpeech.shutdown()
@@ -125,7 +128,7 @@ fun LessonScreen(
                 innerPadding = innerPadding,
                 msg = uiState.errorMessage!!,
                 onRetry = {
-                    viewModel.errorShowed = true
+                    viewModel.errorShowed = false
                     viewModel.refresh(true)
                 }
             )
@@ -216,7 +219,6 @@ fun LessonScreenReady(
     var selectedDay by remember { mutableStateOf(0) }
     var showLessonDetails by remember { mutableStateOf(false) }
     var statusPlayer by remember { mutableStateOf(CommonValues.STATUS_PLAYER.pause) }
-    var isPlaying by remember { mutableStateOf(false) }
 
 
     val onBackButtonClick: onDismissType = {
@@ -228,20 +230,13 @@ fun LessonScreenReady(
         searchPattern = pattern
     }
     val onItemClick: onIntType = { day ->
-        if (isPlaying) {
-            if (statusPlayer == CommonValues.STATUS_PLAYER.playing) {
-                Log.d(TAG, "onItemClick() -> invoked, cannot selected while is Playing")
-            } else {
-                isPlaying = false
-                Log.d(TAG, "onItemClick() -> invoked, it was playing, stop the speak, day: $day")
-                selectedDay = day
-                showLessonDetails = true
-                viewModel.stopSpeak()
-            }
+        if (statusPlayer == CommonValues.STATUS_PLAYER.playing) {
+            Log.d(TAG, "onItemClick() -> invoked, cannot selected while is Playing")
         } else {
-            Log.d(TAG, "onItemClick() -> invoked, day: $day")
+            Log.d(TAG, "onItemClick() -> invoked, it was playing, stop the speak, and select day: $day")
             selectedDay = day
             showLessonDetails = true
+            viewModel.stopSpeak()
         }
     }
     val onDoneParagraph : onDismissType = {
@@ -250,15 +245,20 @@ fun LessonScreenReady(
             if (newCount >= viewModel.meditationContent.paragraphs.size) {
                 Log.i(TAG, "onDoneParagraph() -> invoked, Meditation finished")
                 statusPlayer = CommonValues.STATUS_PLAYER.stop
-                isPlaying = false
             } else {
                 Log.d(TAG, "onDoneParagraph() -> invoked, next paragraph: $newCount")
-                viewModel.textToSpeech.speak(viewModel.meditationContent.paragraphs[newCount])
+                viewModel.speak(paragraphIndex = newCount)
             }
         }
     }
+    val onErrorTTS: onStringType = { errorMessage ->
+        Log.e(TAG, "onErrorTTS() -> invoked")
+        viewModel.error(errorMessage)
+    }
     val onStatusPlayerClick: onIntType = { status ->
-        Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $status")
+        val statusName = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status].name
+        Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $statusName")
+
         statusPlayer = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status]
         when (statusPlayer) {
             CommonValues.STATUS_PLAYER.stop -> {
@@ -266,13 +266,13 @@ fun LessonScreenReady(
             }
             CommonValues.STATUS_PLAYER.rewind -> {
                 with(viewModel.meditationContent) {
-                    paragraphCount -= 5
+                    paragraphCount -= 2
                     if (paragraphCount <= 0 ) paragraphCount = 0
                 }
             }
             CommonValues.STATUS_PLAYER.forward -> {
                 with(viewModel.meditationContent) {
-                    paragraphCount += 5
+                    paragraphCount += 1
                     if (paragraphCount >= paragraphs.size) paragraphCount = paragraphs.size - 1
                 }
             }
@@ -280,21 +280,32 @@ fun LessonScreenReady(
                 with(viewModel.meditationContent) {
                     if (paragraphCount == 0) {
                         // start playing
-                        val fileName = uiState.lessons.lessons[selectedDay].meditation!!
+                        val fileName = uiState.lessons.lessons[selectedDay-1].meditation!!
                         viewModel.loadMeditation(fileName)
                         viewModel.textToSpeech.onDone = onDoneParagraph
+                        viewModel.textToSpeech.onError = onErrorTTS
                     }
                     with(viewModel.meditationContent) {
                         Log.i(TAG, "speak now")
                         paragraphCount++
-                        viewModel.textToSpeech.speak(paragraphs[paragraphCount])
-                        isPlaying = true
+                        Log.d(TAG, "\t> paragraph: $paragraphCount")
+                        viewModel.speak(paragraphCount)
+                        paragraphCount++  // fix the issue that repeat two times the first paragraph when start playing
                     }
 
                 }
             }
-            CommonValues.STATUS_PLAYER.pause -> {}
-            CommonValues.STATUS_PLAYER.previous -> {}
+            CommonValues.STATUS_PLAYER.pause -> {
+                if ( viewModel.meditationContent.paragraphCount > 0 ) {
+                    viewModel.meditationContent.paragraphCount--  // fix the issue that skip the next paragraph when pause
+                    Log.d(TAG, "\t> paragraph: ${viewModel.meditationContent.paragraphCount}")
+                }
+
+            }
+            CommonValues.STATUS_PLAYER.previous -> {
+                Log.d(TAG, "\t> paragraph: ${viewModel.meditationContent.paragraphCount}")
+
+            }
         }
     }
 
@@ -532,75 +543,77 @@ fun LessonListItemSelected(
                 }
             }
 
-            Row( modifier = Modifier
-                .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column( modifier = Modifier.fillMaxHeight())  {
-                    IconButton(
-                        onClick = {
-                            onItemClick.invoke(CommonValues.STATUS_PLAYER.previous.ordinal)
-                        }
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(iconSize),
-                            imageVector = Icons.Filled.SkipPrevious,
-                            contentDescription = stringResource(id = R.string.content_description_icon)
-                        )
-                    }
-                }
-                Column {
-                    IconButton(
-                        onClick = {
-                            onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
-                        }
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(iconSize),
-                            imageVector = Icons.Filled.FastRewind,
-                            contentDescription = stringResource(id = R.string.content_description_icon)
-                        )
-                    }
-
-                }
-                Column {
-                    IconButton(
-                        onClick = {
-                            if ( statusPlayer == CommonValues.STATUS_PLAYER.pause || statusPlayer == CommonValues.STATUS_PLAYER.playing) {
-                                val status = if (statusPlayer == CommonValues.STATUS_PLAYER.pause) CommonValues.STATUS_PLAYER.playing.ordinal else CommonValues.STATUS_PLAYER.pause.ordinal
-                                onItemClick.invoke( status )
-                            } else {
-                                val status = CommonValues.STATUS_PLAYER.pause.ordinal
-                                onItemClick.invoke( status )
+            item.meditation?.let {
+                Row( modifier = Modifier
+                    .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column( modifier = Modifier.fillMaxHeight())  {
+                        IconButton(
+                            onClick = {
+                                onItemClick.invoke(CommonValues.STATUS_PLAYER.previous.ordinal)
                             }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(iconSize),
+                                imageVector = Icons.Filled.SkipPrevious,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
                         }
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(iconSize),
-                            imageVector = if (statusPlayer == CommonValues.STATUS_PLAYER.playing) Icons.Filled.PauseCircle else Icons.Filled.PlayCircle,
-                            contentDescription = stringResource(id = R.string.content_description_icon)
-                        )
                     }
-                }
-                Column {
-                    IconButton(
-                        onClick = {
-                            onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
+                    Column {
+                        IconButton(
+                            onClick = {
+                                onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(iconSize),
+                                imageVector = Icons.Filled.FastRewind,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
                         }
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(iconSize),
-                            imageVector = Icons.Filled.FastForward,
-                            contentDescription = stringResource(id = R.string.content_description_icon)
-                        )
-                    }
-                }
 
+                    }
+                    Column {
+                        IconButton(
+                            onClick = {
+                                if ( statusPlayer == CommonValues.STATUS_PLAYER.pause || statusPlayer == CommonValues.STATUS_PLAYER.playing) {
+                                    val status = if (statusPlayer == CommonValues.STATUS_PLAYER.pause) CommonValues.STATUS_PLAYER.playing.ordinal else CommonValues.STATUS_PLAYER.pause.ordinal
+                                    onItemClick.invoke( status )
+                                } else {
+                                    val status = CommonValues.STATUS_PLAYER.playing.ordinal
+                                    onItemClick.invoke( status )
+                                }
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(iconSize),
+                                imageVector = if (statusPlayer == CommonValues.STATUS_PLAYER.playing) Icons.Filled.PauseCircle else Icons.Filled.PlayCircle,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
+                        }
+                    }
+                    Column {
+                        IconButton(
+                            onClick = {
+                                onItemClick.invoke(CommonValues.STATUS_PLAYER.rewind.ordinal)
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(iconSize),
+                                imageVector = Icons.Filled.FastForward,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
+                        }
+                    }
+
+                }
             }
 
         }
