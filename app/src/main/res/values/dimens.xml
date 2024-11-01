@@ -17,9 +17,9 @@
     <dimen name="button_height">56.dp</dimen>
     <dimen name="button_height_2">64.dp</dimen>
 
-    <dimen name="line_spacing_1">16.dp</dimen>
-    <dimen name="line_spacing_2">24.dp</dimen>
-    <dimen name="line_spacing_3">32.dp</dimen>
+    <dimen name="line_spacing_1">8.dp</dimen>
+    <dimen name="line_spacing_2">16.dp</dimen>
+    <dimen name="line_spacing_3">24.dp</dimen>
 
     <dimen name="margin_horizontal">16.dp</dimen>
     <dimen name="margin_topbar">54.dp</dimen>

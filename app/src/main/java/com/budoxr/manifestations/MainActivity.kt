@@ -6,13 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.data.repositories.LocalPref.LOCAL_PREF
 import com.budoxr.manifestations.di.Modules.appModule
+import com.budoxr.manifestations.di.Modules.databaseModule
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.ui.MainScreen
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
@@ -28,7 +28,8 @@ class MainActivity : ComponentActivity() {
 
         if (intent.extras != null) {
             for (key in intent.extras!!.keySet()) {
-                val value = intent.extras!![key]
+//                val value = intent.extras!![key]
+                val value = intent.extras?.getString(key)  // fix the deprecated warning of the line above
                 Log.d(TAG, "Key: $key Value: $value")
             }
         }
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
             startKoin {
                 androidContext(this@MainActivity)
                 androidLogger()
-                modules(appModule)
+                modules(appModule, databaseModule)
             }
         } catch (ex: ApplicationAlreadyStartedException) {
             // ignore

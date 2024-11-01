@@ -14,6 +14,8 @@ moshiVersion = "1.12.0"
 retrofitMoshiVersion = "2.9.0"
 koinVersion = "3.5.6"
 koinAnnotations = "1.4.0"
+coroutinesVersion = "1.8.0"
+roomVersion = "2.6.1"
 exoplayerVersion = "1.4.1"
 
 [libraries]
@@ -46,6 +48,15 @@ koin-annotations = { group = "io.insert-koin", name = "koin-annotations", versio
 koin-ksp = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koinAnnotations" }
 koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koinVersion" }
 koin-test-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koinVersion" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
+room-compiler-ksp = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
+room-common = { group = "androidx.room", name = "room-common", version.ref = "roomVersion" }
+room-paging3 = { group = "androidx.room", name = "room-paging", version.ref = "roomVersion" }
+room-test = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
 exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayerVersion" }
 
 

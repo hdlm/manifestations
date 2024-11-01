@@ -132,7 +132,7 @@ fun MainScreen() {
         ) { innerPadding ->
             AppNavigation(
                 navController = navController,
-                startDest = Screens.LessonScreen,
+                startDest = Screens.ManifestationScreen,
                 innerPadding = innerPadding,
                 isDarkTheme = isDarkTheme,
             )

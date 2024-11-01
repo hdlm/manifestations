@@ -30,6 +30,7 @@ fun AppNavigation(
         composable(Screens.ManifestationScreen.route) {
             ManifestationScreen(
                 navController = navController,
+                isDarkTheme = isDarkTheme,
                 innerPadding = innerPadding
             )
         }

@@ -38,11 +38,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -81,6 +81,14 @@ dependencies {
     ksp(libs.koin.ksp)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit)
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+    testImplementation(libs.coroutines.test)
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler.ksp)
+    implementation(libs.room.ktx)
+//    implementation(libs.room.common)
+    androidTestImplementation(libs.room.test)
     implementation(libs.exoplayer)
 
     testImplementation(libs.junit)
