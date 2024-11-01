@@ -44,7 +44,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
-import com.budoxr.manifestations.commons.CategoryHelper
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.di.Modules.appModule
 import com.budoxr.manifestations.presentation.domain.ManifestationModel

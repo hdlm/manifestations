@@ -17,6 +17,7 @@ import com.budoxr.manifestations.presentation.presenters.LessonViewModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -45,7 +46,7 @@ object Modules {
     fun provideManifestationDao(appDatabase: AppDatabase): ManifestationDao = appDatabase.manifestationDao()
 
     val databaseModule = module {
-        single { provideDataBase(androidApplication()) }
+        single { provideDataBase(androidContext()) }
         single { provideManifestationDao(get()) }
     }
 
