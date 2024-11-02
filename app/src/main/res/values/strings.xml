@@ -22,6 +22,8 @@
     <!-- ManifestationScreen -->
     <string name="label_overview">Overview</string>
     <string name="label_description">Description</string>
+    <string name="label_creation_date">Creation date</string>
+    <string name="label_due_date">Due date</string>
     <string name="label_category">Category</string>
     <string name="label_no_records">No records found</string>
     <string-array name="categories_array">

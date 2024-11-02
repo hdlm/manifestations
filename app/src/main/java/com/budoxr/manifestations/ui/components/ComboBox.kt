@@ -1,7 +1,5 @@
 package com.budoxr.manifestations.ui.components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +26,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
-import com.budoxr.manifestations.ui.theme.emotions
-import com.budoxr.manifestations.ui.theme.gray
-import com.budoxr.manifestations.ui.theme.passion
 
 @Composable
 fun ComboBox(
@@ -41,13 +35,14 @@ fun ComboBox(
     maxlength: Int = -1,
     omitLabel: Boolean = true,
     enabled: Boolean = true,
+    modifier: Modifier
 ) {
 
     var expanded = remember { mutableStateOf( false ) }
     var selectedIndex = remember { mutableStateOf( 0 ) }
 
     ComboBoxText(
-        modifier = Modifier,
+        modifier = modifier,
         field = field,
         items = items,
         label = label,
@@ -97,6 +92,7 @@ private fun ComboBoxText(modifier: Modifier,
 
     Surface(
         shape = MaterialTheme.shapes.medium,
+        modifier = modifier
     ) {
         OutlinedTextField(
             enabled = false,
