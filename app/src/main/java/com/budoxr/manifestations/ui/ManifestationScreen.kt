@@ -1,5 +1,6 @@
 package com.budoxr.manifestations.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,11 +46,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
+import com.budoxr.manifestations.data.mapper.emptyManifestationModel
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.di.Modules.appModule
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationScreenUiState
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
+import com.budoxr.manifestations.ui.components.ManifestationFormItem
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.bright
@@ -60,12 +64,13 @@ import java.util.Date
 data class ManifestationState(
     val isDarkTheme: Boolean,
     val manifestations: List<ManifestationModel>,
-    val categoryColor: (String) -> Color,
+    val categoryColor: (String, Context) -> Color,
 )
 
 @Composable
 fun ManifestationScreen(
     navController: NavController,
+    page: Int,
     isDarkTheme: Boolean,
     innerPadding: PaddingValues,
     viewModel: ManifestationViewModel = koinViewModel()
@@ -73,7 +78,7 @@ fun ManifestationScreen(
 ) {
     Log.i(TAG, "compose / recompose")
 
-    val manifestationScreenUiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val manifestationScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
     when (val uiState = manifestationScreenUiState) {
         is ManifestationScreenUiState.Loading -> {
             LocalPref.saveSession(
@@ -88,7 +93,7 @@ fun ManifestationScreen(
                 innerPadding = innerPadding,
                 msg = uiState.errorMessage!!,
                 onRetry = {
-                    viewModel.errowShowed = true
+                    viewModel.errorShowed = true
                     viewModel.refresh(force = true)
                 }
             )
@@ -96,6 +101,7 @@ fun ManifestationScreen(
         is ManifestationScreenUiState.Ready -> {
             val manifestations by viewModel.flowOfManifestations.collectAsStateWithLifecycle(initialValue = emptyList())
             ManifestationScreenReady(
+                page = page,
                 innerPadding = innerPadding,
                 manifestations = manifestations,
                 navController = navController,
@@ -168,6 +174,7 @@ fun ManifestationScreenError(innerPadding: PaddingValues, msg: String, onRetry: 
 
 @Composable
 fun ManifestationScreenReady(
+    page: Int,
     innerPadding: PaddingValues,
     manifestations: List<ManifestationModel>,
     navController: NavController,
@@ -175,6 +182,7 @@ fun ManifestationScreenReady(
     viewModel: ManifestationViewModel,
     isDarkTheme: Boolean,
 ) {
+    val context = LocalContext.current
 
     val horizontalMargin = dimensionResource(id = R.dimen.margin_horizontal)
 
@@ -183,46 +191,64 @@ fun ManifestationScreenReady(
     val manifestationState = ManifestationState(
         isDarkTheme = isDarkTheme,
         manifestations = manifestations,
-        categoryColor = viewModel::categoryColor
+        categoryColor = viewModel::categoryColor,
     )
 
-    MaterialTheme {
-        Surface(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-        ) {
+    Surface(modifier = Modifier
+        .fillMaxSize()
+        .padding(innerPadding)
+    ) {
 
-            ManifestationScreenBody(
-                manifestationState = manifestationState,
-            )
-
+        when (page) {
+            0 -> {
+                ManifestationScreenBody(
+                    manifestationState = manifestationState,
+                )
+            }
+            1 -> {
+                ManifestationFormItem(
+                    item = emptyManifestationModel(),
+                    isDarkTheme = isDarkTheme,
+                )
+            }
         }
+
 
     }
 
 }
+
 
 @Composable
 fun ManifestationScreenBody(
     manifestationState: ManifestationState,
 ) {
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
-    val lineSpacing3x = dimensionResource(id = R.dimen.line_spacing_3)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
 
     LazyColumn(modifier = Modifier.padding(marginHorizontal)) {
         item {
             //TODO colocar el filtro Search
-
         }
 
-        items(manifestationState.manifestations) { item ->
-            ManifestationListItem(
-                item = item,
-                isDarkTheme = manifestationState.isDarkTheme,
-                categoryColor = manifestationState.categoryColor,
-            )
-            Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+        if (manifestationState.manifestations.isNotEmpty()) {
+            items(manifestationState.manifestations) { item ->
+                ManifestationListItem(
+                    item = item,
+                    isDarkTheme = manifestationState.isDarkTheme,
+                    categoryColor = manifestationState.categoryColor,
+                )
+                Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+            }
+        } else {
+            item {
+                Text(
+                    text = stringResource(R.string.label_no_records),
+                    style = MaterialTheme.typography.displaySmall,
+                    modifier = Modifier
+                )
+                Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+            }
         }
 
     }
@@ -234,9 +260,10 @@ fun ManifestationScreenBody(
 fun ManifestationListItem(
     item: ManifestationModel,
     isDarkTheme: Boolean,
-    categoryColor: (String) -> Color,
+    categoryColor: (String, Context) -> Color,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
     val marginHorizontal = dimensionResource(R.dimen.margin_horizontal)
     val separator = dimensionResource(R.dimen.side_separation)
@@ -278,7 +305,7 @@ fun ManifestationListItem(
                     Box (
                         modifier = modifier
                             .clip(MaterialTheme.shapes.small)
-                            .background(categoryColor(item.category)),
+                            .background(categoryColor(item.category, context)),
                     ) {
                         Text(
                             text = item.category,

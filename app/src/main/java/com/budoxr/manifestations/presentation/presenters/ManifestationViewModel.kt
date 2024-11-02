@@ -1,11 +1,14 @@
 package com.budoxr.manifestations.presentation.presenters
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budoxr.manifestations.commons.CategoryHelper
 import com.budoxr.manifestations.commons.CommonValues
+import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import kotlinx.coroutines.delay
@@ -38,7 +41,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         get() = _sessionModel
 
     /** this value avoid to show the same error twince */
-    var errowShowed: Boolean = false
+    var errorShowed: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -51,6 +54,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
 
                 if (refreshing) {
                     Log.d(TAG, "refreshing: $refreshing")
+                    return@combine ManifestationScreenUiState.Loading
                 }
 
                 ManifestationScreenUiState.Ready
@@ -66,6 +70,24 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         refresh(force = false)
     }
 
+    fun loading( onDone: onDismissType ) {
+        viewModelScope.launch {
+            _uiState.value = ManifestationScreenUiState.Loading
+            delay(WAIT_DEFAULT)
+            launch {
+                onDone.invoke()
+                refresh(true)
+            }
+        }
+    }
+
+    fun error(errorMessage: String) {
+        if (!errorShowed) {
+            errorShowed = true
+            _uiState.value = ManifestationScreenUiState.Error(errorMessage)
+        }
+    }
+
     fun refresh(force: Boolean = true ) {
         viewModelScope.launch {
             runCatching {
@@ -76,8 +98,8 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun categoryColor(categoryKey: String): Color =
-        categoryHelper.getCategoryColor(categoryKey)
+    fun categoryColor(categoryKey: String, context: Context): Color =
+        categoryHelper.getCategoryColor(categoryKey, context)
 
 }
 

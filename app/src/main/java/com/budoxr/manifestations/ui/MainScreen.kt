@@ -1,7 +1,7 @@
 package com.budoxr.manifestations.ui
 
 import android.content.res.Configuration
-import androidx.compose.ui.platform.LocalContext
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,14 +22,13 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +38,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
+import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.ui.navigation.AppNavigation
 import com.budoxr.manifestations.ui.navigation.Screens
 
@@ -55,11 +56,33 @@ fun MainScreen() {
     val context = LocalContext.current
 
     val currentRoute = currentRoute(navController)
-    var presses by remember { mutableIntStateOf(0) }
     var expanded by remember { mutableStateOf(false) }
 
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
+    var floatingActionButtonVisibility by remember { mutableStateOf(false)}
 
+    val onFloatingActionButtonClick: onDismissType = {
+        Log.d(TAG, "onFloatingActionButtonClick() -> invoked")
+
+        val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
+        when (currentScreen) {
+
+            Screens.ManifestationScreen.route -> {
+                val screenName = Screens.ManifestationScreen.route.substringBefore('/')
+                val destination = "${screenName}/1"
+                navController.navigate(destination)
+            }
+            Screens.ExerciseScreen.route -> {
+                val screenName = Screens.ExerciseScreen.route.substringBefore('/')
+                val destination = "${screenName}/1"
+                navController.navigate(destination)
+            }
+            else -> {
+                // do nothing
+            }
+        }
+
+    }
     PermanentNavigationDrawer(
         drawerContent = {
             PermanentDrawerSheet(modifier = Modifier.width(if (expanded) 248.dp else 96.dp)) {
@@ -85,12 +108,26 @@ fun MainScreen() {
                                 expanded = !expanded
                             } 
                             else {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id){
-                                        saveState = true
+                                if (screen.route == Screens.LessonScreen.route) {
+                                    floatingActionButtonVisibility = false
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.findStartDestination().id){
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
                                     }
-                                    launchSingleTop = true
-                                }    
+                                } else {
+                                    floatingActionButtonVisibility = true
+                                    val screenName = screen.route.substringBefore('/')
+                                    val destination = "${screenName}/0"
+                                    navController.navigate(destination) {
+                                        popUpTo(navController.graph.findStartDestination().id){
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
+
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -106,16 +143,16 @@ fun MainScreen() {
             topBar = {
                 TopAppBar(
                     title = { Text("Top App Bar") },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+//                    )
                 )
             },
             bottomBar = {
                 BottomAppBar(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+//                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -125,8 +162,12 @@ fun MainScreen() {
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { presses++ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                if (floatingActionButtonVisibility) {
+                    FloatingActionButton(onClick = {
+                        onFloatingActionButtonClick.invoke()
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                    }
                 }
             }
         ) { innerPadding ->
@@ -156,3 +197,5 @@ fun MainScreenPreview() {
         MainScreen()
     }
 }
+
+private const val TAG = "che.MainScreen"

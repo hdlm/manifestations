@@ -23,6 +23,17 @@
     <string name="label_overview">Overview</string>
     <string name="label_description">Description</string>
     <string name="label_category">Category</string>
-
+    <string name="label_no_records">No records found</string>
+    <string-array name="categories_array">
+        <item name="Health">Health</item>
+        <item name="Wealth">Wealth</item>
+        <item name="Relationship">Relationships</item>
+        <item name="Mindset">Mindset</item>
+        <item name="Emotions">Emotions</item>
+        <item name="Purpose">Purpose</item>
+        <item name="Passion">Passion</item>
+        <item name="Contribution">Contribution</item>
+        <item name="Spirituality">Spirituality</item>
+    </string-array>
 
 </resources>

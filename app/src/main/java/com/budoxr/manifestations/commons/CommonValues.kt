@@ -13,5 +13,9 @@ object CommonValues {
         forward,
         previous,
     }
+    enum class TYPE_ITEM {
+        manifestation,
+        excercise,
+    }
 
 }

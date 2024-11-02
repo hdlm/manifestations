@@ -14,20 +14,20 @@ import com.budoxr.manifestations.ui.theme.relationships
 import com.budoxr.manifestations.ui.theme.spirituality
 import com.budoxr.manifestations.ui.theme.wealth
 import org.koin.core.component.KoinComponent
+import com.budoxr.manifestations.R
 
 class CategoryHelper() : KoinComponent {
 
-    @SuppressLint("DiscouragedApi")
-    fun getCategoryString(category: CATEGORIES, context: Context): String {
-        val resId = context.resources.getIdentifier(category.key, "string", context.packageName)
-        return context.getString(resId)
+    fun getCategoryByName(name: String, context: Context): CATEGORIES? {
+        val categories = context.resources.getStringArray(R.array.categories_array)
+        return categories.find { it.lowercase() == name.lowercase() }?.let {
+            CATEGORIES.valueOf(it.uppercase())
+        } ?: run { null }
+
     }
 
-    fun getCategoryByKey(key: String): CATEGORIES? =
-        enumValues<CATEGORIES>().find { it.key.lowercase() == key.lowercase() }
-
-    fun getCategoryColor(key: String): Color =
-        when (getCategoryByKey(key)) {
+    fun getCategoryColor(key: String, context: Context): Color =
+        when (getCategoryByName(key, context)) {
             CATEGORIES.HEALTH -> health
             CATEGORIES.WEALTH -> wealth
             CATEGORIES.RELATIONSHIPS -> relationships

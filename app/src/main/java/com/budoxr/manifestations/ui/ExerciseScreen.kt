@@ -8,11 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.budoxr.manifestations.commons.onBooleanType
+import com.budoxr.manifestations.commons.onIntType
 
 
 @Composable
 fun ExerciseScreen(
     navController: NavController,
+    page: Int,
     innerPadding: PaddingValues,
 //    viewModel: ExerciseScreen = getViewModel()
 

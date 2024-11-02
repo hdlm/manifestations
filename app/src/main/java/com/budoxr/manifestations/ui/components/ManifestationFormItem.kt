@@ -1,5 +1,6 @@
 package com.budoxr.manifestations.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -17,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,7 +43,9 @@ fun ManifestationFormItem(
 
     var overview by remember { mutableStateOf(TextFieldValue(item.overview)) }
     var description by remember { mutableStateOf(TextFieldValue(item.description)) }
-    var category by remember { mutableStateOf(TextFieldValue(item.category)) }
+    var creationDate by remember { mutableStateOf(item.creationDate) }
+    var dueDate by remember { mutableStateOf(item.dueDate) }
+    var category = remember { mutableStateOf(TextFieldValue(item.category)) }
 
     val textFieldColors = TextFieldDefaults.colors(
         focusedContainerColor = blue,
@@ -49,13 +53,7 @@ fun ManifestationFormItem(
         disabledContainerColor = alert,
     )
 
-    Card(
-        shape = RectangleShape,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        ),
-        modifier = Modifier
-    ) {
+    Column {
         OutlinedTextField(
             value = overview,
             onValueChange = { newValue ->
@@ -66,7 +64,7 @@ fun ManifestationFormItem(
             },
             label = { Text( text = stringResource(R.string.label_overview)) },
             singleLine = true,
-            colors = textFieldColors,
+//        colors = textFieldColors,
             modifier = Modifier.padding(vertical = lineSpacing)
         )
         OutlinedTextField(
@@ -79,21 +77,17 @@ fun ManifestationFormItem(
             },
             label = { Text( text = stringResource(R.string.label_description)) },
             singleLine = true,
-            colors = textFieldColors,
+//        colors = textFieldColors,
             modifier = Modifier.padding(vertical = lineSpacing)
         )
-        OutlinedTextField(
-            value = category,
-            onValueChange = { newValue ->
-                val capitalizedText = newValue.text.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase() else it.toString()
-                }
-                category = newValue.copy(text = capitalizedText)
-            },
-            label = { Text( text = stringResource(R.string.label_category)) },
-            maxLines = 4,
-            colors = textFieldColors,
-            modifier = Modifier.padding(vertical = lineSpacing)
+
+        val categoriesArray: Array<String> = stringArrayResource(id = R.array.categories_array)
+        ComboBox(
+            items = categoriesArray,
+            label = stringResource(R.string.label_category),
+            field = category,
+            maxlength = 20,
+            omitLabel = false
         )
 
     }
@@ -104,29 +98,14 @@ fun ManifestationFormItem(
 @Preview(showBackground = true)
 @Composable
 fun ManifestationFormItemPreview() {
-    val listOfManifestations : List<ManifestationModel> = listOf(
-        ManifestationModel(
-            id = null,
-            overview = "Ingreso de USD 6K",
-            description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
-            creationDate = Date(),
-            dueDate = Date(),
-            category = CATEGORIES.WEALTH.key,
-        ),
-        ManifestationModel(
-            id = null,
-            overview = "Facturacion mensual de USD 250K",
-            description = "estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-            creationDate = Date(),
-            dueDate = Date(),
-            category = CATEGORIES.WEALTH.key,
-        ),
-    )
-    val viewModel = ManifestationViewModel()
-    val manifestationState = ManifestationState(
-        isDarkTheme = false,
-        manifestations = listOfManifestations,
-        categoryColor = viewModel::categoryColor
+
+    val item = ManifestationModel(
+        id = null,
+        overview = "Ingreso de USD 6K",
+        description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
+        creationDate = Date(),
+        dueDate = Date(),
+        category = CATEGORIES.WEALTH.key,
     )
 
     ManifestationsTheme {
@@ -134,9 +113,11 @@ fun ManifestationFormItemPreview() {
         Surface( modifier = Modifier
             .fillMaxSize()
         ) {
-            ManifestationScreenBody(
-                manifestationState = manifestationState,
+            ManifestationFormItem(
+                item = item,
+                isDarkTheme = false
             )
         }
+
     }
 }
