@@ -1,5 +1,9 @@
 package com.budoxr.manifestations.commons.util
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+
 class Utily {
 
     /**
@@ -19,6 +23,14 @@ class Utily {
         val regex = "\\[(\\d+)]".toRegex()
         val matchResult = regex.find(input)
         return matchResult?.groups?.get(1)?.value
+    }
+
+    @Throws(Exception::class)
+    suspend fun <T> performAsyncOperation(
+        scope: CoroutineScope,
+        operation: suspend() -> T
+    ): Deferred<T> = scope.async {
+        operation()
     }
 
 }

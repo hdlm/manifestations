@@ -3,7 +3,6 @@ package com.budoxr.manifestations.workers
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel

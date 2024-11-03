@@ -29,9 +29,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +52,7 @@ import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.toFechaTimeDb
+import com.budoxr.manifestations.data.mapper.copy
 import com.budoxr.manifestations.data.mapper.emptyManifestationModel
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.di.Modules.appModule
@@ -61,6 +64,7 @@ import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.bright
 import com.budoxr.manifestations.ui.theme.gray
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
 import java.util.Date
@@ -186,11 +190,11 @@ fun ManifestationScreenReady(
     viewModel: ManifestationViewModel,
     isDarkTheme: Boolean,
 ) {
-    val context = LocalContext.current
-
     val horizontalMargin = dimensionResource(id = R.dimen.margin_horizontal)
 
+    val coroutineScope = rememberCoroutineScope()
     var searchPattern by remember { mutableStateOf("") }
+    var nextId by remember { mutableStateOf(0L) }
 
     val manifestationState = ManifestationState(
         isDarkTheme = isDarkTheme,
@@ -210,15 +214,27 @@ fun ManifestationScreenReady(
                 )
             }
             1 -> {
-                ManifestationForm(
-                    item = emptyManifestationModel(),
-                    isDarkTheme = isDarkTheme,
-                    saveManifestation = viewModel::saveManifestation,
-                    modifier = Modifier.padding(horizontal = horizontalMargin)
-                )
+                LaunchedEffect(Unit) {
+                    Log.d(TAG, "LaunchedEffect running the coroutine")
+                    coroutineScope.launch {
+                        nextId = viewModel.util.performAsyncOperation(this) {
+                            viewModel.lastId()
+                        }.await()
+                        nextId++
+                    }
+                }
+
+                if (nextId > 0L) {
+                    ManifestationForm(
+                        item = emptyManifestationModel().copy(id = nextId),
+                        isDarkTheme = isDarkTheme,
+                        saveManifestation = viewModel::saveManifestation,
+                        modifier = Modifier.padding(horizontal = horizontalMargin)
+                    )
+                }
+
             }
         }
-
 
     }
 

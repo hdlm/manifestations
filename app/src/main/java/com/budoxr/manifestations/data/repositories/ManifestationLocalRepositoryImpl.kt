@@ -17,6 +17,9 @@ class ManifestationLocalRepositoryImpl : ManifestationLocalRepository, KoinCompo
     override suspend fun allManifestations(): List<ManifestationEntity> =
         manifestationDao.getAllManifestations()
 
+    override suspend fun getLastId(): Long =
+        manifestationDao.getLastId()
+
     override suspend fun insert(manifestation: ManifestationEntity) =
         manifestationDao.insertManifestation(manifestation)
 

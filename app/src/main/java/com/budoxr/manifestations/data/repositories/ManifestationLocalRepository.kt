@@ -14,6 +14,10 @@ interface ManifestationLocalRepository {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
+    suspend fun getLastId(): Long
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
     suspend fun insert(manifestation: ManifestationEntity)
 
     @Suppress("RedundantSuspendModifier")

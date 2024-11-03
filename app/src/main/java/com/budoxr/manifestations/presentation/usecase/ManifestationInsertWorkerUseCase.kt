@@ -15,7 +15,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.koin.core.component.KoinComponent
 import java.util.concurrent.TimeUnit
 
-class ManifestationWorkerUseCase(context: Context) : KoinComponent {
+class ManifestationInsertWorkerUseCase(context: Context) : KoinComponent {
     private val workManager : WorkManager = WorkManager.getInstance(context)
 
     private var oldManifestationModel: ManifestationModel? = null

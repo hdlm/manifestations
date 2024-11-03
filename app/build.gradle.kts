@@ -33,8 +33,12 @@ android {
     }
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+        getByName("main") {
+            manifest.srcFile("AndroidManifest.xml")
+            java.srcDirs("src/main/kotlin")
+        }
         getByName("test").java.srcDirs("src/test/kotlin")
+
     }
 
     compileOptions {
@@ -55,7 +59,18 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    applicationVariants.all {
+        if (android.buildToolsVersion >= "33.0.0") {
+            sourceSets {
+                getByName("main").manifest.srcFile("src/mainSdk33/AndroidManifest.xml")
+            }
+        }
+    }
+
+
 }
+
 
 dependencies {
 
