@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.NoSim
 import androidx.compose.material.icons.outlined.NoSim
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -51,13 +49,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
+import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.emptyManifestationModel
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.di.Modules.appModule
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationScreenUiState
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
-import com.budoxr.manifestations.ui.components.ManifestationFormItem
+import com.budoxr.manifestations.ui.components.ManifestationForm
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.bright
@@ -211,9 +210,10 @@ fun ManifestationScreenReady(
                 )
             }
             1 -> {
-                ManifestationFormItem(
+                ManifestationForm(
                     item = emptyManifestationModel(),
                     isDarkTheme = isDarkTheme,
+                    saveManifestation = viewModel::saveManifestation,
                     modifier = Modifier.padding(horizontal = horizontalMargin)
                 )
             }
@@ -360,16 +360,16 @@ fun ManifestationScreenPreview() {
                 id = null,
                 overview = "Ingreso de USD 6K",
                 description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
-                creationDate = Date(),
-                dueDate = Date(),
+                creationDate = Date().toFechaTimeDb(),
+                dueDate = Date().toFechaTimeDb(),
                 category = CATEGORIES.WEALTH.key,
             ),
             ManifestationModel(
                 id = null,
                 overview = "Facturacion mensual de USD 250K",
                 description = "estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-                creationDate = Date(),
-                dueDate = Date(),
+                creationDate = Date().toFechaTimeDb(),
+                dueDate = Date().toFechaTimeDb(),
                 category = CATEGORIES.WEALTH.key,
             ),
         )

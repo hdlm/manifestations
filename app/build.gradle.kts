@@ -90,6 +90,8 @@ dependencies {
 //    implementation(libs.room.common)
     androidTestImplementation(libs.room.test)
     implementation(libs.exoplayer)
+    implementation(libs.workmanager.kotlin.coroutines)
+    implementation(libs.workmanager.test)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

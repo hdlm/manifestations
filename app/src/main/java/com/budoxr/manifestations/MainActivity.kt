@@ -13,6 +13,7 @@ import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.data.repositories.LocalPref.LOCAL_PREF
 import com.budoxr.manifestations.di.Modules.appModule
 import com.budoxr.manifestations.di.Modules.databaseModule
+import com.budoxr.manifestations.di.Modules.workerModule
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.ui.MainScreen
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
             startKoin {
                 androidContext(this@MainActivity)
                 androidLogger()
-                modules(appModule, databaseModule)
+                modules(appModule, databaseModule, workerModule)
             }
         } catch (ex: ApplicationAlreadyStartedException) {
             // ignore

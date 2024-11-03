@@ -16,6 +16,7 @@ import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.presenters.LessonViewModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
+import com.budoxr.manifestations.presentation.usecase.ManifestationWorkerUseCase
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -29,8 +30,6 @@ object Modules {
         factory<LocalStorage> { LocalStorageImpl() }
         viewModel { LessonViewModel(get()) }
         viewModel { ManifestationViewModel() }
-        factory { ManifestationInfoUseCase() }
-        factory<ManifestationLocalRepository> { ManifestationLocalRepositoryImpl() }
 
         single { CategoryHelper() }
     }
@@ -48,6 +47,12 @@ object Modules {
     val databaseModule = module {
         single { provideDataBase(androidContext()) }
         single { provideManifestationDao(get()) }
+        factory { ManifestationInfoUseCase() }
+        factory<ManifestationLocalRepository> { ManifestationLocalRepositoryImpl() }
+    }
+
+    val workerModule = module {
+        factory { ManifestationWorkerUseCase(androidContext()) }
     }
 
     val unitTestModule = module {

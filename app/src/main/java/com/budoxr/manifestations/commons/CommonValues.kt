@@ -6,6 +6,7 @@ object CommonValues {
     const val WAIT_DEFAULT = 500L
     const val SPEAK_DELAY = 750L
     const val oneDayMillis = 86_400_000L
+    const val MANIFESTATION_TAG = "manif"
     enum class STATUS_PLAYER {
         stop,
         pause,

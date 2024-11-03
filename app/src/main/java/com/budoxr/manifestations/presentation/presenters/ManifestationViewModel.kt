@@ -9,8 +9,10 @@ import com.budoxr.manifestations.commons.CategoryHelper
 import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
+import com.budoxr.manifestations.presentation.usecase.ManifestationWorkerUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +25,7 @@ import org.koin.core.component.inject
 
 class ManifestationViewModel : ViewModel(), KoinComponent {
     private val manifestationInfoUseCase: ManifestationInfoUseCase by inject()
+    private val manifestationWorkerUseCase: ManifestationWorkerUseCase by inject()
     private val categoryHelper: CategoryHelper by inject()
 
     val flowOfManifestations = manifestationInfoUseCase.invoke().stateIn(
@@ -100,6 +103,12 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
 
     fun categoryColor(categoryKey: String, context: Context): Color =
         categoryHelper.getCategoryColor(categoryKey, context)
+
+    fun saveManifestation(manifestation: ManifestationModel, context: Context) {
+        Log.d(TAG, "saveManifestation() -> called, id: ${manifestation.id ?: "null"}")
+        manifestationWorkerUseCase.scheduleSaveManifestationWorker(manifestation, context)
+
+    }
 
 }
 

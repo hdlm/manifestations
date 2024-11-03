@@ -17,6 +17,7 @@ koinAnnotations = "1.4.0"
 coroutinesVersion = "1.8.0"
 roomVersion = "2.6.1"
 exoplayerVersion = "1.4.1"
+workVersion = "2.9.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,9 @@ room-common = { group = "androidx.room", name = "room-common", version.ref = "ro
 room-paging3 = { group = "androidx.room", name = "room-paging", version.ref = "roomVersion" }
 room-test = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
 exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayerVersion" }
+workmanager-kotlin-coroutines = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workVersion" }
+workmanager-test = { group = "androidx.work", name = "work-testing", version.ref = "workVersion" }
+
 
 
 [plugins]

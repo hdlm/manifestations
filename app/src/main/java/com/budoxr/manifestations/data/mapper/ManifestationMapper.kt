@@ -1,6 +1,5 @@
 package com.budoxr.manifestations.data.mapper
 
-import com.budoxr.manifestations.commons.fromFechaTimeDb
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
@@ -11,8 +10,8 @@ fun ManifestationModel.toEntity() =
         id = id,
         overview = overview,
         description = description,
-        creationDate = creationDate.toFechaTimeDb(),
-        dueDate = dueDate.toFechaTimeDb(),
+        creationDate = creationDate,
+        dueDate = dueDate,
         category = category,
     )
 
@@ -21,8 +20,8 @@ fun ManifestationEntity.toModel() =
         id = id,
         overview = overview,
         description = description,
-        creationDate = creationDate.fromFechaTimeDb(),
-        dueDate = dueDate.fromFechaTimeDb(),
+        creationDate = creationDate,
+        dueDate = dueDate,
         category = category,
     )
 
@@ -31,7 +30,7 @@ fun emptyManifestationModel() =
         id = null,
         overview = "",
         description = "",
-        creationDate = Date(),
-        dueDate = Date(),
+        creationDate = Date().toFechaTimeDb(),
+        dueDate = Date().toFechaTimeDb(),
         category = "",
     )
