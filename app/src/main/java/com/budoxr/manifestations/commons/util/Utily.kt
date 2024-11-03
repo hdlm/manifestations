@@ -1,5 +1,6 @@
 package com.budoxr.manifestations.commons.util
 
+import com.budoxr.manifestations.commons.toLocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -28,9 +29,19 @@ class Utily {
     @Throws(Exception::class)
     suspend fun <T> performAsyncOperation(
         scope: CoroutineScope,
-        operation: suspend() -> T
+        operation: suspend () -> T
     ): Deferred<T> = scope.async {
         operation()
+    }
+
+    /**
+     * The params must have the format: `yyyy-MM-dd kk:mm:ss`
+     */
+    fun dateDifference(startDateString: String, endDateString: String): Long {
+        val startDate = startDateString.toLocalDate()
+        val endDate = endDateString.toLocalDate()
+        val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate)
+        return daysBetween
     }
 
 }

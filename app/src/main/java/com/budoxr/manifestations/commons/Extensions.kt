@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transformLatest
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration
@@ -42,6 +45,12 @@ fun <T> Flow<T>.emitLastestPeriodically(interval: Duration): Flow<T> = transform
         emit (it)
         delay(interval)
     }
+}
+
+fun String.toLocalDate(): LocalDate {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss")
+    val localDateTime = LocalDateTime.parse(this, formatter)
+    return localDateTime.toLocalDate()
 }
 
 @SuppressLint("LogNotTimber")

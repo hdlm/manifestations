@@ -20,6 +20,7 @@ val grayLight = Color(0xFFEFEFF0)
 val gray = Color(0xFF848488)
 val grayDark = Color(0xFF605D62)
 val blue = Color(0xFF1F83F1)
+val orange = Color(0xFFFFA500)
 val fleshColor = Color(0xFFF2B390)
 val yellowColor = Color(0xFFffc66d)
 

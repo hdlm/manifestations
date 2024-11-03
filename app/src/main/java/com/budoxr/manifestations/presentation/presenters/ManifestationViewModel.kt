@@ -109,8 +109,14 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         }
     }
 
+
+    fun dateDifference(startDate: String, endDate: String): Long =
+        util.dateDifference(startDate, endDate)
+
+
     fun categoryColor(categoryKey: String, context: Context): Color =
         categoryHelper.getCategoryColor(categoryKey, context)
+
 
     suspend fun lastId(): Long  =
         manifestationLastIdUseCase.invoke()
