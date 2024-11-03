@@ -5,7 +5,7 @@
     <dimen name="icon_huge_size">70dp</dimen>
     <dimen name="icon_big_size">64dp</dimen>
     <dimen name="icon_large_size">48dp</dimen>
-    <dimen name="icon_topbar_size">32dp</dimen>
+    <dimen name="icon_topbar_size">28dp</dimen>
     <dimen name="icon_medium_size">32dp</dimen>
     <dimen name="icon_small_size">24dp</dimen>
     <dimen name="icon_tiny_size">20dp</dimen>

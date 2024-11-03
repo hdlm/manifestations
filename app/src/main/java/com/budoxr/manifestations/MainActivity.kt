@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
             // ignore
         }
 
-
         val pref = applicationContext.getSharedPreferences(LOCAL_PREF, MODE_PRIVATE)
         LocalPref.pref = pref
         if (LocalPref.getSession() == null)

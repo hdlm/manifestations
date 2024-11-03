@@ -6,14 +6,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Hardware
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -29,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,26 +59,51 @@ fun MainScreen() {
         Screens.ManifestationScreen,
         Screens.ExerciseScreen
     )
-    val context = LocalContext.current
 
+    val context = LocalContext.current
     val currentRoute = currentRoute(navController)
     var expanded by remember { mutableStateOf(false) }
-
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
-    var floatingActionButtonVisibility by remember { mutableStateOf(false)}
 
+    var isFloatingActionVisible by remember { mutableStateOf(false)}
+    var isDrawerVisible by remember { mutableStateOf(true)}
+
+    val onBackButtonClick: onDismissType = {
+        if (!isDrawerVisible) {
+            isDrawerVisible = true
+            isFloatingActionVisible = true
+        }
+        val value = navController.popBackStack()
+        Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned value: $value")
+    }
+    val onSaveButtonClick: onDismissType = {
+        val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
+        Log.d(TAG, "onSaveButtonClick() -> invoked, current screen: $currentScreen")
+        when (currentScreen) {
+            Screens.ManifestationScreen.route -> {
+                //TODO save manifestation register
+            }
+            Screens.ExerciseScreen.route -> {
+                //TODO save exercise register
+            }
+        }
+
+    }
     val onFloatingActionButtonClick: onDismissType = {
         Log.d(TAG, "onFloatingActionButtonClick() -> invoked")
 
         val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
         when (currentScreen) {
-
             Screens.ManifestationScreen.route -> {
+                isFloatingActionVisible = false
+                isDrawerVisible = false
                 val screenName = Screens.ManifestationScreen.route.substringBefore('/')
                 val destination = "${screenName}/1"
                 navController.navigate(destination)
             }
             Screens.ExerciseScreen.route -> {
+                isFloatingActionVisible = false
+                isDrawerVisible = false
                 val screenName = Screens.ExerciseScreen.route.substringBefore('/')
                 val destination = "${screenName}/1"
                 navController.navigate(destination)
@@ -83,104 +114,190 @@ fun MainScreen() {
         }
 
     }
-    PermanentNavigationDrawer(
-        drawerContent = {
-            PermanentDrawerSheet(modifier = Modifier.width(if (expanded) 248.dp else 96.dp)) {
-                Spacer(Modifier.height(12.dp))
-                navigationItems.forEach { screen ->
-                    NavigationDrawerItem(
-                        icon = {
-                            Spacer(Modifier.width(10.dp))
-                            when (screen) {
-                                Screens.Expand -> Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon ))
-                                Screens.LessonScreen -> Icon(Screens.LessonScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
-                                Screens.ManifestationScreen -> Icon(Screens.ManifestationScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
-                                Screens.ExerciseScreen -> Icon(Screens.ExerciseScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
-                            }
-                        },
-                        badge = {
-                            if(screen == Screens.Expand) Icon(Icons.Default.Settings, contentDescription = stringResource( id = R.string.content_description_icon ))
-                        },
-                        label = { if (expanded && !screen.equals(Screens.Expand)) Text(screen.title) else null },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            if (screen.route == Screens.Expand.route) {
-                                expanded = !expanded
-                            } 
-                            else {
-                                if (screen.route == Screens.LessonScreen.route) {
-                                    floatingActionButtonVisibility = false
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.findStartDestination().id){
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                    }
-                                } else {
-                                    floatingActionButtonVisibility = true
-                                    val screenName = screen.route.substringBefore('/')
-                                    val destination = "${screenName}/0"
-                                    navController.navigate(destination) {
-                                        popUpTo(navController.graph.findStartDestination().id){
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                    }
+
+    if (isDrawerVisible) {
+        PermanentNavigationDrawer(
+            drawerContent = {
+                PermanentDrawerSheet(modifier = Modifier.width(if (expanded) 248.dp else 96.dp)) {
+                    Spacer(Modifier.height(12.dp))
+                    navigationItems.forEach { screen ->
+                        NavigationDrawerItem(
+                            icon = {
+                                Spacer(Modifier.width(10.dp))
+                                when (screen) {
+                                    Screens.Expand -> Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon ))
+                                    Screens.LessonScreen -> Icon(Screens.LessonScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
+                                    Screens.ManifestationScreen -> Icon(Screens.ManifestationScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
+                                    Screens.ExerciseScreen -> Icon(Screens.ExerciseScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                 }
+                            },
+                            badge = {
+                                if(screen == Screens.Expand) Icon(Icons.Default.Settings, contentDescription = stringResource( id = R.string.content_description_icon ))
+                            },
+                            label = { if (expanded && !screen.equals(Screens.Expand)) Text(screen.title) else null },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                if (screen.route == Screens.Expand.route) {
+                                    expanded = !expanded
+                                }
+                                else {
+                                    if (screen.route == Screens.LessonScreen.route) {
+                                        isFloatingActionVisible = false
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.findStartDestination().id){
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        isFloatingActionVisible = true
+                                        val screenName = screen.route.substringBefore('/')
+                                        val destination = "${screenName}/0"
+                                        navController.navigate(destination) {
+                                            popUpTo(navController.graph.findStartDestination().id){
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    }
 
-                            }
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
-                    if(screen.route == Screens.Expand.route) Spacer(Modifier.height(24.dp))
+                                }
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                        if(screen.route == Screens.Expand.route) Spacer(Modifier.height(24.dp))
+                    }
+
                 }
-
-
             }
+        ) {
+
+            MainScaffold(
+                navController = navController,
+                isDarkTheme = isDarkTheme,
+                isDrawerVisible = isDrawerVisible,
+                isFloatingActionVisible = isFloatingActionVisible,
+                onFloatingActionButtonClick = onFloatingActionButtonClick,
+                onBackButtonClick = onBackButtonClick,
+                onSaveButtonClick = onSaveButtonClick,
+            )
+
         }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Top App Bar") },
+    } else {
+
+        MainScaffold(
+            navController = navController,
+            isDrawerVisible = isDrawerVisible,
+            isFloatingActionVisible = isFloatingActionVisible,
+            onFloatingActionButtonClick = onFloatingActionButtonClick,
+            isDarkTheme = isDarkTheme,
+            onBackButtonClick = onBackButtonClick,
+            onSaveButtonClick = onSaveButtonClick,
+        )
+
+    }
+
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScaffold(
+    navController: NavHostController,
+    isDarkTheme: Boolean,
+    isDrawerVisible: Boolean,
+    isFloatingActionVisible: Boolean,
+    onFloatingActionButtonClick: onDismissType,
+    onBackButtonClick: onDismissType,
+    onSaveButtonClick: onDismissType,
+) {
+    val iconSize = dimensionResource(R.dimen.icon_topbar_size)
+    val marginHorizontal = dimensionResource(R.dimen.margin_horizontal)
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Top App Bar") },
+                navigationIcon = {
+                    if (!isDrawerVisible) {
+                        IconButton(
+                            onClick = {
+                                onBackButtonClick.invoke()
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(iconSize),
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = stringResource(id = R.string.content_description_icon)
+                            )
+                        }
+                    }
+
+                },
+                actions = {
+                    if (!isDrawerVisible) {
+                        IconButton(
+                            onClick = {
+                                //TODO save button event
+                            }
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    onSaveButtonClick.invoke()
+                                }
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(end = 8.dp)
+                                        .size(iconSize),
+                                    imageVector = Icons.Default.Save,
+                                    contentDescription = stringResource(id = R.string.content_description_icon)
+                                )
+                            }
+
+                        }
+
+                    }
+
+                },
 //                    colors = TopAppBarDefaults.topAppBarColors(
 //                        containerColor = MaterialTheme.colorScheme.primaryContainer,
 //                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
 //                    )
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
+            )
+        },
+        bottomBar = {
+            BottomAppBar(
 //                    containerColor = MaterialTheme.colorScheme.primaryContainer,
 //                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        text = "Bottom App Bar"
-                    )
-                }
-            },
-            floatingActionButton = {
-                if (floatingActionButtonVisibility) {
-                    FloatingActionButton(onClick = {
-                        onFloatingActionButtonClick.invoke()
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
-                    }
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = "Bottom App Bar"
+                )
+            }
+        },
+        floatingActionButton = {
+            if (isFloatingActionVisible) {
+                FloatingActionButton(onClick = {
+                    onFloatingActionButtonClick.invoke()
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
-        ) { innerPadding ->
-            AppNavigation(
-                navController = navController,
-                startDest = Screens.ManifestationScreen,
-                innerPadding = innerPadding,
-                isDarkTheme = isDarkTheme,
-            )
         }
+    ) { innerPadding ->
+        AppNavigation(
+            navController = navController,
+            startDest = Screens.ManifestationScreen,
+            innerPadding = innerPadding,
+            isDarkTheme = isDarkTheme,
+        )
     }
 }
-
 
 
 @Composable

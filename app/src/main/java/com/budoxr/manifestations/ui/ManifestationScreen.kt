@@ -18,10 +18,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.NoSim
+import androidx.compose.material.icons.outlined.NoSim
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -209,6 +214,7 @@ fun ManifestationScreenReady(
                 ManifestationFormItem(
                     item = emptyManifestationModel(),
                     isDarkTheme = isDarkTheme,
+                    modifier = Modifier.padding(horizontal = horizontalMargin)
                 )
             }
         }
@@ -223,6 +229,7 @@ fun ManifestationScreenReady(
 fun ManifestationScreenBody(
     manifestationState: ManifestationState,
 ) {
+    val iconSize = dimensionResource(id = R.dimen.icon_big_size)
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
 
@@ -242,11 +249,26 @@ fun ManifestationScreenBody(
             }
         } else {
             item {
-                Text(
-                    text = stringResource(R.string.label_no_records),
-                    style = MaterialTheme.typography.displaySmall,
-                    modifier = Modifier
-                )
+                Row {
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_no_records),
+                            style = MaterialTheme.typography.displaySmall,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+                        Icon(
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(iconSize),
+                            imageVector = Icons.Outlined.NoSim,
+                            contentDescription = stringResource(id = R.string.content_description_icon)
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.padding(vertical = lineSpacing))
             }
         }
@@ -353,8 +375,6 @@ fun ManifestationScreenPreview() {
         )
 
         val viewModel = ManifestationViewModel()
-
-
 
         val manifestationState = ManifestationState(
             isDarkTheme = false,
