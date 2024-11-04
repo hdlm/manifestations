@@ -60,9 +60,11 @@ fun MainScreen() {
         Screens.ExerciseScreen
     )
 
+    val appName =  stringResource(id = R.string.app_name)
     val context = LocalContext.current
     val currentRoute = currentRoute(navController)
     var expanded by remember { mutableStateOf(false) }
+    var topAppBarTitle by remember { mutableStateOf(appName) }
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
 
     var isFloatingActionVisible by remember { mutableStateOf(false)}
@@ -171,6 +173,7 @@ fun MainScreen() {
                                 }
                                 else {
                                     if (screen.route == Screens.LessonScreen.route) {
+                                        topAppBarTitle = screen.title
                                         isFloatingActionVisible = false
                                         navController.navigate(screen.route) {
                                             popUpTo(navController.graph.findStartDestination().id){
@@ -179,6 +182,7 @@ fun MainScreen() {
                                             launchSingleTop = true
                                         }
                                     } else {
+                                        topAppBarTitle = screen.title
                                         isFloatingActionVisible = true
                                         val screenName = screen.route.substringBefore('/')
                                         val destination = "${screenName}/0/0"
@@ -203,6 +207,7 @@ fun MainScreen() {
 
             MainScaffold(
                 navController = navController,
+                topAppBarTitle = topAppBarTitle,
                 isDarkTheme = isDarkTheme,
                 isDrawerVisible = isDrawerVisible,
                 isFloatingActionVisible = isFloatingActionVisible,
@@ -217,6 +222,7 @@ fun MainScreen() {
 
         MainScaffold(
             navController = navController,
+            topAppBarTitle = topAppBarTitle,
             isDrawerVisible = isDrawerVisible,
             isFloatingActionVisible = isFloatingActionVisible,
             onFloatingActionButtonClick = onFloatingActionButtonClick,
@@ -235,6 +241,7 @@ fun MainScreen() {
 @Composable
 fun MainScaffold(
     navController: NavHostController,
+    topAppBarTitle: String,
     isDarkTheme: Boolean,
     isDrawerVisible: Boolean,
     isFloatingActionVisible: Boolean,
@@ -249,7 +256,7 @@ fun MainScaffold(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Top App Bar") },
+                title = { Text(topAppBarTitle) },
                 navigationIcon = {
                     if (!isDrawerVisible) {
                         IconButton(
