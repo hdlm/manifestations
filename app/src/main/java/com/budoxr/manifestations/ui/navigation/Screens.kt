@@ -14,6 +14,6 @@ sealed class Screens (
 ) {
     object Expand: Screens(route = "Expand", title = "Expand", Icons.Default.Menu)
     object LessonScreen: Screens(route = "LessonScreen", title = "Lessons", Icons.Default.School)
-    object ManifestationScreen: Screens(route = "ManifestScreen/{page}", title = "Manifestations", Icons.Default.EventAvailable)
-    object ExerciseScreen: Screens(route = "ExerciseScreen/{page}", title = "Exercises", Icons.AutoMirrored.Filled.EventNote)
+    object ManifestationScreen: Screens(route = "ManifestScreen/{page}/{id}", title = "Manifestations", Icons.Default.EventAvailable)
+    object ExerciseScreen: Screens(route = "ExerciseScreen/{page}/{id}", title = "Exercises", Icons.AutoMirrored.Filled.EventNote)
 }

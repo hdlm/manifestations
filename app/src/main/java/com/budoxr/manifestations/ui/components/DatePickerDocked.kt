@@ -96,10 +96,11 @@ fun DatePickerDocked() {
 @Composable
 fun DatePickerFieldToModal(
     label: String,
+    date: Long?,
     onDateSelected: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var selectedDate by remember { mutableStateOf<Long?>(date) }
     var showModal by remember { mutableStateOf(false) }
 
     OutlinedTextField(

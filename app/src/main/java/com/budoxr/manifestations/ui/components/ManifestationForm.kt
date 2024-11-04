@@ -123,12 +123,14 @@ fun ManifestationForm(
 //        DatePickerDocked()
         DatePickerFieldToModal(
             label = stringResource(R.string.label_creation_date),
+            date = creationDate.time - oneDayMillis,
             onDateSelected = onCreationDateSelected,
             modifier = Modifier
         )
 
         DatePickerFieldToModal(
             label = stringResource(R.string.label_due_date),
+            date = dueDate.time - oneDayMillis,
             onDateSelected = onDueDateSelected,
             modifier = Modifier.padding(vertical = lineSpacing)
         )

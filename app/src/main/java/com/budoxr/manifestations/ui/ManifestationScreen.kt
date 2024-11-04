@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.copy
@@ -73,8 +74,10 @@ data class ManifestationState(
 fun ManifestationScreen(
     navController: NavController,
     page: Int,
+    id: Long,
     isDarkTheme: Boolean,
     innerPadding: PaddingValues,
+    onEditMode: onLongType,
     viewModel: ManifestationViewModel = koinViewModel()
 
 ) {
@@ -104,10 +107,12 @@ fun ManifestationScreen(
             val manifestations by viewModel.flowOfManifestations.collectAsStateWithLifecycle(initialValue = emptyList())
             ManifestationScreenReady(
                 page = page,
+                id = id,
                 innerPadding = innerPadding,
                 manifestations = manifestations,
                 navController = navController,
                 uiState = uiState,
+                onEditMode = onEditMode,
                 viewModel = viewModel,
                 isDarkTheme = isDarkTheme,
             )
@@ -177,10 +182,12 @@ fun ManifestationScreenError(innerPadding: PaddingValues, msg: String, onRetry: 
 @Composable
 fun ManifestationScreenReady(
     page: Int,
+    id: Long,
     innerPadding: PaddingValues,
     manifestations: List<ManifestationModel>,
     navController: NavController,
     uiState: ManifestationScreenUiState.Ready,
+    onEditMode: onLongType,
     viewModel: ManifestationViewModel,
     isDarkTheme: Boolean,
 ) {
@@ -189,13 +196,12 @@ fun ManifestationScreenReady(
     val coroutineScope = rememberCoroutineScope()
     var searchPattern by remember { mutableStateOf("") }
     var nextId by remember { mutableStateOf(0L) }
-    var selectedItem by remember { mutableStateOf(0L) }
+    var selectedItem by remember { mutableStateOf(id) }
     var page by remember { mutableStateOf(page) }
 
     val onLongPress: onLongType = { id ->
         Log.d(TAG, "onLongPress() -> invoked, id: $id")
-        selectedItem = id
-        page = 2
+        onEditMode.invoke(id)
     }
 
     val manifestationState = ManifestationState(
@@ -238,12 +244,14 @@ fun ManifestationScreenReady(
                 }
             }
             2 -> {  // edit a manifestation
-                ManifestationForm(
-                    item = manifestations.find { it.id == selectedItem }!!,
-                    isDarkTheme = isDarkTheme,
-                    saveManifestation = viewModel::saveManifestation,
-                    modifier = Modifier.padding(horizontal = horizontalMargin)
-                )
+                if( manifestations.isNotEmpty()) {
+                    ManifestationForm(
+                        item = manifestations.find { it.id == selectedItem }!!,
+                        isDarkTheme = isDarkTheme,
+                        saveManifestation = viewModel::saveManifestation,
+                        modifier = Modifier.padding(horizontal = horizontalMargin)
+                    )
+                }
 
             }
         }

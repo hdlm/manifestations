@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Hardware
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -45,6 +44,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.ui.navigation.AppNavigation
 import com.budoxr.manifestations.ui.navigation.Screens
@@ -76,6 +76,29 @@ fun MainScreen() {
         val value = navController.popBackStack()
         Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned value: $value")
     }
+    val onEditMode: onLongType = { id ->
+        Log.d(TAG, "onEditMode() -> invoked, id: $id")
+        val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
+        when (currentScreen) {
+            Screens.ManifestationScreen.route -> {
+                isFloatingActionVisible = false
+                isDrawerVisible = false
+                val screenName = Screens.ManifestationScreen.route.substringBefore('/')
+                val destination = "${screenName}/2/$id"
+                navController.navigate(destination)
+            }
+            Screens.ExerciseScreen.route -> {
+                isFloatingActionVisible = false
+                isDrawerVisible = false
+                val screenName = Screens.ExerciseScreen.route.substringBefore('/')
+                val destination = "${screenName}/2/$id"
+                navController.navigate(destination)
+            }
+            else -> {
+                // do nothing
+            }
+        }
+    }
     val onSaveButtonClick: onDismissType = {
         val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
         Log.d(TAG, "onSaveButtonClick() -> invoked, current screen: $currentScreen")
@@ -98,14 +121,14 @@ fun MainScreen() {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
                 val screenName = Screens.ManifestationScreen.route.substringBefore('/')
-                val destination = "${screenName}/1"
+                val destination = "${screenName}/1/0"
                 navController.navigate(destination)
             }
             Screens.ExerciseScreen.route -> {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
                 val screenName = Screens.ExerciseScreen.route.substringBefore('/')
-                val destination = "${screenName}/1"
+                val destination = "${screenName}/1/0"
                 navController.navigate(destination)
             }
             else -> {
@@ -118,7 +141,13 @@ fun MainScreen() {
     if (isDrawerVisible) {
         PermanentNavigationDrawer(
             drawerContent = {
-                PermanentDrawerSheet(modifier = Modifier.width(if (expanded) 248.dp else 96.dp)) {
+                PermanentDrawerSheet(modifier = Modifier
+                    .padding(end = 16.dp)
+                    .width(if (expanded) 248.dp else 96.dp),
+                    drawerContentColor = MaterialTheme.colorScheme.onTertiary,
+                    drawerContainerColor = MaterialTheme.colorScheme.tertiary,
+                    drawerShape = MaterialTheme.shapes.small
+                ) {
                     Spacer(Modifier.height(12.dp))
                     navigationItems.forEach { screen ->
                         NavigationDrawerItem(
@@ -152,7 +181,7 @@ fun MainScreen() {
                                     } else {
                                         isFloatingActionVisible = true
                                         val screenName = screen.route.substringBefore('/')
-                                        val destination = "${screenName}/0"
+                                        val destination = "${screenName}/0/0"
                                         navController.navigate(destination) {
                                             popUpTo(navController.graph.findStartDestination().id){
                                                 saveState = true
@@ -179,6 +208,7 @@ fun MainScreen() {
                 isFloatingActionVisible = isFloatingActionVisible,
                 onFloatingActionButtonClick = onFloatingActionButtonClick,
                 onBackButtonClick = onBackButtonClick,
+                onEditMode = onEditMode,
                 onSaveButtonClick = onSaveButtonClick,
             )
 
@@ -192,6 +222,7 @@ fun MainScreen() {
             onFloatingActionButtonClick = onFloatingActionButtonClick,
             isDarkTheme = isDarkTheme,
             onBackButtonClick = onBackButtonClick,
+            onEditMode = onEditMode,
             onSaveButtonClick = onSaveButtonClick,
         )
 
@@ -209,6 +240,7 @@ fun MainScaffold(
     isFloatingActionVisible: Boolean,
     onFloatingActionButtonClick: onDismissType,
     onBackButtonClick: onDismissType,
+    onEditMode: onLongType,
     onSaveButtonClick: onDismissType,
 ) {
     val iconSize = dimensionResource(R.dimen.icon_topbar_size)
@@ -269,16 +301,16 @@ fun MainScaffold(
             )
         },
         bottomBar = {
-            BottomAppBar(
+//            BottomAppBar(
 //                    containerColor = MaterialTheme.colorScheme.primaryContainer,
 //                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = "Bottom App Bar"
-                )
-            }
+//            ) {
+//                Text(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    textAlign = TextAlign.Center,
+//                    text = "Bottom App Bar"
+//                )
+//            }
         },
         floatingActionButton = {
             if (isFloatingActionVisible) {
@@ -292,9 +324,10 @@ fun MainScaffold(
     ) { innerPadding ->
         AppNavigation(
             navController = navController,
-            startDest = Screens.ManifestationScreen,
+            startDest = Screens.LessonScreen,
             innerPadding = innerPadding,
             isDarkTheme = isDarkTheme,
+            onEditMode = onEditMode,
         )
     }
 }

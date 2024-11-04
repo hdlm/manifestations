@@ -17,6 +17,7 @@ import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 fun ExerciseScreen(
     navController: NavController,
     page: Int,
+    id: Long,
     innerPadding: PaddingValues,
 //    viewModel: ExerciseScreen = getViewModel()
 
