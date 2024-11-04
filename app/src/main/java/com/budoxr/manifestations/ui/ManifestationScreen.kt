@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,13 +39,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
-import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.commons.onBooleanType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.copy
@@ -53,8 +55,9 @@ import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationScreenUiState
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
+import com.budoxr.manifestations.ui.components.HorizontalDraggableManifestationItemList
 import com.budoxr.manifestations.ui.components.ManifestationForm
-import com.budoxr.manifestations.ui.components.ManifestationListItem
+import com.budoxr.manifestations.ui.components.ValidationDialog
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.spirituality
@@ -66,6 +69,7 @@ data class ManifestationState(
     val isDarkTheme: Boolean,
     val manifestations: List<ManifestationModel>,
     val categoryColor: (String, Context) -> Color,
+    val onItemDeleteClick: (ManifestationModel) -> Unit,
     val dateDifference: (String, String) -> Long,
     val onLongPress: onLongType,
 )
@@ -198,16 +202,31 @@ fun ManifestationScreenReady(
     var nextId by remember { mutableStateOf(0L) }
     var selectedItem by remember { mutableStateOf(id) }
     var page by remember { mutableStateOf(page) }
+    var showDialog by remember { mutableStateOf(false) }
 
     val onLongPress: onLongType = { id ->
         Log.d(TAG, "onLongPress() -> invoked, id: $id")
         onEditMode.invoke(id)
+    }
+    val onItemDeleteClick: (ManifestationModel) -> Unit = { manifestation ->
+        Log.d(TAG, "onItemDeleteClick() -> invoked, manifestation id: ${manifestation.id}")
+        selectedItem = manifestation.id!!
+        showDialog = true
+    }
+    val onButtonManifestationConfirmationDelete: onBooleanType = { confirm ->
+        Log.d(TAG, "onButtonManifestationConfirmationDelete() -> invoked: $confirm, id: ${selectedItem} ")
+        if (confirm) {
+            viewModel.deleteManifestation(manifestations.filter { it.id == selectedItem }.first())
+        }
+        showDialog = false
+        selectedItem = 0L
     }
 
     val manifestationState = ManifestationState(
         isDarkTheme = isDarkTheme,
         manifestations = manifestations,
         categoryColor = viewModel::categoryColor,
+        onItemDeleteClick = onItemDeleteClick,
         dateDifference = viewModel::dateDifference,
         onLongPress = onLongPress,
     )
@@ -256,6 +275,19 @@ fun ManifestationScreenReady(
             }
         }
 
+        if (showDialog) {
+            val msg = stringResource(id = R.string.label_retry).replace("AAA", manifestations.find { it.id == selectedItem }!!.overview)
+            ValidationDialog(
+                modifier = Modifier,
+                title = stringResource(id = R.string.title_confirm_remove),
+                msg = msg,
+                buttonLabels = Pair(
+                    stringResource(id = R.string.button_validation_confirm),
+                    stringResource(id = R.string.button_validation_cancel),
+                ),
+                onDone = onButtonManifestationConfirmationDelete
+            )
+        }
     }
 
 }
@@ -269,31 +301,33 @@ fun ManifestationScreenBody(
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
 
-    LazyColumn(modifier = Modifier.padding(marginHorizontal)) {
+    LazyColumn(modifier = Modifier.padding(end = marginHorizontal)) {
         item {
             //TODO colocar el filtro Search
         }
 
         if (manifestationState.manifestations.isNotEmpty()) {
             items(manifestationState.manifestations) { item ->
-                ManifestationListItem(
+                HorizontalDraggableManifestationItemList(
                     item = item,
                     days = manifestationState.dateDifference.invoke(Date().toFechaTimeDb(), item.dueDate),
                     isDarkTheme = manifestationState.isDarkTheme,
                     categoryColor = manifestationState.categoryColor,
+                    onItemDeleteClick = manifestationState.onItemDeleteClick,
                     onLongPress = manifestationState.onLongPress,
                 )
                 Spacer(modifier = Modifier.padding(vertical = lineSpacing))
             }
         } else {
             item {
-                Row {
-                    Column (
+                Row (modifier = Modifier.fillMaxWidth()) {
+                    Column (modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = stringResource(R.string.label_no_records),
                             style = MaterialTheme.typography.displaySmall,
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
                         )
                         Spacer(modifier = Modifier.padding(vertical = lineSpacing))
@@ -345,6 +379,7 @@ fun ManifestationScreenPreview() {
         isDarkTheme = false,
         manifestations = listOfManifestations,
         categoryColor = { _, _ -> spirituality },
+        onItemDeleteClick = { _ ->},
         dateDifference = { _, _ -> 5L },
         onLongPress = { _ ->},
     )

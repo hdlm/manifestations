@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
 
 enum class DragAnchors(val fraction: Float) {
     Start(1.0f),
-    End(-2.50f),
+    End(-3.50f),
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -77,7 +77,7 @@ fun HorizontalDraggableManifestationItemList(
     days: Long,
     isDarkTheme: Boolean,
     categoryColor: (String, Context) -> Color,
-    onItemDeleteClick: onLongType,
+    onItemDeleteClick: (ManifestationModel) -> Unit,
     onLongPress: onLongType,
     modifier: Modifier = Modifier,
 ) {
@@ -107,7 +107,7 @@ fun HorizontalDraggableManifestationItemList(
     var contentSize by remember { mutableStateOf( IntSize(0, 0)) }
     var contentWidthSizePx = 0
     val factor = 0.95f
-    val itemHeightDp  = 82.dp
+    val itemHeightDp  = 150.dp
 
     Box(
         modifier = Modifier
@@ -144,7 +144,6 @@ fun HorizontalDraggableManifestationItemList(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Box (modifier = Modifier
-                    .padding(end = 10.dp)
                 ) {
                     Row  {
                         Column (
@@ -152,7 +151,7 @@ fun HorizontalDraggableManifestationItemList(
                         ) {
 
                             IconButton(
-                                onClick = { /* onReceiverDeleteClick.invoke( item ) */ }
+                                onClick = {  onItemDeleteClick.invoke( item )  }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,

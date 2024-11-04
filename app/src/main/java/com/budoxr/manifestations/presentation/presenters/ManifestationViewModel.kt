@@ -13,6 +13,7 @@ import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.domain.SessionModel
+import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertWorkerUseCase
@@ -32,6 +33,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
     private val manifestationLastIdUseCase : ManifestationLastIdUseCase by inject()
     private val manifestationInfoUseCase: ManifestationInfoUseCase by inject()
     private val manifestationInsertUseCase: ManifestationInsertUseCase by inject()
+    private val manifestationDeleteUseCase: ManifestationDeleteUseCase by inject()
     private val manifestationInsertWorkerUseCase: ManifestationInsertWorkerUseCase by inject()
     val util: Utily by inject()
     private val categoryHelper: CategoryHelper by inject()
@@ -129,6 +131,14 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
             manifestationInsertUseCase.invoke(manifestation.toEntity())
         }
 
+    }
+
+
+    fun deleteManifestation(manifestation: ManifestationModel) {
+        Log.d(TAG, "deleteManifestation() -> called, id: ${manifestation.id}")
+        viewModelScope.launch(Dispatchers.IO) {
+            manifestationDeleteUseCase.invoke(manifestation.toEntity())
+        }
     }
 
 }

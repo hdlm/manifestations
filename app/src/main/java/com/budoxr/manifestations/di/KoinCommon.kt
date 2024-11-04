@@ -14,6 +14,7 @@ import com.budoxr.manifestations.data.repositories.ManifestationLocalRepositoryI
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.presenters.LessonViewModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
+import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertWorkerUseCase
@@ -50,6 +51,7 @@ object Modules {
         factory { ManifestationInfoUseCase() }
         factory { ManifestationInsertUseCase() }
         factory { ManifestationLastIdUseCase() }
+        factory { ManifestationDeleteUseCase() }
         factory<ManifestationLocalRepository> { ManifestationLocalRepositoryImpl() }
     }
 
