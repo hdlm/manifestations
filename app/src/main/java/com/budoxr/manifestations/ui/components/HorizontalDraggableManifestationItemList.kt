@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,7 @@ import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.alert
 import com.budoxr.manifestations.ui.theme.bright
+import com.budoxr.manifestations.ui.theme.dark
 import com.budoxr.manifestations.ui.theme.gray
 import com.budoxr.manifestations.ui.theme.grayLight
 import com.budoxr.manifestations.ui.theme.orange
@@ -135,7 +137,7 @@ fun HorizontalDraggableManifestationItemList(
         ) {
             Box (modifier = Modifier
                 .size(
-                    width = 140.dp,
+                    width = with(density) { contentSize.width.toDp()/2 },
                     height = itemHeightDp
 //                    height = with(density) { contentSize.height.toDp() }
                 )
@@ -146,7 +148,7 @@ fun HorizontalDraggableManifestationItemList(
                 Box (modifier = Modifier
                 ) {
                     Row  {
-                        Column (
+                        Column ( modifier = Modifier.padding(end = 10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
 
@@ -211,7 +213,7 @@ fun HorizontalDraggableManifestationItemList(
             ) {
                 Column (modifier = modifier
                     .fillMaxWidth()
-                    .padding(top = marginHorizontal, bottom = lineSpacing, start = marginHorizontal, end = marginHorizontal)
+                    .padding(top = marginHorizontal, start = marginHorizontal, end = marginHorizontal)
                 ) {
                     Text(
                         text = item.overview,
@@ -225,10 +227,9 @@ fun HorizontalDraggableManifestationItemList(
                         modifier = Modifier
                     )
                     Spacer(modifier = Modifier.padding(vertical = separator))
-                    Row (modifier = Modifier
-                        .fillMaxWidth()
+                    Row (modifier = Modifier .fillMaxWidth(),
                     ) {
-                        Column {
+                        Column (verticalArrangement = Arrangement.Bottom) {
                             Row (verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = stringResource(R.string.label_days) + ":",
@@ -238,31 +239,34 @@ fun HorizontalDraggableManifestationItemList(
                                 Box(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background( if(days >= 15) grayLight else if(days < 15 && days >= 5) orange else if(days < 5 && days >= 1) Color.Magenta else alert )
+//                                        .size(40.dp)
+//                                        .clip(CircleShape)
+                                        .clip(MaterialTheme.shapes.small)
+                                        .background( if(days >= 15) grayLight else if(days < 15 && days >= 5) orange else if(days < 5 && days >= 1) Color.Magenta else passion )
                                 ) {
-                                    Text(
-                                        text = days.toString(), style = MaterialTheme.typography.labelMedium
+                                    Text( modifier = Modifier.padding(horizontal = lineSpacing, vertical = 3.dp),
+                                        text = days.toString(), style = MaterialTheme.typography.bodyMedium,
                                     )
                                 }
                             }
                         }
                         Column (modifier = Modifier
                             .weight(1f),
+                            verticalArrangement = Arrangement.Bottom,
                             horizontalAlignment = Alignment.End
                         ) {
                             Box (
                                 modifier = modifier
                                     .clip(MaterialTheme.shapes.small)
                                     .background(categoryColor(item.category, context)),
+                                contentAlignment = Alignment.BottomEnd
                             ) {
                                 Text(
                                     text = item.category,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = bright,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
-                                        .padding(lineSpacing)
+                                        .padding(horizontal = lineSpacing, vertical = 3.dp)
                                 )
                             }
                         }

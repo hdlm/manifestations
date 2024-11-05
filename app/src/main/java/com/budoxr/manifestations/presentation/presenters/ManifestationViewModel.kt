@@ -70,6 +70,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
                     return@combine ManifestationScreenUiState.Loading
                 }
 
+                delay(50)
                 ManifestationScreenUiState.Ready
 
             }.catch { throwable ->
