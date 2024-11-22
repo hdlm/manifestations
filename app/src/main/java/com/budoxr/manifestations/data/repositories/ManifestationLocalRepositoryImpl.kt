@@ -1,6 +1,5 @@
 package com.budoxr.manifestations.data.repositories
 
-import com.budoxr.manifestations.data.database.AppDatabase
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +21,10 @@ class ManifestationLocalRepositoryImpl : ManifestationLocalRepository, KoinCompo
 
     override suspend fun insert(manifestation: ManifestationEntity) =
         manifestationDao.insertManifestation(manifestation)
+
+
+    override suspend fun insertAll(manifestations: List<ManifestationEntity>) =
+        manifestationDao.insertAllManifestation(manifestations)
 
     override suspend fun delete(manifestation: ManifestationEntity) =
         manifestationDao.deleteManifestation(manifestation)

@@ -1,9 +1,15 @@
 package com.budoxr.manifestations.commons.util
 
 import com.budoxr.manifestations.commons.toLocalDate
+import com.budoxr.manifestations.data.database.entities.ManifestationEntity
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeout
+import java.util.concurrent.TimeUnit
+import com.budoxr.manifestations.data.mapper.toEntity
+import com.budoxr.manifestations.presentation.domain.ManifestationModel
 
 class Utily {
 
@@ -29,9 +35,14 @@ class Utily {
     @Throws(Exception::class)
     suspend fun <T> performAsyncOperation(
         scope: CoroutineScope,
+        timeout: Long,
+        timeUnit: TimeUnit,
+        dispatcher: CoroutineDispatcher,
         operation: suspend () -> T
-    ): Deferred<T> = scope.async {
-        operation()
+    ): Deferred<T> = scope.async(dispatcher) {
+        withTimeout(timeUnit.toMillis(timeout)) {
+            operation()
+        }
     }
 
     /**
@@ -43,5 +54,16 @@ class Utily {
         val daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate)
         return daysBetween
     }
+
+
+    /**
+     * The function is responsible for transforming a list of objects of type T into a list of objects of type R.
+     * Is is used to transform domains classes from Model to Entity and vice versa.
+     */
+    inline fun <T,R> transformList(input: List<T>, transformer: (T) -> R): List<R> {
+        return input.map { transformer(it) }
+
+    }
+
 
 }

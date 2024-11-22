@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,21 +39,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
+import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.data.repositories.LocalPref
+import com.budoxr.manifestations.ui.components.SettingBottomSheet
 import com.budoxr.manifestations.ui.navigation.AppNavigation
 import com.budoxr.manifestations.ui.navigation.Screens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    askReadExternalStoragePermission: () -> Boolean,
+    askWriteExternalStoragePermission: () -> Boolean,
+) {
     val navController = rememberNavController()
     val navigationItems = listOf(
         Screens.Expand,
         Screens.LessonScreen,
         Screens.ManifestationScreen,
-        Screens.ExerciseScreen
+        Screens.ExerciseScreen,
+        Screens.SettingScreen
     )
 
     val appName =  stringResource(id = R.string.app_name)
@@ -63,6 +68,7 @@ fun MainScreen() {
     var expanded by remember { mutableStateOf(false) }
     var topAppBarTitle by remember { mutableStateOf(appName) }
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
+    var showSettings by remember { mutableStateOf(false) }
 
     var isFloatingActionVisible by remember { mutableStateOf(false)}
     var isDrawerVisible by remember { mutableStateOf(true)}
@@ -111,6 +117,10 @@ fun MainScreen() {
         }
 
     }
+    val onSettingsButtonClick: onDismissType = {
+        Log.d(TAG, "onSettingsButtonClick() -> invoked")
+        showSettings = true
+    }
     val onFloatingActionButtonClick: onDismissType = {
         Log.d(TAG, "onFloatingActionButtonClick() -> invoked")
 
@@ -153,23 +163,25 @@ fun MainScreen() {
                             icon = {
                                 Spacer(Modifier.width(10.dp))
                                 when (screen) {
-                                    Screens.Expand -> Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon ))
+                                    Screens.Expand -> { Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon )) }
                                     Screens.LessonScreen -> Icon(Screens.LessonScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.ManifestationScreen -> Icon(Screens.ManifestationScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.ExerciseScreen -> Icon(Screens.ExerciseScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
+                                    Screens.SettingScreen -> Icon(Screens.SettingScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                 }
                             },
                             badge = {
-                                if(screen == Screens.Expand) Icon(Icons.Default.Settings, contentDescription = stringResource( id = R.string.content_description_icon ))
+                                if(screen == Screens.Expand) Icon(Icons.Default.ArrowBackIosNew, contentDescription = stringResource( id = R.string.content_description_icon ))
                             },
                             label = { if (expanded && !screen.equals(Screens.Expand)) Text(screen.title) else null },
                             selected = currentRoute == screen.route,
                             onClick = {
                                 if (screen.route == Screens.Expand.route) {
                                     expanded = !expanded
+                                    Log.d(TAG, "expanded: $expanded")
                                 }
                                 else {
-                                    if (screen.route == Screens.LessonScreen.route) {
+                                    if (screen.route == Screens.LessonScreen.route ) {
                                         topAppBarTitle = screen.title
                                         isFloatingActionVisible = false
                                         navController.navigate(screen.route) {
@@ -178,6 +190,8 @@ fun MainScreen() {
                                             }
                                             launchSingleTop = true
                                         }
+                                    } else if (screen.route == Screens.SettingScreen.route) {
+                                        onSettingsButtonClick.invoke()
                                     } else {
                                         topAppBarTitle = screen.title
                                         isFloatingActionVisible = true
@@ -202,6 +216,9 @@ fun MainScreen() {
             }
         ) {
 
+            if (askReadExternalStoragePermission.invoke()) {
+                askWriteExternalStoragePermission.invoke()
+            }
             MainScaffold(
                 navController = navController,
                 topAppBarTitle = topAppBarTitle,
@@ -229,6 +246,14 @@ fun MainScreen() {
             onSaveButtonClick = onSaveButtonClick,
         )
 
+    }
+
+    if (showSettings) {
+        SettingBottomSheet(
+            onDismissBottomSheet = { showSettings = false },
+            askReadExternalStoragePermission = askReadExternalStoragePermission,
+            askWriteExternalStoragePermission = askWriteExternalStoragePermission
+        )
     }
 
 }
@@ -348,7 +373,10 @@ private fun currentRoute(navController: NavHostController): String? {
 @Composable
 fun MainScreenPreview() {
     MaterialTheme {
-        MainScreen()
+        MainScreen(
+            askWriteExternalStoragePermission = {true},
+            askReadExternalStoragePermission = {true}
+        )
     }
 }
 

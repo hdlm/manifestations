@@ -14,6 +14,9 @@ interface ManifestationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertManifestation(manifestation: ManifestationEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllManifestation(manifestations: List<ManifestationEntity>)
+
     @Delete
     suspend fun deleteManifestation(manifestation: ManifestationEntity)
 

@@ -22,6 +22,10 @@ interface ManifestationLocalRepository {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
+    suspend fun insertAll(manifestations: List<ManifestationEntity>)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
     suspend fun delete(manifestation: ManifestationEntity)
 
 }

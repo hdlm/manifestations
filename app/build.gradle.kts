@@ -20,16 +20,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments(
+                    mapOf("room.schemaLocation" to "$projectDir/schemas")
+                )
+            }
         }
+
     }
 
     sourceSets {
@@ -45,11 +44,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -60,6 +57,31 @@ android {
         }
     }
 
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    buildTypes {
+        debug {
+//            buildConfigField("boolean", "DEBUG", "true")
+            isDebuggable = true
+            isShrinkResources = false
+            isMinifyEnabled = false
+        }
+        release {
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
     applicationVariants.all {
         if (android.buildToolsVersion >= "33.0.0") {
             sourceSets {
@@ -67,6 +89,8 @@ android {
             }
         }
     }
+
+
 
 
 }
@@ -102,11 +126,10 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler.ksp)
     implementation(libs.room.ktx)
-//    implementation(libs.room.common)
     androidTestImplementation(libs.room.test)
     implementation(libs.exoplayer)
     implementation(libs.workmanager.kotlin.coroutines)
-    implementation(libs.workmanager.test)
+    androidTestImplementation(libs.workmanager.test)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

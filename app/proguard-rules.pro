@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+
+##---------------Begin: proguard configuration for Moshi  ----------
+-keep class * extends com.squareup.moshi.LinkedHashTreeMap
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.budoxr.manifestations.presentation.domain.** { <fields>; }
+

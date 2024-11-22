@@ -35,6 +35,7 @@ fun ManifestationEntity.toModel() =
         category = category,
     )
 
+
 fun emptyManifestationModel() =
     ManifestationModel(
         id = null,

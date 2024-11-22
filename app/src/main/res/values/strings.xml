@@ -44,5 +44,17 @@
         <item name="Spirituality">Spirituality</item>
     </string-array>
 
+    <!-- Setting -->
+    <string name="button_backup">Backup database</string>
+    <string name="button_restore">Restore database</string>
+    <string name="button_export">Export database</string>
+    <string name="button_import">Import database</string>
+    <string name="title_settings">Settings</string>
+    <string name="label_no_folder_selected">No folder selected</string>
+    <string name="label_close">X</string>
+    <string name="label_speech_rate">Speech rate</string>
+    <string name="label_export">Export backup</string>
+    <string name="label_import">Import backup</string>
+
 
 </resources>

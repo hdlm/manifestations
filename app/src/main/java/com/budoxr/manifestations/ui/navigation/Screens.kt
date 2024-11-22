@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screens (
@@ -16,4 +17,5 @@ sealed class Screens (
     object LessonScreen: Screens(route = "LessonScreen", title = "Lessons", Icons.Default.School)
     object ManifestationScreen: Screens(route = "ManifestScreen/{page}/{id}", title = "Manifestations", Icons.Default.EventAvailable)
     object ExerciseScreen: Screens(route = "ExerciseScreen/{page}/{id}", title = "Exercises", Icons.AutoMirrored.Filled.EventNote)
+    object SettingScreen: Screens(route = "SettingScreen/", title = "Setting", Icons.Default.Settings)
 }

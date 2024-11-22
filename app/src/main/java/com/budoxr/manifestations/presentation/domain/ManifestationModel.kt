@@ -33,3 +33,10 @@ class ManifestationModel(
 
     }
 }
+
+@JsonClass(generateAdapter = true)
+data class ManifestationsWrapper(
+    @Json(name = "manifestations") val manifestations: List<ManifestationModel>
+)
+
+

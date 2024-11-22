@@ -1,14 +1,17 @@
 package com.budoxr.manifestations
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.data.repositories.LocalPref.LOCAL_PREF
 import com.budoxr.manifestations.di.Modules.appModule
@@ -23,6 +26,21 @@ import org.koin.core.context.startKoin
 import org.koin.core.error.ApplicationAlreadyStartedException
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var requestedPermission: String
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        Log.d(TAG, "registerForActivityResult() -> returned, granted: $granted")
+        if (granted) {
+            // permission is granted
+        } else {
+            Log.d(TAG, "permission: \'$requestedPermission\', denied.")
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -33,6 +51,12 @@ class MainActivity : ComponentActivity() {
                 val value = intent.extras?.getString(key)  // fix the deprecated warning of the line above
                 Log.d(TAG, "Key: $key Value: $value")
             }
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.d("MyApp", "Debug mode enabled")
+        } else {
+            Log.d("MyApp", "Debug mode disabled")
         }
 
         try {
@@ -58,12 +82,62 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
 //                    color =  MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(
+                        askReadExternalStoragePermission = this::askReadExternalStoragePermission,
+                        askWriteExternalStoragePermission = this::askWriteExternalStoragePermission,
+                    )
                 }
             }
 
         }
     }
+
+
+
+    fun askReadExternalStoragePermission(): Boolean {
+        Log.i(TAG, "askReadExternalStoragePermission() -> called")
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.i(TAG, "Read External Storage permission granted")
+            return true
+
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            // TODO: display an educational UI explaining to the user the features that will be enabled
+            //       by them granting the READ_EXTERNAL_STORAGE permission. This UI should provide the user
+            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+            //       If the user selects "No thanks," allow the user to continue without notifications.
+        } else {
+            // Directly ask for the permission
+            requestedPermission = Manifest.permission.READ_EXTERNAL_STORAGE
+            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        return false
+    }
+
+    fun askWriteExternalStoragePermission(): Boolean {
+        Log.i(TAG, "askWriteExternalStoragePermission() -> called")
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.i(TAG, "Write External Storage permission granted")
+            return true
+
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            // TODO: display an educational UI explaining to the user the features that will be enabled
+            //       by them granting the WRITE_EXTERNAL_STORAGE permission. This UI should provide the user
+            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+            //       If the user selects "No thanks," allow the user to continue without notifications.
+        } else {
+            // Directly ask for the permission
+            requestedPermission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        return false
+    }
+
 }
+
+
 
 private const val TAG = "che.MainActivity"

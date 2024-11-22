@@ -120,3 +120,6 @@ release/
 # Google Services (e.g. APIs or Firebase)
 # google-services.json
 
+# Custom files
+LEERME.txt
+

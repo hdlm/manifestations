@@ -9,11 +9,14 @@ import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.util.Utily
+import com.budoxr.manifestations.data.mapper.emptyConfigModel
 import com.budoxr.manifestations.data.mapper.emptyLessonModel
 import com.budoxr.manifestations.data.repositories.LocalStorage
+import com.budoxr.manifestations.presentation.domain.ConfigModel
 import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.domain.TextContent
+import com.budoxr.manifestations.presentation.usecase.ConfigInfoUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,12 +27,15 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.component.get
 import java.io.Reader
 
 class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent {
 
+    private val configInfoUseCase: ConfigInfoUseCase by inject()
     private val localStorage : LocalStorage by inject()
     private val utily: Utily by inject()
+
 
     private val lessons = localStorage.getLessons(context).shareIn(
         scope = viewModelScope,
@@ -49,7 +55,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
     val meditationContent: TextContent
         get() = _meditationContent
 
-    private var _textToSpeech  = TextToSpeechHelper(context)
+    private var _textToSpeech: TextToSpeechHelper = get()
     val textToSpeech: TextToSpeechHelper
         get() = _textToSpeech
 
@@ -116,7 +122,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
 
 
     fun loadMeditation(fileName: String) {
-        val file = localStorage.loadFileFromAssets(context, fileName)
+        val file = localStorage.loadFileStreamFromAssets(context, fileName)
         val reader = file.reader()
         val paragraphs = getParagraphs(reader)
         Log.d(TAG, "loadMeditation() -> filename: $fileName, loaded.")

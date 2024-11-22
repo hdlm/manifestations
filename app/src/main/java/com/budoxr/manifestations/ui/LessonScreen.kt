@@ -58,7 +58,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CommonValues
-import com.budoxr.manifestations.commons.onBooleanType
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.onStringType

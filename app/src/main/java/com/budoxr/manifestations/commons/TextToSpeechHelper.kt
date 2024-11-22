@@ -4,50 +4,74 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import com.budoxr.manifestations.data.mapper.emptyConfigModel
+import com.budoxr.manifestations.presentation.domain.ConfigModel
+import com.budoxr.manifestations.presentation.usecase.ConfigInfoUseCase
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.component.inject
 import java.util.Locale
 import java.util.UUID
+import kotlin.getValue
 
-class TextToSpeechHelper(context: Context) : KoinComponent, TextToSpeech.OnInitListener {
-    private var tts: TextToSpeech? = null
+@OptIn(DelicateCoroutinesApi::class)
+class TextToSpeechHelper(private val context: Context) : KoinComponent, TextToSpeech.OnInitListener {
+    private val configInfoUseCase: ConfigInfoUseCase by inject()
+    private var _tts: TextToSpeech? = null
+    private val _config = MutableStateFlow(emptyConfigModel())
+    val config: MutableStateFlow<ConfigModel>
+        get() = _config
+
+
     var onDone : onDismissType = {}
     var onError : onStringType = {}
 
     init {
-        initializeTTS(context)
+        GlobalScope.launch {
+            _config.value = configInfoUseCase.invoke()
+            initializeTTS(context, _config.value.speechRate)
+        }
+
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale("es", "MX") // Set language to Mexican Spanish
-            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {
-                    // Called when the utterance starts
-                    Log.i(TAG, "Speech stared")
+            _tts?.let {
+                if( it.isLanguageAvailable(Locale(CommonValues.LANGUAGE, CommonValues.COUNTRY)) == TextToSpeech.LANG_AVAILABLE) {
+                    it.language = Locale(CommonValues.LANGUAGE, CommonValues.COUNTRY)
+                    it.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                        override fun onStart(utteranceId: String?) {
+                            // Called when the utterance starts
+                            Log.i(TAG, "Speech stared")
+                        }
+
+                        /**
+                         * Called when the utterance is done
+                         */
+                        override fun onDone(utteranceId: String?) {
+                            Log.i(TAG, "Speak finished.")
+
+                            val scope: AppScope = get()
+                            scope.launch {
+                                delay(CommonValues.SPEAK_DELAY)
+                                onDone.invoke()
+                            }
+
+                        }
+
+                        override fun onError(utteranceId: String?) {
+                            Log.e(TAG, "Speak error.")
+                            onError("There was a problem with the Speech To Speech (TTS).")
+                        }
+                    })
                 }
+            }
 
-                /**
-                 * Called when the utterance is done
-                 */
-                override fun onDone(utteranceId: String?) {
-                    Log.i(TAG, "Speak finished.")
-
-                    val scope: AppScope = get()
-                    scope.launch {
-                        delay(CommonValues.SPEAK_DELAY)
-                        onDone.invoke()
-                    }
-
-                }
-
-                override fun onError(utteranceId: String?) {
-                    Log.e(TAG, "Speak error.")
-                    onError("There was a problem with the Speech To Speech (TTS).")
-                }
-            })
         }
     }
 
@@ -57,21 +81,24 @@ class TextToSpeechHelper(context: Context) : KoinComponent, TextToSpeech.OnInitL
         val params = HashMap<String, String>()
         params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = "utteranceId"
 //        tts?.speak(phrases, TextToSpeech.QUEUE_FLUSH, params, ) // deprecated
-        tts?.speak(phrases, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        _tts?.setSpeechRate(config.value.speechRate)
+        _tts?.speak(phrases, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
     }
 
     fun shutdown() {
-        tts?.shutdown()
+        _tts?.shutdown()
     }
 
     fun restart(context: Context) {
         shutdown()
-        initializeTTS(context)
+        initializeTTS(context, _config.value.speechRate)
         Log.i(TAG, "TextToSpeech restarted")
     }
 
-    private fun initializeTTS(context: Context) {
-        tts = TextToSpeech(context, this)
+    private fun initializeTTS(context: Context, speechRate: Float) {
+        _tts = TextToSpeech(context, this)
+        _tts?.setSpeechRate(speechRate)
+        Log.d(TAG, "initializeTTS() -> speechRate: $speechRate")
     }
 
 

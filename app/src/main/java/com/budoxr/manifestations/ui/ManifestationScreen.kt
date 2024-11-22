@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
+import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onBooleanType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
@@ -61,9 +62,11 @@ import com.budoxr.manifestations.ui.components.ValidationDialog
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.spirituality
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 data class ManifestationState(
     val isDarkTheme: Boolean,
@@ -246,7 +249,7 @@ fun ManifestationScreenReady(
                 LaunchedEffect(Unit) {
                     Log.d(TAG, "LaunchedEffect running the coroutine")
                     coroutineScope.launch {
-                        nextId = viewModel.util.performAsyncOperation(this) {
+                        nextId = viewModel.util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
                             viewModel.lastId()
                         }.await()
                         nextId++
