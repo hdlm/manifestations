@@ -48,6 +48,7 @@ import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onBooleanType
+import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.copy
@@ -74,17 +75,17 @@ data class ManifestationState(
     val categoryColor: (String, Context) -> Color,
     val onItemDeleteClick: (ManifestationModel) -> Unit,
     val dateDifference: (String, String) -> Long,
-    val onLongPress: onLongType,
+    val onLongPress: onIntType,
 )
 
 @Composable
 fun ManifestationScreen(
     navController: NavController,
     page: Int,
-    id: Long,
+    id: Int,
     isDarkTheme: Boolean,
     innerPadding: PaddingValues,
-    onEditMode: onLongType,
+    onEditMode: onIntType,
     viewModel: ManifestationViewModel = koinViewModel()
 
 ) {
@@ -189,12 +190,12 @@ fun ManifestationScreenError(innerPadding: PaddingValues, msg: String, onRetry: 
 @Composable
 fun ManifestationScreenReady(
     page: Int,
-    id: Long,
+    id: Int,
     innerPadding: PaddingValues,
     manifestations: List<ManifestationModel>,
     navController: NavController,
     uiState: ManifestationScreenUiState.Ready,
-    onEditMode: onLongType,
+    onEditMode: onIntType,
     viewModel: ManifestationViewModel,
     isDarkTheme: Boolean,
 ) {
@@ -202,12 +203,12 @@ fun ManifestationScreenReady(
 
     val coroutineScope = rememberCoroutineScope()
     var searchPattern by remember { mutableStateOf("") }
-    var nextId by remember { mutableStateOf(0L) }
+    var nextId by remember { mutableStateOf(0) }
     var selectedItem by remember { mutableStateOf(id) }
     var page by remember { mutableStateOf(page) }
     var showDialog by remember { mutableStateOf(false) }
 
-    val onLongPress: onLongType = { id ->
+    val onLongPress: onIntType = { id ->
         Log.d(TAG, "onLongPress() -> invoked, id: $id")
         onEditMode.invoke(id)
     }
@@ -222,7 +223,7 @@ fun ManifestationScreenReady(
             viewModel.deleteManifestation(manifestations.filter { it.id == selectedItem }.first())
         }
         showDialog = false
-        selectedItem = 0L
+        selectedItem = 0
     }
 
     val manifestationState = ManifestationState(
@@ -361,7 +362,7 @@ fun ManifestationScreenPreview() {
 
     val listOfManifestations: List<ManifestationModel> = listOf(
         ManifestationModel(
-            id = 1L,
+            id = 1,
             overview = "Ingreso de USD 6K",
             description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
             creationDate = Date().toFechaTimeDb(),
@@ -369,7 +370,7 @@ fun ManifestationScreenPreview() {
             category = CATEGORIES.WEALTH.key,
         ),
         ManifestationModel(
-            id = 2L,
+            id = 2,
             overview = "Facturacion mensual de USD 250K",
             description = "estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
             creationDate = Date().toFechaTimeDb(),

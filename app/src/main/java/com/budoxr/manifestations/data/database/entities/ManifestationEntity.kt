@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "manifestation")
 data class ManifestationEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long?,
+    val id: Int?,
     val overview: String,
     val description: String,
     @ColumnInfo(name = "creation_date")

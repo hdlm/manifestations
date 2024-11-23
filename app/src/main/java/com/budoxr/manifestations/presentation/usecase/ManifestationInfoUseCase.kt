@@ -1,6 +1,5 @@
 package com.budoxr.manifestations.presentation.usecase
 
-import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import com.budoxr.manifestations.data.mapper.toModel
 import com.budoxr.manifestations.data.repositories.ManifestationLocalRepository
@@ -10,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import org.koin.core.component.inject
 
 class ManifestationInfoUseCase : KoinComponent {
     private val localRepository: ManifestationLocalRepository

@@ -16,5 +16,4 @@ class ManifestationInsertUseCase : KoinComponent {
     suspend operator fun invoke(manifestations: List<ManifestationEntity>) : Unit =
         repository.insertAll(manifestations)
 
-
 }

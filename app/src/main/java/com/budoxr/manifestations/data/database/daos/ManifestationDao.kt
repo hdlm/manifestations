@@ -27,5 +27,5 @@ interface ManifestationDao {
     fun observeAllManifestations(): Flow<List<ManifestationEntity>>
 
     @Query("SELECT MAX(COALESCE(id, 0)) FROM manifestation")
-    suspend fun getLastId(): Long
+    suspend fun getLastId(): Int
 }

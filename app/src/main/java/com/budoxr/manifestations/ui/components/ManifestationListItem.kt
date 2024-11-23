@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
-import com.budoxr.manifestations.commons.onLongType
+import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
@@ -46,10 +46,10 @@ import java.util.Date
 @Composable
 fun ManifestationListItem(
     item: ManifestationModel,
-    days: Long,
+    days: Int,
     isDarkTheme: Boolean,
     categoryColor: (String, Context) -> Color,
-    onLongPress: onLongType,
+    onLongPress: onIntType,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -144,7 +144,7 @@ fun ManifestationListItemPreview() {
     val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
 
     val item = ManifestationModel(
-            id = 2L,
+            id = 2,
             overview = "Facturacion mensual de USD 250K",
             description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
             creationDate = Date().toFechaTimeDb(),
@@ -159,7 +159,7 @@ fun ManifestationListItemPreview() {
             Column {
                 ManifestationListItem(
                     item = item,
-                    days = 4L,
+                    days = 4,
                     isDarkTheme = false,
                     categoryColor = { category, context -> passion },
                     onLongPress = { _ -> },

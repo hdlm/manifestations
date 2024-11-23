@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class ManifestationModel(
-    val id: Long?,
+    val id: Int?,
     val overview: String,
     val description: String,
     @Json(name = "creation_date") val creationDate: String,

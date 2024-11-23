@@ -9,6 +9,7 @@ import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.database.AppDatabase
 import com.budoxr.manifestations.data.database.daos.ConfigDao
+import com.budoxr.manifestations.data.database.daos.JournalDao
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepository
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepositoryImpl
@@ -63,11 +64,13 @@ object Modules {
         fallbackToDestructiveMigration().build()
 
     fun provideManifestationDao(appDatabase: AppDatabase): ManifestationDao = appDatabase.manifestationDao()
+    fun provideJournalDao(appDatabase: AppDatabase): JournalDao = appDatabase.journalDao()
     fun provideConfigDao(appDatabase: AppDatabase): ConfigDao = appDatabase.configDao()
 
     val databaseModule = module {
         single { provideDataBase(androidContext()) }
         single { provideManifestationDao(get()) }
+        single { provideJournalDao(get()) }
         single { provideConfigDao(get()) }
         factory { ManifestationInfoUseCase() }
         factory { ManifestationInsertUseCase() }

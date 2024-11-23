@@ -14,7 +14,7 @@ interface ManifestationLocalRepository {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun getLastId(): Long
+    suspend fun getLastId(): Int
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread

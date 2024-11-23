@@ -8,6 +8,6 @@ class ManifestationLastIdUseCase : KoinComponent {
     private val localRepository: ManifestationLocalRepository
         get() = get()
 
-    suspend fun invoke(): Long = localRepository.getLastId()
+    suspend fun invoke(): Int = localRepository.getLastId()
 
 }

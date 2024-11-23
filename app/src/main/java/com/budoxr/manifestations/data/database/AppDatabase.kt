@@ -3,6 +3,7 @@ package com.budoxr.manifestations.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.budoxr.manifestations.data.database.daos.ConfigDao
+import com.budoxr.manifestations.data.database.daos.JournalDao
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.database.entities.ConfigEntity
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
@@ -14,4 +15,5 @@ import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 abstract class AppDatabase : RoomDatabase() {
     abstract fun manifestationDao(): ManifestationDao
     abstract fun configDao(): ConfigDao
+    abstract fun journalDao(): JournalDao
 }

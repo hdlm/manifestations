@@ -8,10 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.budoxr.Exercises.ui.ExerciseScreen
-import com.budoxr.manifestations.commons.onBooleanType
-import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
-import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.ui.LessonScreen
 import com.budoxr.manifestations.ui.ManifestationScreen
 
@@ -21,7 +18,7 @@ fun AppNavigation(
     startDest: Screens,
     innerPadding: PaddingValues,
     isDarkTheme: Boolean,
-    onEditMode: onLongType,
+    onEditMode: onIntType,
 ) {
 
     NavHost(navController = navController, startDestination = "${startDest.route}") {
@@ -37,10 +34,10 @@ fun AppNavigation(
 
         composable(Screens.ManifestationScreen.route, arguments = listOf(
             navArgument("page") { type = NavType.IntType },
-            navArgument("id") { type = NavType.LongType },
+            navArgument("id") { type = NavType.IntType },
         )) { backStackEntry ->
             val page = backStackEntry.arguments?.getInt("page")
-            val id = backStackEntry.arguments?.getLong("id")
+            val id = backStackEntry.arguments?.getInt("id")
 
             ManifestationScreen(
                 navController = navController,
@@ -52,7 +49,7 @@ fun AppNavigation(
             )
         }
 
-        composable(Screens.ExerciseScreen.route, arguments = listOf(
+        composable(Screens.JournalScreen.route, arguments = listOf(
             navArgument("page") { type = NavType.IntType },
             navArgument("id") { type = NavType.LongType },
         )) { backStackEntry ->

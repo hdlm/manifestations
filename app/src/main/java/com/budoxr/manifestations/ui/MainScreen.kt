@@ -39,9 +39,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
-import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.onDismissType
-import com.budoxr.manifestations.commons.onLongType
+import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.ui.components.SettingBottomSheet
 import com.budoxr.manifestations.ui.navigation.AppNavigation
@@ -58,7 +57,7 @@ fun MainScreen(
         Screens.Expand,
         Screens.LessonScreen,
         Screens.ManifestationScreen,
-        Screens.ExerciseScreen,
+        Screens.JournalScreen,
         Screens.SettingScreen
     )
 
@@ -81,7 +80,7 @@ fun MainScreen(
         val value = navController.popBackStack()
         Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned value: $value")
     }
-    val onEditMode: onLongType = { id ->
+    val onEditMode: onIntType = { id ->
         Log.d(TAG, "onEditMode() -> invoked, id: $id")
         val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
         when (currentScreen) {
@@ -92,10 +91,10 @@ fun MainScreen(
                 val destination = "${screenName}/2/$id"
                 navController.navigate(destination)
             }
-            Screens.ExerciseScreen.route -> {
+            Screens.JournalScreen.route -> {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
-                val screenName = Screens.ExerciseScreen.route.substringBefore('/')
+                val screenName = Screens.JournalScreen.route.substringBefore('/')
                 val destination = "${screenName}/2/$id"
                 navController.navigate(destination)
             }
@@ -111,7 +110,7 @@ fun MainScreen(
             Screens.ManifestationScreen.route -> {
                 //TODO save manifestation register
             }
-            Screens.ExerciseScreen.route -> {
+            Screens.JournalScreen.route -> {
                 //TODO save exercise register
             }
         }
@@ -133,10 +132,10 @@ fun MainScreen(
                 val destination = "${screenName}/1/0"
                 navController.navigate(destination)
             }
-            Screens.ExerciseScreen.route -> {
+            Screens.JournalScreen.route -> {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
-                val screenName = Screens.ExerciseScreen.route.substringBefore('/')
+                val screenName = Screens.JournalScreen.route.substringBefore('/')
                 val destination = "${screenName}/1/0"
                 navController.navigate(destination)
             }
@@ -166,7 +165,7 @@ fun MainScreen(
                                     Screens.Expand -> { Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon )) }
                                     Screens.LessonScreen -> Icon(Screens.LessonScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.ManifestationScreen -> Icon(Screens.ManifestationScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
-                                    Screens.ExerciseScreen -> Icon(Screens.ExerciseScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
+                                    Screens.JournalScreen -> Icon(Screens.JournalScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.SettingScreen -> Icon(Screens.SettingScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                 }
                             },
@@ -269,7 +268,7 @@ fun MainScaffold(
     isFloatingActionVisible: Boolean,
     onFloatingActionButtonClick: onDismissType,
     onBackButtonClick: onDismissType,
-    onEditMode: onLongType,
+    onEditMode: onIntType,
     onSaveButtonClick: onDismissType,
 ) {
     val iconSize = dimensionResource(R.dimen.icon_topbar_size)

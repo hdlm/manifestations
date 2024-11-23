@@ -5,7 +5,7 @@ import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import java.util.Date
 
-fun ManifestationModel.copy(id: Long?) =
+fun ManifestationModel.copy(id: Int?) =
     ManifestationModel(
         id = id ?: this.id,
         overview = overview,

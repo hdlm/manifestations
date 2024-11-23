@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
+import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
@@ -80,7 +81,7 @@ fun HorizontalDraggableManifestationItemList(
     isDarkTheme: Boolean,
     categoryColor: (String, Context) -> Color,
     onItemDeleteClick: (ManifestationModel) -> Unit,
-    onLongPress: onLongType,
+    onLongPress: onIntType,
     modifier: Modifier = Modifier,
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_medium_size)
@@ -283,7 +284,7 @@ fun HorizontalDraggableManifestationItemList(
 @Composable
 fun DraggableItemPreview() {
     val item = ManifestationModel(
-        id = 2L,
+        id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
         creationDate = Date().toFechaTimeDb(),
@@ -295,7 +296,7 @@ fun DraggableItemPreview() {
         Surface (modifier = Modifier.fillMaxWidth()) {
             HorizontalDraggableManifestationItemList(
                 item = item,
-                days = 4L,
+                days = 4,
                 isDarkTheme = false,
                 categoryColor = { category, context -> passion },
                 onItemDeleteClick = { _ -> },
