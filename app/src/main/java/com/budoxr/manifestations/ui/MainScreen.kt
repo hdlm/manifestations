@@ -95,6 +95,7 @@ fun MainScreen(
                 isFloatingActionVisible = false
                 isDrawerVisible = false
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
+                // screen name, page, hashCode
                 val destination = "${screenName}/2/$id"
                 navController.navigate(destination)
             }
@@ -108,10 +109,10 @@ fun MainScreen(
         Log.d(TAG, "onSaveButtonClick() -> invoked, current screen: $currentScreen")
         when (currentScreen) {
             Screens.ManifestationScreen.route -> {
-                //TODO save manifestation register
+                // not applied, because it is auto-saved
             }
             Screens.JournalScreen.route -> {
-                //TODO save exercise register
+                // not applied, because it is auto-saved
             }
         }
 
@@ -136,6 +137,7 @@ fun MainScreen(
                 isFloatingActionVisible = false
                 isDrawerVisible = false
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
+                // screen name, page, hashCode
                 val destination = "${screenName}/1/0"
                 navController.navigate(destination)
             }

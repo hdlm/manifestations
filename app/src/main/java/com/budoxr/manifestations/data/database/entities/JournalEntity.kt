@@ -8,7 +8,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "journal",
-    primaryKeys = ["id"],
     foreignKeys = [
         ForeignKey(entity = ManifestationEntity::class,
             parentColumns = ["id"],
@@ -24,29 +23,7 @@ data class JournalEntity(
     @ColumnInfo(name = "lesson_day") val lessonDay: Int,
     @ColumnInfo(name = "manifestation_id") val manifestationId: Int,
     @ColumnInfo(name = "question") val question: Int,
-    @ColumnInfo(name = "answer") val answer: String,
+    @ColumnInfo(name = "answer") val answer: String?,
     @ColumnInfo(name = "response_date") val responseDate: String,
 
 )
-
-/*
-@ForeignKey(entity = ParentEntity::class,
-    parentColumns = ["id"],
-    childColumns = ["parentId"],
-    onDelete = NO_ACTION,
-    onUpdate = CASCADE)
-
-@Entity(tableName = "team",
-    primaryKeys = ["team_id"],
-    foreignKeys = [
-        ForeignKey(entity = MatchEntity::class,
-            parentColumns = ["match_id"],
-            childColumns = ["match_id"],
-            onDelete = NO_ACTION )
-    ],
-    indices = [
-        Index("match_id")
-    ]
-)
-data class TeamEntit
- */

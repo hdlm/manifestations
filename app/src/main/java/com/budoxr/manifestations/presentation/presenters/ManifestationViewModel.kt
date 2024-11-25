@@ -53,7 +53,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
     val session: SessionModel
         get() = _sessionModel
 
-    /** this value avoid to show the same error twince */
+    /** this value avoid to show the same error twice */
     var errorShowed: Boolean = false
 
     init {

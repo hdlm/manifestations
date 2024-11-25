@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -54,13 +53,14 @@ import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.onIntType
-import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
-import com.budoxr.manifestations.presentation.domain.ManifestationModel
+import com.budoxr.manifestations.data.database.entities.JournalEntity
+import com.budoxr.manifestations.data.database.entities.ManifestationEntity
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.presentation.domain.LessonModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.alert
 import com.budoxr.manifestations.ui.theme.bright
-import com.budoxr.manifestations.ui.theme.dark
 import com.budoxr.manifestations.ui.theme.gray
 import com.budoxr.manifestations.ui.theme.grayLight
 import com.budoxr.manifestations.ui.theme.orange
@@ -71,12 +71,13 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HorizontalDraggableManifestationItemList(
-    item: ManifestationModel,
-    days: Long,
-    isDarkTheme: Boolean,
+fun HorizontalDraggableJournalItemList(
+    item: ManifestationWithJournals,
+    lessons: List<LessonModel>,
+    day: Long,
     categoryColor: (String, Context) -> Color,
-    onItemDeleteClick: (ManifestationModel) -> Unit,
+    onItemDeleteClick: onIntType,
+    /** use the hashCode of the item object */
     onLongPress: onIntType,
     modifier: Modifier = Modifier,
 ) {
@@ -84,6 +85,7 @@ fun HorizontalDraggableManifestationItemList(
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val separator = 2.dp
+    val questions  by remember { mutableStateOf(listOf<String>()) }
 
     val context = LocalContext.current
 
@@ -127,7 +129,6 @@ fun HorizontalDraggableManifestationItemList(
                 )
             }
     ) {
-
         Box (modifier = Modifier
             .fillMaxWidth(),
             contentAlignment =  Alignment.TopEnd
@@ -150,7 +151,7 @@ fun HorizontalDraggableManifestationItemList(
                         ) {
 
                             IconButton(
-                                onClick = {  onItemDeleteClick.invoke( item )  }
+                                onClick = {  onItemDeleteClick.invoke( item.hashCode() )  }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
@@ -199,7 +200,7 @@ fun HorizontalDraggableManifestationItemList(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
-                                onLongPress.invoke(item.id!!)
+                                onLongPress.invoke(item.hashCode())
                             }
                         )
                     }
@@ -213,19 +214,18 @@ fun HorizontalDraggableManifestationItemList(
                     .padding(top = marginHorizontal, start = marginHorizontal, end = marginHorizontal)
                 ) {
                     Text(
-                        text = item.overview,
+                        text = item.manifestation.overview,
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier
                     )
                     Spacer(modifier = Modifier.padding(vertical = lineSpacing))
                     Text(
-                        text = item.description,
+                        text = item.manifestation.description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                     )
                     Spacer(modifier = Modifier.padding(vertical = separator))
-                    Row (modifier = Modifier .fillMaxWidth(),
-                    ) {
+                    Row (modifier = Modifier.fillMaxWidth() ) {
                         Column (verticalArrangement = Arrangement.Bottom) {
                             Row (verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -239,10 +239,10 @@ fun HorizontalDraggableManifestationItemList(
 //                                        .size(40.dp)
 //                                        .clip(CircleShape)
                                         .clip(MaterialTheme.shapes.small)
-                                        .background( if(days >= 15) grayLight else if(days < 15 && days >= 5) orange else if(days < 5 && days >= 1) Color.Magenta else passion )
+                                        .background( if(day >= 15) grayLight else if(day < 15 && day >= 5) orange else if(day < 5 && day >= 1) Color.Magenta else passion )
                                 ) {
                                     Text( modifier = Modifier.padding(horizontal = lineSpacing, vertical = 3.dp),
-                                        text = days.toString(), style = MaterialTheme.typography.bodyMedium,
+                                        text = day.toString(), style = MaterialTheme.typography.bodyMedium,
                                     )
                                 }
                             }
@@ -255,11 +255,11 @@ fun HorizontalDraggableManifestationItemList(
                             Box (
                                 modifier = modifier
                                     .clip(MaterialTheme.shapes.small)
-                                    .background(categoryColor(item.category, context)),
+                                    .background(categoryColor(item.manifestation.category, context)),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
                                 Text(
-                                    text = item.category,
+                                    text = item.manifestation.category,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
@@ -268,18 +268,54 @@ fun HorizontalDraggableManifestationItemList(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+                    val journalQuestions = lessons.find { it.day == day.toInt() }!!.journal
+                    repeat(journalQuestions.size) { idx ->
+                        var journalAnswers = item._journals.find { it.lessonDay == day.toInt() && it.question == idx }
+                        HorizontalDraggableJournalQuestionList(
+                            number = (idx + 1).toString(),
+                            question = journalQuestions[idx],
+                            answer = journalAnswers!!.answer
+                        )
+                    }
 
                 }
+
             }
+
         }
+
+
     }
+
+}
+
+
+@Composable
+fun HorizontalDraggableJournalQuestionList(
+    number: String,
+    question: String,
+    answer: String?,
+) {
+    val separator = 2.dp
+
+    Text(
+        text = "$number - $question",
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier
+    )
+    Text(
+        text = answer ?: "",
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier
+    )
 }
 
 
 @Preview(showBackground = true)
 @Composable
-fun DraggableManifestationItemPreview() {
-    val item = ManifestationModel(
+fun DraggableJournalItemPreview() {
+    val manifestationEntity = ManifestationEntity(
         id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
@@ -287,13 +323,37 @@ fun DraggableManifestationItemPreview() {
         dueDate = Date().toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )
+    val journal = JournalEntity (
+        id = 3,
+        lessonDay = 5,
+        manifestationId = 2,
+        question = 1,
+        answer = "La respuesta es simple",
+        responseDate = Date().toFechaTimeDb()
+    )
+    val item = ManifestationWithJournals()
+        .apply {
+            manifestation = manifestationEntity
+            _journals = listOf(journal)
+        }
+
+    val lessons : List<LessonModel> = listOf(
+        LessonModel(
+            day = 1,
+            subject = "asunto",
+            summary = listOf("resumen"),
+            journal = listOf("como te va?"),
+            meditation = null
+        )
+    )
+
 
     ManifestationsTheme {
         Surface (modifier = Modifier.fillMaxWidth()) {
-            HorizontalDraggableManifestationItemList(
+            HorizontalDraggableJournalItemList(
                 item = item,
-                days = 4,
-                isDarkTheme = false,
+                lessons = lessons,
+                day = 4,
                 categoryColor = { category, context -> passion },
                 onItemDeleteClick = { _ -> },
                 onLongPress = { _ -> },

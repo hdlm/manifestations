@@ -11,7 +11,16 @@ interface JournalLocalRepository {
     @WorkerThread
     suspend fun allJournals(manifestationId: Int): List<ManifestationWithJournals>
 
-    fun allJournalsFlow(manifestationId: Int): Flow<List<ManifestationWithJournals>>
+    fun allJournalsFlow(): Flow<List<ManifestationWithJournals>>
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getLastId(): Int
+
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun journalAnswerExist(lessonDay: Int, manifestationId: Int, question: Int): Int?
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
@@ -24,5 +33,9 @@ interface JournalLocalRepository {
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun delete(journal: JournalEntity)
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun delete(journalId: Int)
 
 }

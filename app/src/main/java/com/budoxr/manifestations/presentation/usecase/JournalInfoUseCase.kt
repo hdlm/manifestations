@@ -10,8 +10,7 @@ class JournalInfoUseCase : KoinComponent {
     private val localRepository: JournalLocalRepository
         get() = get()
 
-    operator fun invoke(manifestationId: Int): Flow<List<ManifestationWithJournals>> =
-        localRepository.allJournalsFlow(manifestationId)
-
+    operator fun invoke(): Flow<List<ManifestationWithJournals>> =
+        localRepository.allJournalsFlow()
 
 }

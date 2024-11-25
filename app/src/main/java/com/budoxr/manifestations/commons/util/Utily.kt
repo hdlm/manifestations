@@ -1,15 +1,12 @@
 package com.budoxr.manifestations.commons.util
 
 import com.budoxr.manifestations.commons.toLocalDate
-import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.TimeUnit
-import com.budoxr.manifestations.data.mapper.toEntity
-import com.budoxr.manifestations.presentation.domain.ManifestationModel
 
 class Utily {
 

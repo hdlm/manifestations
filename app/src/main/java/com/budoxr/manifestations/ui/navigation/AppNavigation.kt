@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.budoxr.Exercises.ui.ExerciseScreen
+import com.budoxr.Exercises.ui.JournalScreen
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.ui.LessonScreen
 import com.budoxr.manifestations.ui.ManifestationScreen
@@ -55,11 +55,12 @@ fun AppNavigation(
         )) { backStackEntry ->
             val page = backStackEntry.arguments?.getInt("page")
             val id = backStackEntry.arguments?.getLong("id")
-            ExerciseScreen(
+            JournalScreen(
                 navController = navController,
                 page = page ?: 0,
                 id = id ?: 0,
                 innerPadding = innerPadding,
+                onEditMode = onEditMode,
             )
         }
         

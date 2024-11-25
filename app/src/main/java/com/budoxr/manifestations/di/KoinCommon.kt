@@ -2,7 +2,6 @@ package com.budoxr.manifestations.di
 
 import android.content.Context
 import androidx.room.Room
-import com.budoxr.manifestations.MainActivity
 import com.budoxr.manifestations.commons.AppScope
 import com.budoxr.manifestations.commons.CategoryHelper
 import com.budoxr.manifestations.commons.TextToSpeechHelper
@@ -13,11 +12,14 @@ import com.budoxr.manifestations.data.database.daos.JournalDao
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepository
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepositoryImpl
+import com.budoxr.manifestations.data.repositories.JournalLocalRepository
+import com.budoxr.manifestations.data.repositories.JournalLocalRepositoryImpl
 import com.budoxr.manifestations.data.repositories.LocalStorage
 import com.budoxr.manifestations.data.repositories.LocalStorageImpl
 import com.budoxr.manifestations.data.repositories.ManifestationLocalRepository
 import com.budoxr.manifestations.data.repositories.ManifestationLocalRepositoryImpl
 import com.budoxr.manifestations.presentation.domain.SessionModel
+import com.budoxr.manifestations.presentation.presenters.JournalViewModel
 import com.budoxr.manifestations.presentation.presenters.LessonViewModel
 import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
 import com.budoxr.manifestations.presentation.presenters.SettingViewModel
@@ -27,6 +29,11 @@ import com.budoxr.manifestations.presentation.usecase.ConfigInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ConfigInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.ExportDatabaseUseCase
 import com.budoxr.manifestations.presentation.usecase.ImportDatabaseUseCase
+import com.budoxr.manifestations.presentation.usecase.JournalAnswerExistUseCase
+import com.budoxr.manifestations.presentation.usecase.JournalDeleteUseCase
+import com.budoxr.manifestations.presentation.usecase.JournalInfoUseCase
+import com.budoxr.manifestations.presentation.usecase.JournalInsertUseCase
+import com.budoxr.manifestations.presentation.usecase.JournalLastIdUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
@@ -47,6 +54,7 @@ object Modules {
         factory { CheckPermissionUseCase() }
         viewModel { LessonViewModel(get()) }
         viewModel { ManifestationViewModel() }
+        viewModel { JournalViewModel(androidContext()) }
         viewModel { SettingViewModel() }
         single { CategoryHelper() }
         factory { BackupUseCase() }
@@ -78,7 +86,13 @@ object Modules {
         factory { ManifestationDeleteUseCase() }
         factory { ConfigInfoUseCase() }
         factory { ConfigInsertUseCase() }
+        factory { JournalInfoUseCase() }
+        factory { JournalInsertUseCase() }
+        factory { JournalDeleteUseCase() }
+        factory { JournalLastIdUseCase() }
+        factory { JournalAnswerExistUseCase() }
         factory<ManifestationLocalRepository> { ManifestationLocalRepositoryImpl() }
+        factory<JournalLocalRepository> { JournalLocalRepositoryImpl() }
         factory<ConfigLocalRepository> { ConfigLocalRepositoryImpl() }
     }
 

@@ -147,7 +147,7 @@ private fun ComboBoxText(modifier: Modifier,
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false },
             modifier = Modifier
-                .fillMaxWidth()
+//                .fillMaxWidth()
 //                .background(MaterialTheme.colorScheme.background)
         ) {
             items.forEachIndexed { index, nameCategory ->

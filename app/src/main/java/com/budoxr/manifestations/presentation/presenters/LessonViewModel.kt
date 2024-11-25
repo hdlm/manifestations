@@ -9,10 +9,8 @@ import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.util.Utily
-import com.budoxr.manifestations.data.mapper.emptyConfigModel
 import com.budoxr.manifestations.data.mapper.emptyLessonModel
 import com.budoxr.manifestations.data.repositories.LocalStorage
-import com.budoxr.manifestations.presentation.domain.ConfigModel
 import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.presentation.domain.TextContent
@@ -26,8 +24,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.component.get
+import org.koin.core.component.inject
 import java.io.Reader
 
 class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent {

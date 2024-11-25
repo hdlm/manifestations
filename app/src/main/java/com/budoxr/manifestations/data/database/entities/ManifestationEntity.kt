@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "manifestation")
 data class ManifestationEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     val id: Int?,
     val overview: String,
     val description: String,

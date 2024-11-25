@@ -6,11 +6,13 @@ import com.budoxr.manifestations.data.database.daos.ConfigDao
 import com.budoxr.manifestations.data.database.daos.JournalDao
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.database.entities.ConfigEntity
+import com.budoxr.manifestations.data.database.entities.JournalEntity
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 
 @Database(entities = [
     ManifestationEntity::class,
-    ConfigEntity::class
+    ConfigEntity::class,
+    JournalEntity::class
 ], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun manifestationDao(): ManifestationDao

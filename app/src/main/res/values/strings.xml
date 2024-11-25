@@ -44,6 +44,14 @@
         <item name="Spirituality">Spirituality</item>
     </string-array>
 
+    <!-- Journal -->
+    <string name="label_manifestation">Manifestation</string>
+    <string name="label_lesson">Lesson</string>
+    <string name="label_subject">Subject</string>
+    <string name="title_manifestation_empty">You can\'t create a new journal</string>
+    <string name="msg_manifestation_empty">You have to create a manifestation first</string>
+
+
     <!-- Setting -->
     <string name="button_backup">Backup database</string>
     <string name="button_restore">Restore database</string>

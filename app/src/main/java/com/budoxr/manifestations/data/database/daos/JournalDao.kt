@@ -21,16 +21,19 @@ interface JournalDao {
     @Delete
     suspend fun deleteJournal(journal: JournalEntity)
 
+    @Query("DELETE FROM journal WHERE id = :journalId")
+    suspend fun deleteJournalById(journalId: Int)
+
     @Query(
         """
             SELECT
                 manifestation.*
             FROM manifestation
             INNER JOIN journal ON manifestation.id = journal.manifestation_id
-            WHERE manifestation.id = :manifestationId ORDER BY journal.lesson_day, journal.question ASC
+            ORDER BY journal.lesson_day, journal.question ASC
         """
     )
-    fun observeAllJournalsByManifestation(manifestationId: Int): Flow<List<ManifestationWithJournals>>
+    fun observeAllJournals(): Flow<List<ManifestationWithJournals>>
 
 
     @Query(
@@ -43,6 +46,19 @@ interface JournalDao {
         """
     )
     suspend fun getAllJournalsByManifestation(manifestationId: Int): List<ManifestationWithJournals>
+
+
+    @Query("SELECT MAX(COALESCE(id, 0)) FROM journal")
+    suspend fun getLastId(): Int
+
+    @Query(
+        """
+           SELECT id FROM journal WHERE lesson_day = :lessonDay 
+                AND manifestation_id = :manifestationId 
+                AND question = :question 
+        """
+    )
+    suspend fun journalAnswerExist(lessonDay: Int, manifestationId: Int, question: Int): Int?
 
 
 }

@@ -1,4 +1,4 @@
-package com.budoxr.manifestations.ui
+package com.budoxr.Exercises.ui
 
 import android.content.Context
 import android.util.Log
@@ -25,12 +25,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,64 +44,65 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.budoxr.manifestations.R
-import com.budoxr.manifestations.commons.CATEGORIES
-import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onBooleanType
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
-import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
-import com.budoxr.manifestations.data.mapper.copy
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.mapper.emptyJournalEntity
 import com.budoxr.manifestations.data.mapper.emptyManifestationModel
+import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.data.repositories.LocalPref
+import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
-import com.budoxr.manifestations.presentation.presenters.ManifestationScreenUiState
-import com.budoxr.manifestations.presentation.presenters.ManifestationViewModel
-import com.budoxr.manifestations.ui.components.HorizontalDraggableManifestationItemList
-import com.budoxr.manifestations.ui.components.ManifestationForm
-import com.budoxr.manifestations.ui.components.ValidationDialog
+import com.budoxr.manifestations.presentation.presenters.JournalScreenUiState
+import com.budoxr.manifestations.presentation.presenters.JournalViewModel
+import com.budoxr.manifestations.ui.components.HorizontalDraggableJournalItemList
+import com.budoxr.manifestations.ui.components.InfoDialog
+import com.budoxr.manifestations.ui.components.JournalForm
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
-import com.budoxr.manifestations.ui.theme.spirituality
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.util.Date
-import java.util.concurrent.TimeUnit
 
-data class ManifestationState(
-    val isDarkTheme: Boolean,
+
+data class JournalState(
+    val manifestationMenuItems: Array<String>,
+    val lessonDays: Array<String>,
     val manifestations: List<ManifestationModel>,
+    val lessons: LessonsWrapper,
+    val journals: List<ManifestationWithJournals>,
     val categoryColor: (String, Context) -> Color,
-    val onItemDeleteClick: (ManifestationModel) -> Unit,
+    val onItemDeleteClick: onIntType,
     val dateDifference: (String, String) -> Long,
+    /** using the hash code */
     val onLongPress: onIntType,
 )
 
 @Composable
-fun ManifestationScreen(
+fun JournalScreen(
     navController: NavController,
     page: Int,
-    id: Int,
-    isDarkTheme: Boolean,
+    id: Long,
     innerPadding: PaddingValues,
     onEditMode: onIntType,
-    viewModel: ManifestationViewModel = koinViewModel()
+    viewModel: JournalViewModel = koinViewModel()
 
 ) {
     Log.i(TAG, "compose / recompose")
-
-    val manifestationScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
-    when (val uiState = manifestationScreenUiState) {
-        is ManifestationScreenUiState.Loading -> {
+    
+    val journalScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    when (val uiState = journalScreenUiState) {
+        is JournalScreenUiState.Loading -> {
             LocalPref.saveSession(
                 viewModel.session.apply {
-                    currentScreen = Screens.ManifestationScreen.route
+                    currentScreen = Screens.JournalScreen.route
                 }
             )
-            ManifestationScreenLoading(innerPadding = innerPadding)
+            JournalScreenLoading(innerPadding = innerPadding)
         }
-        is ManifestationScreenUiState.Error -> {
-            ManifestationScreenError(
+        is JournalScreenUiState.Error -> {
+            JournalScreenError(
                 innerPadding = innerPadding,
                 msg = uiState.errorMessage!!,
                 onRetry = {
@@ -111,18 +111,17 @@ fun ManifestationScreen(
                 }
             )
         }
-        is ManifestationScreenUiState.Ready -> {
-            val manifestations by viewModel.flowOfManifestations.collectAsStateWithLifecycle(initialValue = emptyList())
-            ManifestationScreenReady(
+        is JournalScreenUiState.Ready -> {
+            val journals by viewModel.flowOfJournals.collectAsStateWithLifecycle()
+            JournalScreenReady(
                 page = page,
-                id = id,
+                id = id.toInt(),
                 innerPadding = innerPadding,
-                manifestations = manifestations,
+                journals = journals,
                 navController = navController,
                 uiState = uiState,
                 onEditMode = onEditMode,
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme,
+                viewModel = viewModel
             )
         }
     }
@@ -130,8 +129,8 @@ fun ManifestationScreen(
 }
 
 @Composable
-fun ManifestationScreenLoading(modifier: Modifier = Modifier,
-                        innerPadding: PaddingValues
+fun JournalScreenLoading(modifier: Modifier = Modifier,
+                               innerPadding: PaddingValues
 ) {
 
     val iconSize = dimensionResource(id = R.dimen.icon_huge_size)
@@ -164,7 +163,7 @@ fun ManifestationScreenLoading(modifier: Modifier = Modifier,
 
 
 @Composable
-fun ManifestationScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+fun JournalScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.padding(innerPadding)) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -188,47 +187,59 @@ fun ManifestationScreenError(innerPadding: PaddingValues, msg: String, onRetry: 
 }
 
 @Composable
-fun ManifestationScreenReady(
+fun JournalScreenReady(
     page: Int,
     id: Int,
     innerPadding: PaddingValues,
-    manifestations: List<ManifestationModel>,
+    journals: List<ManifestationWithJournals>,
     navController: NavController,
-    uiState: ManifestationScreenUiState.Ready,
+    uiState: JournalScreenUiState.Ready,
     onEditMode: onIntType,
-    viewModel: ManifestationViewModel,
-    isDarkTheme: Boolean,
-) {
+    viewModel: JournalViewModel) {
+
     val horizontalMargin = dimensionResource(id = R.dimen.margin_horizontal)
 
     val coroutineScope = rememberCoroutineScope()
     var searchPattern by remember { mutableStateOf("") }
-    var nextId by remember { mutableStateOf(0) }
     var selectedItem by remember { mutableStateOf(id) }
     var page by remember { mutableStateOf(page) }
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialogForDelete by remember { mutableStateOf(false) }
+    var showDialogForManifestationEmpty by remember { mutableStateOf(false) }
 
-    val onLongPress: onIntType = { id ->
-        Log.d(TAG, "onLongPress() -> invoked, id: $id")
-        onEditMode.invoke(id)
+    val onLongPress: onIntType = { hashCode ->
+        Log.d(TAG, "onLongPress() -> invoked, id: $hashCode")
+        onEditMode.invoke(hashCode)
     }
-    val onItemDeleteClick: (ManifestationModel) -> Unit = { manifestation ->
-        Log.d(TAG, "onItemDeleteClick() -> invoked, manifestation id: ${manifestation.id}")
-        selectedItem = manifestation.id!!
-        showDialog = true
+    val onBackButtonClick: onDismissType = {
+        val firstPop = navController.popBackStack()
+        Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned first pop: $firstPop")
     }
-    val onButtonManifestationConfirmationDelete: onBooleanType = { confirm ->
-        Log.d(TAG, "onButtonManifestationConfirmationDelete() -> invoked: $confirm, id: ${selectedItem} ")
+    val onItemDeleteClick: onIntType = { journalId ->
+        Log.d(TAG, "onItemDeleteClick() -> invoked, journal id: ${journalId}")
+        selectedItem = journalId
+        showDialogForDelete = true
+    }
+    val onButtonConfirmationDelete: onBooleanType = { confirm ->
+        Log.d(TAG, "onButtonJournalConfirmationDelete() -> invoked: $confirm, id: ${selectedItem} ")
         if (confirm) {
-            viewModel.deleteManifestation(manifestations.filter { it.id == selectedItem }.first())
+            viewModel.deleteJournal(selectedItem)
         }
-        showDialog = false
+        showDialogForDelete = false
         selectedItem = 0
     }
+    val onButtonManifestationEmpty: onDismissType = {
+        Log.d(TAG, "onButtonJournalManifestationEmpty() -> invoked")
+        showDialogForManifestationEmpty = false
+        onBackButtonClick.invoke()
+    }
 
-    val manifestationState = ManifestationState(
-        isDarkTheme = isDarkTheme,
-        manifestations = manifestations,
+
+    val journalState = JournalState(
+        manifestationMenuItems = viewModel.util.transformList(uiState.manifestations) { it.overview }.toTypedArray(),
+        lessonDays = viewModel.util.transformList(uiState.lessons.lessons) { it.day.toString() }.toTypedArray(),
+        manifestations = uiState.manifestations,
+        lessons = uiState.lessons,
+        journals = journals,
         categoryColor = viewModel::categoryColor,
         onItemDeleteClick = onItemDeleteClick,
         dateDifference = viewModel::dateDifference,
@@ -239,93 +250,91 @@ fun ManifestationScreenReady(
         .fillMaxSize()
         .padding(innerPadding)
     ) {
-
         when (page) {
             0 -> {
-                ManifestationScreenBody(
-                    manifestationState = manifestationState,
+                JournalScreenBody(
+                    journalState = journalState,
                 )
             }
-            1 -> { // add a new manifestation
-                LaunchedEffect(Unit) {
-                    Log.d(TAG, "LaunchedEffect running the coroutine")
-                    coroutineScope.launch {
-                        nextId = viewModel.util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
-                            viewModel.lastId()
-                        }.await()
-                        nextId++
-                    }
-                }
+            1 -> { // add new Journal
+//                LaunchedEffect(Unit) {
+//                    Log.d(TAG, "LaunchedEffect running the coroutine")
+//                    coroutineScope.launch {
+//                        nextId = viewModel.util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
+//                            viewModel.lastId()
+//                        }.await()
+//                        nextId++
+//                    }
+//                }
 
-                if (nextId > 0) {
-                    ManifestationForm(
-                        item = emptyManifestationModel().copy(id = nextId),
-                        isDarkTheme = isDarkTheme,
-                        saveManifestation = viewModel::saveManifestation,
+
+
+                if (journalState.manifestationMenuItems.isNotEmpty()) {
+                    JournalForm(
+                        manifestationMenuItems = journalState.manifestationMenuItems,
+                        lessonDays = journalState.lessonDays,
+                        manifestations = journalState.manifestations,
+                        lessons = journalState.lessons,
+                        item = ManifestationWithJournals().apply {
+                            _journals = listOf( emptyJournalEntity() )
+                            manifestation = emptyManifestationModel().toEntity()
+                        },
+                        saveJournal = viewModel::saveJournal,
                         modifier = Modifier.padding(horizontal = horizontalMargin)
                     )
-                }
-            }
-            2 -> {  // edit a manifestation
-                if( manifestations.isNotEmpty()) {
-                    ManifestationForm(
-                        item = manifestations.find { it.id == selectedItem }!!,
-                        isDarkTheme = isDarkTheme,
-                        saveManifestation = viewModel::saveManifestation,
-                        modifier = Modifier.padding(horizontal = horizontalMargin)
-                    )
+                } else {
+                    showDialogForManifestationEmpty = true
                 }
 
             }
         }
 
-        if (showDialog) {
-            val msg = stringResource(id = R.string.label_retry).replace("AAA", manifestations.find { it.id == selectedItem }!!.overview)
-            ValidationDialog(
+        if ( showDialogForManifestationEmpty ) {
+            InfoDialog(
                 modifier = Modifier,
-                title = stringResource(id = R.string.title_confirm_remove),
-                msg = msg,
-                buttonLabels = Pair(
-                    stringResource(id = R.string.button_validation_confirm),
-                    stringResource(id = R.string.button_validation_cancel),
-                ),
-                onDone = onButtonManifestationConfirmationDelete
+                title = stringResource(id = R.string.title_manifestation_empty),
+                msg = stringResource(id = R.string.msg_manifestation_empty),
+                buttonLabel = stringResource(id = R.string.button_validation_confirm ),
+                onDone = onButtonManifestationEmpty
             )
         }
     }
-
+    
+    
 }
 
-
 @Composable
-fun ManifestationScreenBody(
-    manifestationState: ManifestationState,
+fun JournalScreenBody(
+    journalState: JournalState,
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_big_size)
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
+
 
     LazyColumn(modifier = Modifier.padding(end = marginHorizontal)) {
         item {
             //TODO colocar el filtro Search
         }
 
-        if (manifestationState.manifestations.isNotEmpty()) {
-            items(manifestationState.manifestations) { item ->
-                HorizontalDraggableManifestationItemList(
+        if (journalState.journals.isNotEmpty()) {
+            items(journalState.journals) { item ->
+                HorizontalDraggableJournalItemList(
                     item = item,
-                    days = manifestationState.dateDifference.invoke(Date().toFechaTimeDb(), item.dueDate),
-                    isDarkTheme = manifestationState.isDarkTheme,
-                    categoryColor = manifestationState.categoryColor,
-                    onItemDeleteClick = manifestationState.onItemDeleteClick,
-                    onLongPress = manifestationState.onLongPress,
+                    lessons = journalState.lessons.lessons,
+                    day = journalState.dateDifference.invoke(Date().toFechaTimeDb(), item.manifestation.dueDate),
+                    categoryColor = journalState.categoryColor,
+                    onItemDeleteClick = journalState.onItemDeleteClick,
+                    onLongPress = journalState.onLongPress,
                 )
                 Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+
             }
         } else {
             item {
-                Row (modifier = Modifier.fillMaxWidth()) {
-                    Column (modifier = Modifier.fillMaxWidth(),
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -348,60 +357,27 @@ fun ManifestationScreenBody(
                 Spacer(modifier = Modifier.padding(vertical = lineSpacing))
             }
         }
-
     }
+
+    
 }
+        
+        
 
 
-@Preview(showBackground = true)
+
 @Composable
-fun ManifestationScreenPreview() {
-
-    val marginHorizontal = dimensionResource(R.dimen.margin_horizontal)
-    val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
-
-    val listOfManifestations: List<ManifestationModel> = listOf(
-        ManifestationModel(
-            id = 1,
-            overview = "Ingreso de USD 6K",
-            description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
-            creationDate = Date().toFechaTimeDb(),
-            dueDate = Date().toFechaTimeDb(),
-            category = CATEGORIES.WEALTH.key,
-        ),
-        ManifestationModel(
-            id = 2,
-            overview = "Facturacion mensual de USD 250K",
-            description = "estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-            creationDate = Date().toFechaTimeDb(),
-            dueDate = Date().toFechaTimeDb(),
-            category = CATEGORIES.WEALTH.key,
-        ),
-    )
-
-    val manifestationState = ManifestationState(
-        isDarkTheme = false,
-        manifestations = listOfManifestations,
-        categoryColor = { _, _ -> spirituality },
-        onItemDeleteClick = { _ ->},
-        dateDifference = { _, _ -> 5L },
-        onLongPress = { _ ->},
-    )
+@Preview(showBackground = true)
+fun JournalScreenPreview() {
 
     ManifestationsTheme {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Column {
-                ManifestationScreenBody(
-                    manifestationState = manifestationState,
-                )
-            }
+
+        Surface (modifier = Modifier.fillMaxSize()) {
+            //TODO add here the composable function
         }
+
     }
 
 }
 
-
-private const val TAG =  "ManifestationScreen"
+private const val TAG =  "che.JournalScreen"
