@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.budoxr.manifestations.data.database.entities.JournalEntity
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,44 +21,41 @@ interface JournalDao {
     @Delete
     suspend fun deleteJournal(journal: JournalEntity)
 
-    @Query("DELETE FROM journal WHERE id = :journalId")
-    suspend fun deleteJournalById(journalId: Int)
+    @Delete
+    suspend fun deleteJournals(journals: List<JournalEntity>)
+    
+    @Query(
+        """
+            SELECT 
+                lesson.*
+            FROM lesson 
+            INNER JOIN journal ON lesson.id = journal.lesson_id 
+            WHERE lesson.id = :lessonId
+            ORDER BY lesson.day, journal.question_idx ASC
+        """
+    )
+    fun observeAllJournals(lessonId: Int): Flow<List<LessonWithJournals>>
 
     @Query(
         """
-            SELECT
-                manifestation.*
-            FROM manifestation
-            INNER JOIN journal ON manifestation.id = journal.manifestation_id
-            ORDER BY journal.lesson_day, journal.question ASC
+            SELECT 
+                lesson.*
+            FROM lesson 
+            INNER JOIN journal ON lesson.id = journal.lesson_id 
+            WHERE lesson.id = :lessonId
+            ORDER BY lesson.day, journal.question_idx ASC
         """
     )
-    fun observeAllJournals(): Flow<List<ManifestationWithJournals>>
+    suspend fun getAllJournals(lessonId: Int): List<LessonWithJournals>
 
 
     @Query(
         """
-            SELECT
-                manifestation.*
-            FROM manifestation
-            INNER JOIN journal ON manifestation.id = journal.manifestation_id
-            WHERE manifestation.id = :manifestationId ORDER BY journal.lesson_day, journal.question ASC
+           SELECT COUNT(*) FROM journal WHERE lesson_id = :lessonId 
+                AND question_idx = :question 
         """
     )
-    suspend fun getAllJournalsByManifestation(manifestationId: Int): List<ManifestationWithJournals>
-
-
-    @Query("SELECT MAX(COALESCE(id, 0)) FROM journal")
-    suspend fun getLastId(): Int
-
-    @Query(
-        """
-           SELECT id FROM journal WHERE lesson_day = :lessonDay 
-                AND manifestation_id = :manifestationId 
-                AND question = :question 
-        """
-    )
-    suspend fun journalAnswerExist(lessonDay: Int, manifestationId: Int, question: Int): Int?
+    suspend fun journalAnswerExist(lessonId: Int, question: Int): Int
 
 
 }

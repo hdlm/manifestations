@@ -8,12 +8,12 @@ import org.koin.core.component.inject
 class JournalDeleteUseCase : KoinComponent {
     private val repository: JournalLocalRepository by inject()
 
-    suspend operator fun invoke(journalId: Int) {
-        repository.delete(journalId)
-    }
-
     suspend operator fun invoke(journal: JournalEntity) {
         repository.delete(journal)
+    }
+
+    suspend operator fun invoke(journals: List<JournalEntity>) {
+        repository.deleteAll(journals)
     }
 
 }

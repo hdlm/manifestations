@@ -1,6 +1,7 @@
 package com.budoxr.manifestations.ui.components
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
@@ -22,7 +23,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -54,13 +56,11 @@ import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.onIntType
-import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.alert
 import com.budoxr.manifestations.ui.theme.bright
-import com.budoxr.manifestations.ui.theme.dark
 import com.budoxr.manifestations.ui.theme.gray
 import com.budoxr.manifestations.ui.theme.grayLight
 import com.budoxr.manifestations.ui.theme.orange
@@ -78,6 +78,7 @@ fun HorizontalDraggableManifestationItemList(
     categoryColor: (String, Context) -> Color,
     onItemDeleteClick: (ManifestationModel) -> Unit,
     onLongPress: onIntType,
+    navigateToJournals: onIntType,
     modifier: Modifier = Modifier,
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_medium_size)
@@ -106,7 +107,7 @@ fun HorizontalDraggableManifestationItemList(
     var contentSize by remember { mutableStateOf( IntSize(0, 0)) }
     var contentWidthSizePx = 0
     val factor = 0.95f
-    val itemHeightDp  = 150.dp
+    val itemHeightDp  = 160.dp
 
     Box(
         modifier = Modifier
@@ -128,6 +129,9 @@ fun HorizontalDraggableManifestationItemList(
             }
     ) {
 
+        var altura = with(density) { contentSize.height.toDp() }
+        Log.d(TAG, "\taltura: $altura, \n\titemHeighDp: $itemHeightDp")
+
         Box (modifier = Modifier
             .fillMaxWidth(),
             contentAlignment =  Alignment.TopEnd
@@ -135,8 +139,9 @@ fun HorizontalDraggableManifestationItemList(
             Box (modifier = Modifier
                 .size(
                     width = with(density) { contentSize.width.toDp()/2 },
-                    height = itemHeightDp
+//                    height = itemHeightDp
 //                    height = with(density) { contentSize.height.toDp() }
+                    height = if (altura < itemHeightDp) itemHeightDp else altura
                 )
                 .padding(end = 12.dp)
                 .background(alert),
@@ -172,6 +177,7 @@ fun HorizontalDraggableManifestationItemList(
             }
 
         }
+
 
         // Draggable Item
         Box(
@@ -268,6 +274,20 @@ fun HorizontalDraggableManifestationItemList(
                             }
                         }
                     }
+                    Row (modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(
+                            onClick = { navigateToJournals.invoke(item.id!!) }
+                        ) {
+                            Text(
+                                text = stringResource(R.string.button_add_journal),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    //Spacer(modifier = Modifier.padding(vertical = separator))
 
                 }
             }
@@ -297,9 +317,13 @@ fun DraggableManifestationItemPreview() {
                 categoryColor = { category, context -> passion },
                 onItemDeleteClick = { _ -> },
                 onLongPress = { _ -> },
+                navigateToJournals = { _ -> },
                 modifier = Modifier
             )
 
         }
     }
 }
+
+
+private const val TAG = "che.HorizontalDraggableManifestationItemList"

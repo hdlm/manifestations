@@ -9,11 +9,14 @@ import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.database.AppDatabase
 import com.budoxr.manifestations.data.database.daos.ConfigDao
 import com.budoxr.manifestations.data.database.daos.JournalDao
+import com.budoxr.manifestations.data.database.daos.LessonDao
 import com.budoxr.manifestations.data.database.daos.ManifestationDao
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepository
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepositoryImpl
 import com.budoxr.manifestations.data.repositories.JournalLocalRepository
 import com.budoxr.manifestations.data.repositories.JournalLocalRepositoryImpl
+import com.budoxr.manifestations.data.repositories.LessonLocalRepository
+import com.budoxr.manifestations.data.repositories.LessonLocalRepositoryImpl
 import com.budoxr.manifestations.data.repositories.LocalStorage
 import com.budoxr.manifestations.data.repositories.LocalStorageImpl
 import com.budoxr.manifestations.data.repositories.ManifestationLocalRepository
@@ -33,7 +36,9 @@ import com.budoxr.manifestations.presentation.usecase.JournalAnswerExistUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalInsertUseCase
-import com.budoxr.manifestations.presentation.usecase.JournalLastIdUseCase
+import com.budoxr.manifestations.presentation.usecase.LessonDeleteUseCase
+import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
+import com.budoxr.manifestations.presentation.usecase.LessonInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
@@ -72,26 +77,31 @@ object Modules {
         fallbackToDestructiveMigration().build()
 
     fun provideManifestationDao(appDatabase: AppDatabase): ManifestationDao = appDatabase.manifestationDao()
+    fun provideLessonDao(appDatabase: AppDatabase): LessonDao = appDatabase.lessonDao()
     fun provideJournalDao(appDatabase: AppDatabase): JournalDao = appDatabase.journalDao()
     fun provideConfigDao(appDatabase: AppDatabase): ConfigDao = appDatabase.configDao()
 
     val databaseModule = module {
         single { provideDataBase(androidContext()) }
         single { provideManifestationDao(get()) }
+        single { provideLessonDao(get()) }
         single { provideJournalDao(get()) }
         single { provideConfigDao(get()) }
         factory { ManifestationInfoUseCase() }
         factory { ManifestationInsertUseCase() }
         factory { ManifestationLastIdUseCase() }
         factory { ManifestationDeleteUseCase() }
-        factory { ConfigInfoUseCase() }
-        factory { ConfigInsertUseCase() }
+        factory { LessonInfoUseCase() }
+        factory { LessonInsertUseCase() }
+        factory { LessonDeleteUseCase() }
         factory { JournalInfoUseCase() }
         factory { JournalInsertUseCase() }
         factory { JournalDeleteUseCase() }
-        factory { JournalLastIdUseCase() }
         factory { JournalAnswerExistUseCase() }
+        factory { ConfigInfoUseCase() }
+        factory { ConfigInsertUseCase() }
         factory<ManifestationLocalRepository> { ManifestationLocalRepositoryImpl() }
+        factory<LessonLocalRepository> { LessonLocalRepositoryImpl() }
         factory<JournalLocalRepository> { JournalLocalRepositoryImpl() }
         factory<ConfigLocalRepository> { ConfigLocalRepositoryImpl() }
     }

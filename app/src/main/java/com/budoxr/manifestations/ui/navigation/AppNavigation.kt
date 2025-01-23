@@ -1,5 +1,6 @@
 package com.budoxr.manifestations.ui.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,9 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.budoxr.Exercises.ui.JournalScreen
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.ui.LessonScreen
 import com.budoxr.manifestations.ui.ManifestationScreen
+
+
+
 
 @Composable
 fun AppNavigation(
@@ -20,6 +25,13 @@ fun AppNavigation(
     isDarkTheme: Boolean,
     onEditMode: onIntType,
 ) {
+
+    val navigateToJournals: onIntType = { manifestationId ->
+        Log.d(TAG, "navigateToJournals() -> invoked")
+        val screenName = Screens.JournalScreen.route.substringBefore('/')
+        val destination = "${screenName}/0/$manifestationId/0"  // screen, page, manifestationId, lesson
+        navController.navigate(destination)
+    }
 
     NavHost(navController = navController, startDestination = "${startDest.route}") {
 //    NavHost(navController = navController, startDestination = "${startDest.route.substringBefore('/')}/0") {
@@ -46,19 +58,23 @@ fun AppNavigation(
                 isDarkTheme = isDarkTheme,
                 innerPadding = innerPadding,
                 onEditMode = onEditMode,
+                navigateToJournals = navigateToJournals
             )
         }
 
         composable(Screens.JournalScreen.route, arguments = listOf(
             navArgument("page") { type = NavType.IntType },
-            navArgument("id") { type = NavType.LongType },
+            navArgument("id") { type = NavType.IntType },
+            navArgument("id") { type = NavType.IntType },
         )) { backStackEntry ->
             val page = backStackEntry.arguments?.getInt("page")
-            val id = backStackEntry.arguments?.getLong("id")
+            val id = backStackEntry.arguments?.getInt("id")
+            val lessonDay = backStackEntry.arguments?.getInt("lesson")
             JournalScreen(
                 navController = navController,
                 page = page ?: 0,
                 id = id ?: 0,
+                lessonDay =  lessonDay ?: 0,
                 innerPadding = innerPadding,
                 onEditMode = onEditMode,
             )
@@ -66,3 +82,5 @@ fun AppNavigation(
         
     }
 }
+
+private const val TAG = "che.AppNavigation"

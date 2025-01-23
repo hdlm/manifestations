@@ -11,10 +11,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -26,11 +25,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.budoxr.manifestations.R
-import com.budoxr.manifestations.commons.CommonValues.oneDayMillis
-import com.budoxr.manifestations.commons.fromFechaTimeDb
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.database.entities.JournalEntity
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.database.entities.LessonEntity
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
+import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.LessonModel
 import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
@@ -39,12 +38,16 @@ import java.util.Date
 
 @Composable
 fun JournalForm(
+    manifestationId: Int,
+    manifestationSlug: String,
+    lessonDay: Int,
     manifestationMenuItems: Array<String>,
-    lessonDays: Array<String>,
+    lessonDayItems: Array<String>,
     manifestations: List<ManifestationModel>,
     lessons: LessonsWrapper,
-    item: ManifestationWithJournals,
-    saveJournal: (JournalEntity) -> Unit,
+    item: ManifestationWithLessonsAndJournals,
+    saveLesson: (LessonEntity) -> Unit,
+    saveJournal: (LessonEntity, JournalEntity) -> Unit,
     modifier: Modifier
 ) {
     Log.i(TAG, "compose / re-compose")
@@ -53,14 +56,16 @@ fun JournalForm(
     val context = LocalContext.current
     val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
 
-    var manifestation = remember { mutableStateOf(TextFieldValue(manifestationMenuItems.first())) }
-    var lessonDay = remember { mutableStateOf(TextFieldValue("")) }
-    var answers = remember { mutableStateOf(List(4) { TextFieldValue("") }) }
+    val manifestation = remember { mutableStateOf(TextFieldValue(manifestationMenuItems.find { it == manifestationSlug}!! )) }
+    val lessonDay = remember { mutableStateOf(TextFieldValue("")) }
+    val subject =  remember { mutableStateOf("") }
+    val answers = remember { mutableStateOf(List(4) { TextFieldValue("") }) }
 
     Column (modifier = modifier.fillMaxWidth()
         .verticalScroll(rememberScrollState())
     ) {
         ComboBox(
+            enabled = false,
             items = manifestationMenuItems,
             label = stringResource(R.string.label_manifestation),
             field = manifestation,
@@ -69,7 +74,7 @@ fun JournalForm(
         )
 
         ComboBox(
-            items = lessonDays,
+            items = lessonDayItems,
             label = stringResource(R.string.label_lesson),
             field = lessonDay,
             omitLabel = false,
@@ -79,6 +84,7 @@ fun JournalForm(
         JournalFormSubject(
             lessonDay = if (lessonDay.value.text.isEmpty()) null else  lessonDay.value.text.toInt()-1,
             lessons = lessons.lessons,
+            subject = subject,
             focusManager = focusManager
         )
 
@@ -115,18 +121,24 @@ fun JournalForm(
                 val manifestationItem =
                     manifestations.find { it.overview == manifestation.value.text }
                 manifestationItem?.let {
-                    // save every time the compose /re-compose is called
-                    saveJournal.invoke(
-                        JournalEntity(
+                    if (lessonDay.value.text.isNotEmpty() && lessonDay.value.text.toInt() > 0) {
+
+                        val journalEntity = JournalEntity(
                             id = null,
-                            lessonDay = lessonDay.value.text.toInt(),
-                            manifestationId = it.id!!,
-                            question = idx,
-                            answer = if (answers.value[idx].text.isEmpty()) null else answers.value[idx].text,
+                            lessonId = lessonDay.value.text.toInt(),
+                            questionIdx = idx + 1,
+                            questionSlug = lessons.lessons[lessonDay.value.text.toInt()-1].journal[idx],
+                            answer = answers.value[idx].text,
                             responseDate = Date().toFechaTimeDb()
                         )
-                    )
+
+                        saveJournal.invoke(
+                            lessons.lessons[lessonDay.value.text.toInt()-1].toEntity(),
+                            journalEntity
+                        )
+                    }
                 }
+
             }
         }
     }
@@ -138,6 +150,7 @@ fun JournalForm(
 fun JournalFormSubject(
     lessonDay: Int?,
     lessons: List<LessonModel>,
+    subject: MutableState<String>,
     focusManager: FocusManager,
 ) {
     val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
@@ -147,7 +160,7 @@ fun JournalFormSubject(
     OutlinedTextField(
         readOnly = true,
         value = value,
-        onValueChange = { },
+        onValueChange = { subject.value = value },
         label = { Text( text = stringResource(R.string.label_subject)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(

@@ -68,6 +68,7 @@ fun MainScreen(
     var topAppBarTitle by remember { mutableStateOf(appName) }
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
     var showSettings by remember { mutableStateOf(false) }
+    var manifestationId by remember { mutableStateOf(0) }
 
     var isFloatingActionVisible by remember { mutableStateOf(false)}
     var isDrawerVisible by remember { mutableStateOf(true)}
@@ -96,7 +97,7 @@ fun MainScreen(
                 isDrawerVisible = false
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
                 // screen name, page, hashCode
-                val destination = "${screenName}/2/$id"
+                val destination = "${screenName}/2/$id/0"
                 navController.navigate(destination)
             }
             else -> {
@@ -136,9 +137,11 @@ fun MainScreen(
             Screens.JournalScreen.route -> {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
+                val session = LocalPref.getSession()!!
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
-                // screen name, page, hashCode
-                val destination = "${screenName}/1/0"
+                // screen name, page, lesson
+                val destination = "${screenName}/1/${session.manifestation}/${session.lesson}"
+                topAppBarTitle = Screens.JournalScreen.title
                 navController.navigate(destination)
             }
             else -> {

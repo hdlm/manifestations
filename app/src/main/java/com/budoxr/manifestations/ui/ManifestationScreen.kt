@@ -49,7 +49,6 @@ import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onBooleanType
 import com.budoxr.manifestations.commons.onIntType
-import com.budoxr.manifestations.commons.onLongType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.copy
 import com.budoxr.manifestations.data.mapper.emptyManifestationModel
@@ -76,6 +75,7 @@ data class ManifestationState(
     val onItemDeleteClick: (ManifestationModel) -> Unit,
     val dateDifference: (String, String) -> Long,
     val onLongPress: onIntType,
+    val navigateToJournals: onIntType
 )
 
 @Composable
@@ -86,8 +86,8 @@ fun ManifestationScreen(
     isDarkTheme: Boolean,
     innerPadding: PaddingValues,
     onEditMode: onIntType,
+    navigateToJournals: onIntType,
     viewModel: ManifestationViewModel = koinViewModel()
-
 ) {
     Log.i(TAG, "compose / recompose")
 
@@ -121,6 +121,7 @@ fun ManifestationScreen(
                 navController = navController,
                 uiState = uiState,
                 onEditMode = onEditMode,
+                navigateToJournals = navigateToJournals,
                 viewModel = viewModel,
                 isDarkTheme = isDarkTheme,
             )
@@ -196,6 +197,7 @@ fun ManifestationScreenReady(
     navController: NavController,
     uiState: ManifestationScreenUiState.Ready,
     onEditMode: onIntType,
+    navigateToJournals: onIntType,
     viewModel: ManifestationViewModel,
     isDarkTheme: Boolean,
 ) {
@@ -233,6 +235,7 @@ fun ManifestationScreenReady(
         onItemDeleteClick = onItemDeleteClick,
         dateDifference = viewModel::dateDifference,
         onLongPress = onLongPress,
+        navigateToJournals = navigateToJournals
     )
 
     Surface(modifier = Modifier
@@ -318,6 +321,7 @@ fun ManifestationScreenBody(
                     isDarkTheme = manifestationState.isDarkTheme,
                     categoryColor = manifestationState.categoryColor,
                     onItemDeleteClick = manifestationState.onItemDeleteClick,
+                    navigateToJournals = manifestationState.navigateToJournals,
                     onLongPress = manifestationState.onLongPress,
                 )
                 Spacer(modifier = Modifier.padding(vertical = lineSpacing))
@@ -386,6 +390,7 @@ fun ManifestationScreenPreview() {
         onItemDeleteClick = { _ ->},
         dateDifference = { _, _ -> 5L },
         onLongPress = { _ ->},
+        navigateToJournals = { _ ->}
     )
 
     ManifestationsTheme {

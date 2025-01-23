@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.budoxr.manifestations"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.budoxr.manifestations"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -34,7 +34,7 @@ android {
     sourceSets {
         getByName("main") {
             manifest.srcFile("AndroidManifest.xml")
-            java.srcDirs("src/main/kotlin")
+            java.srcDirs("src/main/")
         }
         getByName("test").java.srcDirs("src/test/kotlin")
 
@@ -89,9 +89,6 @@ android {
             }
         }
     }
-
-
-
 
 }
 

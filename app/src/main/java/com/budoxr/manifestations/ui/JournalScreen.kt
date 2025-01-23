@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.NoSim
@@ -25,11 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +48,9 @@ import com.budoxr.manifestations.commons.onBooleanType
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.toFechaTimeDb
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.database.entities.JournalEntity
+import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
 import com.budoxr.manifestations.data.mapper.emptyJournalEntity
 import com.budoxr.manifestations.data.mapper.emptyManifestationModel
 import com.budoxr.manifestations.data.mapper.toEntity
@@ -57,6 +59,7 @@ import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.presenters.JournalScreenUiState
 import com.budoxr.manifestations.presentation.presenters.JournalViewModel
+import com.budoxr.manifestations.ui.components.ComboBox
 import com.budoxr.manifestations.ui.components.HorizontalDraggableJournalItemList
 import com.budoxr.manifestations.ui.components.InfoDialog
 import com.budoxr.manifestations.ui.components.JournalForm
@@ -67,14 +70,17 @@ import java.util.Date
 
 
 data class JournalState(
+    val manifestationId: Int,
+    val manifestationSlug: String?,
     val manifestationMenuItems: Array<String>,
-    val lessonDays: Array<String>,
+    val lessonDayItems: Array<String>,
     val manifestations: List<ManifestationModel>,
     val lessons: LessonsWrapper,
-    val journals: List<ManifestationWithJournals>,
     val categoryColor: (String, Context) -> Color,
-    val onItemDeleteClick: onIntType,
+    val onItemDeleteClick: (JournalEntity) -> Unit,
     val dateDifference: (String, String) -> Long,
+    val onFetchManifestationWithLessons: (Int) -> Unit,
+    val onFetchJournal: (Int) -> Unit,
     /** using the hash code */
     val onLongPress: onIntType,
 )
@@ -83,20 +89,25 @@ data class JournalState(
 fun JournalScreen(
     navController: NavController,
     page: Int,
-    id: Long,
+    id: Int,
+    lessonDay: Int,
     innerPadding: PaddingValues,
     onEditMode: onIntType,
     viewModel: JournalViewModel = koinViewModel()
 
 ) {
     Log.i(TAG, "compose / recompose")
-    
+
+    val lessons by viewModel.manifestationWithLessons.collectAsStateWithLifecycle()
+    val journals by viewModel.journals.collectAsStateWithLifecycle()
+
     val journalScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
     when (val uiState = journalScreenUiState) {
         is JournalScreenUiState.Loading -> {
             LocalPref.saveSession(
                 viewModel.session.apply {
                     currentScreen = Screens.JournalScreen.route
+                    manifestation = id
                 }
             )
             JournalScreenLoading(innerPadding = innerPadding)
@@ -112,11 +123,11 @@ fun JournalScreen(
             )
         }
         is JournalScreenUiState.Ready -> {
-            val journals by viewModel.flowOfJournals.collectAsStateWithLifecycle()
             JournalScreenReady(
                 page = page,
                 id = id.toInt(),
                 innerPadding = innerPadding,
+                lessons = lessons,
                 journals = journals,
                 navController = navController,
                 uiState = uiState,
@@ -191,7 +202,8 @@ fun JournalScreenReady(
     page: Int,
     id: Int,
     innerPadding: PaddingValues,
-    journals: List<ManifestationWithJournals>,
+    lessons: List<ManifestationWithLessonsAndJournals>,
+    journals: List<LessonWithJournals>,
     navController: NavController,
     uiState: JournalScreenUiState.Ready,
     onEditMode: onIntType,
@@ -201,7 +213,7 @@ fun JournalScreenReady(
 
     val coroutineScope = rememberCoroutineScope()
     var searchPattern by remember { mutableStateOf("") }
-    var selectedItem by remember { mutableStateOf(id) }
+    var selectedItem by remember { mutableStateOf(emptyJournalEntity()) }
     var page by remember { mutableStateOf(page) }
     var showDialogForDelete by remember { mutableStateOf(false) }
     var showDialogForManifestationEmpty by remember { mutableStateOf(false) }
@@ -214,9 +226,9 @@ fun JournalScreenReady(
         val firstPop = navController.popBackStack()
         Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned first pop: $firstPop")
     }
-    val onItemDeleteClick: onIntType = { journalId ->
-        Log.d(TAG, "onItemDeleteClick() -> invoked, journal id: ${journalId}")
-        selectedItem = journalId
+    val onItemDeleteClick: (JournalEntity) -> Unit = { journal ->
+        Log.d(TAG, "onItemDeleteClick() -> invoked, journal id: ${journal}")
+        selectedItem = journal
         showDialogForDelete = true
     }
     val onButtonConfirmationDelete: onBooleanType = { confirm ->
@@ -225,7 +237,7 @@ fun JournalScreenReady(
             viewModel.deleteJournal(selectedItem)
         }
         showDialogForDelete = false
-        selectedItem = 0
+        selectedItem = emptyJournalEntity()
     }
     val onButtonManifestationEmpty: onDismissType = {
         Log.d(TAG, "onButtonJournalManifestationEmpty() -> invoked")
@@ -235,14 +247,17 @@ fun JournalScreenReady(
 
 
     val journalState = JournalState(
-        manifestationMenuItems = viewModel.util.transformList(uiState.manifestations) { it.overview }.toTypedArray(),
-        lessonDays = viewModel.util.transformList(uiState.lessons.lessons) { it.day.toString() }.toTypedArray(),
+        manifestationId = id,
+        manifestationSlug = uiState.manifestations.find { it.id == id }?.overview,
+        manifestationMenuItems =  viewModel.util.transformList(uiState.manifestations) { it.overview }.toTypedArray(),
+        lessonDayItems = viewModel.util.transformList(uiState.lessons.lessons) { it.day.toString() }.toTypedArray(),
         manifestations = uiState.manifestations,
         lessons = uiState.lessons,
-        journals = journals,
         categoryColor = viewModel::categoryColor,
         onItemDeleteClick = onItemDeleteClick,
         dateDifference = viewModel::dateDifference,
+        onFetchManifestationWithLessons = viewModel::collectManifestationWithLessons,
+        onFetchJournal = viewModel::collectJournals,
         onLongPress = onLongPress,
     )
 
@@ -254,6 +269,7 @@ fun JournalScreenReady(
             0 -> {
                 JournalScreenBody(
                     journalState = journalState,
+                    journals = journals //journals.distinctBy { it.lesson.id }
                 )
             }
             1 -> { // add new Journal
@@ -271,17 +287,31 @@ fun JournalScreenReady(
 
                 if (journalState.manifestationMenuItems.isNotEmpty()) {
                     JournalForm(
+                        manifestationId = journalState.manifestationId,
+                        manifestationSlug = journalState.manifestationSlug!!,
+                        lessonDay = 0,
                         manifestationMenuItems = journalState.manifestationMenuItems,
-                        lessonDays = journalState.lessonDays,
+                        lessonDayItems = journalState.lessonDayItems,
                         manifestations = journalState.manifestations,
                         lessons = journalState.lessons,
-                        item = ManifestationWithJournals().apply {
-                            _journals = listOf( emptyJournalEntity() )
-                            manifestation = emptyManifestationModel().toEntity()
-                        },
+                        item = ManifestationWithLessonsAndJournals(),
+                        saveLesson = viewModel::saveLesson,
                         saveJournal = viewModel::saveJournal,
-                        modifier = Modifier.padding(horizontal = horizontalMargin)
+                        modifier = Modifier
                     )
+//                    JournalForm(
+//                        manifestationMenuItems = journalState.manifestationMenuItems,
+//                        lessonDayItems = journalState.lessonDayItems,
+//                        manifestations = journalState.manifestations,
+//                        lessons = journalState.lessons,
+//                        item = ManifestationWithJournals().apply {
+//                            _journals = listOf( emptyJournalEntity() )
+//                            manifestation = emptyManifestationModel().toEntity()
+//                        },
+//                        saveLesson = viewModel::saveLesson,
+//                        saveJournal = viewModel::saveJournal,
+//                        modifier = Modifier.padding(horizontal = horizontalMargin)
+//                    )
                 } else {
                     showDialogForManifestationEmpty = true
                 }
@@ -306,30 +336,55 @@ fun JournalScreenReady(
 @Composable
 fun JournalScreenBody(
     journalState: JournalState,
+    journals: List<LessonWithJournals>
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_big_size)
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
 
+    val manifestation = remember { mutableStateOf(TextFieldValue(journalState.manifestationMenuItems.find { it == journalState.manifestationSlug }!! )) }
+    val day = remember { mutableStateOf(TextFieldValue(journalState.lessonDayItems.first())) }
+
+    val manifestationId by remember { mutableStateOf(journalState.manifestations.find { it.overview == manifestation.value.text }!!.id) }
+    val dayId by remember { mutableStateOf(journalState.lessons.lessons.find { it.day == day.value.text.toInt() }!!.day) }
+//    journalState.onFetchJournal.invoke(manifestationId!!, dayId)
 
     LazyColumn(modifier = Modifier.padding(end = marginHorizontal)) {
         item {
-            //TODO colocar el filtro Search
+            ComboBox(
+                enabled = false,
+                items = journalState.manifestationMenuItems,
+                label = stringResource(R.string.label_manifestation),
+                field = manifestation,
+                omitLabel = false,
+                modifier = Modifier
+            )
+            Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+//            ComboBox(
+//                items = journalState.lessonDayItems,
+//                label = stringResource(R.string.label_lesson),
+//                field = day,
+//                omitLabel = false,
+//                modifier = Modifier
+//            )
         }
 
-        if (journalState.journals.isNotEmpty()) {
-            items(journalState.journals) { item ->
-                HorizontalDraggableJournalItemList(
-                    item = item,
-                    lessons = journalState.lessons.lessons,
-                    day = journalState.dateDifference.invoke(Date().toFechaTimeDb(), item.manifestation.dueDate),
-                    categoryColor = journalState.categoryColor,
-                    onItemDeleteClick = journalState.onItemDeleteClick,
-                    onLongPress = journalState.onLongPress,
-                )
-                Spacer(modifier = Modifier.padding(vertical = lineSpacing))
-
-            }
+        if (journals.isNotEmpty()) {
+            //TODO desplegar los journals aqui
+//            items(journals.first()._journals) { item ->
+//                HorizontalDraggableJournalItemList(
+//                    manifestation = journals.first().manifestation,
+//                    item = item,
+//                    lessons = journalState.lessons.lessons,
+//                    day = journalState.dateDifference.invoke(Date().toFechaTimeDb(),
+//                        journalState.manifestations.find { it.id == manifestationId }!!.dueDate),
+//                    categoryColor = journalState.categoryColor,
+//                    onItemDeleteClick = journalState.onItemDeleteClick,
+//                    onLongPress = journalState.onLongPress,
+//                )
+//                Spacer(modifier = Modifier.padding(vertical = lineSpacing))
+//
+//            }
         } else {
             item {
                 Row(modifier = Modifier.fillMaxWidth()) {

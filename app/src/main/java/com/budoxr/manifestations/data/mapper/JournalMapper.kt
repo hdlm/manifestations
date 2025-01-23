@@ -7,9 +7,9 @@ import java.util.Date
 fun emptyJournalEntity() =
     JournalEntity(
         id = null,
-        lessonDay = 0,
-        manifestationId = 0,
-        question = 0,
+        lessonId = 0,
+        questionIdx = 0,
+        questionSlug = null,
         answer = "",
         responseDate = Date().toFechaTimeDb()
     )

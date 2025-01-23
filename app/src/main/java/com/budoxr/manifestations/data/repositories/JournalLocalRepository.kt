@@ -2,25 +2,20 @@ package com.budoxr.manifestations.data.repositories
 
 import androidx.annotation.WorkerThread
 import com.budoxr.manifestations.data.database.entities.JournalEntity
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
 import kotlinx.coroutines.flow.Flow
 
 interface JournalLocalRepository {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun allJournals(manifestationId: Int): List<ManifestationWithJournals>
+    suspend fun allJournals(lessonId: Int): List<LessonWithJournals>
 
-    fun allJournalsFlow(): Flow<List<ManifestationWithJournals>>
-
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun getLastId(): Int
-
+    fun allJournalsFlow(lessonId: Int): Flow<List<LessonWithJournals>>
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun journalAnswerExist(lessonDay: Int, manifestationId: Int, question: Int): Int?
+    suspend fun journalAnswerExist(lessonDay: Int, question: Int): Int?
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
@@ -36,6 +31,6 @@ interface JournalLocalRepository {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun delete(journalId: Int)
+    suspend fun deleteAll(journals: List<JournalEntity>)
 
 }

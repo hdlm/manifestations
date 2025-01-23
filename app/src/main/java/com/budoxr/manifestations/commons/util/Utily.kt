@@ -30,7 +30,7 @@ class Utily {
     }
 
     @Throws(Exception::class)
-    suspend fun <T> performAsyncOperation(
+    fun <T> performAsyncOperation(
         scope: CoroutineScope,
         timeout: Long,
         timeUnit: TimeUnit,

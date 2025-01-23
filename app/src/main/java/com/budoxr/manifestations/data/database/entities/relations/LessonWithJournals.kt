@@ -4,14 +4,18 @@ import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
 import com.budoxr.manifestations.data.database.entities.JournalEntity
-import com.budoxr.manifestations.data.database.entities.ManifestationEntity
+import com.budoxr.manifestations.data.database.entities.LessonEntity
 import java.util.Objects
 
-class ManifestationWithJournals {
+class LessonWithJournals {
     @Embedded
-    lateinit var manifestation: ManifestationEntity
+    lateinit var lesson: LessonEntity
 
-    @Relation(parentColumn = "id", entityColumn = "manifestation_id")
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "lesson_id",
+        entity = JournalEntity::class
+    )
     lateinit var _journals: List<JournalEntity>
 
     @get:Ignore
@@ -21,15 +25,15 @@ class ManifestationWithJournals {
     /**
      * Allow consumers to destructure this class
      */
-    operator fun component1(): ManifestationEntity = manifestation
+    operator fun component1(): LessonEntity = lesson
     operator fun component2(): List<JournalEntity> = _journals
 
     override fun equals(other: Any?): Boolean = when {
-        other == this -> true
-        other is ManifestationWithJournals -> manifestation == other.manifestation && _journals == other._journals
+        other === this -> true
+        other is LessonWithJournals -> lesson == other.lesson && _journals == other._journals
         else -> false
     }
 
-    override fun hashCode(): Int = Objects.hash(manifestation, _journals)
-    
+    override fun hashCode(): Int = Objects.hash(lesson, _journals)
+
 }

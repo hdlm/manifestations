@@ -9,6 +9,7 @@ class SessionModelAdapter {
     fun toJson(sessionModel: SessionModel): Map<String, Any?> {
         return mapOf(
             "current_screen" to sessionModel.currentScreen,
+            "manifestation" to sessionModel.manifestation,
             "lesson" to sessionModel.lesson
         )
     }
@@ -17,6 +18,7 @@ class SessionModelAdapter {
     fun fromJson(json: Map<String, Any?>): SessionModel {
         return SessionModel(
             currentScreen = json["current_screen"] as String?,
+            manifestation = (json["manifestation"] as Double).toInt(), // Moshi may parse JSON numbers as Double
             lesson = (json["lesson"] as Double).toInt() // Moshi may parse JSON numbers as Double
         )
     }

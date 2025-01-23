@@ -55,8 +55,9 @@ import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.database.entities.JournalEntity
+import com.budoxr.manifestations.data.database.entities.LessonEntity
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithJournals
+import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
 import com.budoxr.manifestations.presentation.domain.LessonModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.alert
@@ -72,11 +73,12 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HorizontalDraggableJournalItemList(
-    item: ManifestationWithJournals,
+    manifestation: ManifestationEntity,
+    item: JournalEntity,
     lessons: List<LessonModel>,
     day: Long,
     categoryColor: (String, Context) -> Color,
-    onItemDeleteClick: onIntType,
+    onItemDeleteClick: (JournalEntity) -> Unit,
     /** use the hashCode of the item object */
     onLongPress: onIntType,
     modifier: Modifier = Modifier,
@@ -151,7 +153,7 @@ fun HorizontalDraggableJournalItemList(
                         ) {
 
                             IconButton(
-                                onClick = {  onItemDeleteClick.invoke( item.hashCode() )  }
+                                onClick = {  onItemDeleteClick.invoke( item)  }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
@@ -214,13 +216,13 @@ fun HorizontalDraggableJournalItemList(
                     .padding(top = marginHorizontal, start = marginHorizontal, end = marginHorizontal)
                 ) {
                     Text(
-                        text = item.manifestation.overview,
+                        text = manifestation.overview,
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier
                     )
                     Spacer(modifier = Modifier.padding(vertical = lineSpacing))
                     Text(
-                        text = item.manifestation.description,
+                        text = manifestation.description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                     )
@@ -255,11 +257,11 @@ fun HorizontalDraggableJournalItemList(
                             Box (
                                 modifier = modifier
                                     .clip(MaterialTheme.shapes.small)
-                                    .background(categoryColor(item.manifestation.category, context)),
+                                    .background(categoryColor(manifestation.category, context)),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
                                 Text(
-                                    text = item.manifestation.category,
+                                    text = manifestation.category,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
@@ -271,11 +273,10 @@ fun HorizontalDraggableJournalItemList(
                     Spacer(modifier = Modifier.padding(vertical = lineSpacing))
                     val journalQuestions = lessons.find { it.day == day.toInt() }!!.journal
                     repeat(journalQuestions.size) { idx ->
-                        var journalAnswers = item._journals.find { it.lessonDay == day.toInt() && it.question == idx }
                         HorizontalDraggableJournalQuestionList(
                             number = (idx + 1).toString(),
                             question = journalQuestions[idx],
-                            answer = journalAnswers!!.answer
+                            answer = item.answer
                         )
                     }
 
@@ -284,7 +285,6 @@ fun HorizontalDraggableJournalItemList(
             }
 
         }
-
 
     }
 
@@ -323,20 +323,25 @@ fun DraggableJournalItemPreview() {
         dueDate = Date().toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )
+    val lessonEntity = LessonEntity(
+        id = null,
+        day = 1,
+        subject = "Gain money",
+        manifestationId = 2
+    )
     val journal = JournalEntity (
-        id = 3,
-        lessonDay = 5,
-        manifestationId = 2,
-        question = 1,
+        id = null,
+        lessonId = 5,
+        questionIdx = 2,
+        questionSlug = "como te va?",
         answer = "La respuesta es simple",
         responseDate = Date().toFechaTimeDb()
     )
-    val item = ManifestationWithJournals()
+    val item = LessonWithJournals()
         .apply {
-            manifestation = manifestationEntity
+            lesson = lessonEntity
             _journals = listOf(journal)
         }
-
     val lessons : List<LessonModel> = listOf(
         LessonModel(
             day = 1,
@@ -347,11 +352,11 @@ fun DraggableJournalItemPreview() {
         )
     )
 
-
     ManifestationsTheme {
         Surface (modifier = Modifier.fillMaxWidth()) {
             HorizontalDraggableJournalItemList(
-                item = item,
+                manifestation = manifestationEntity,
+                item = journal,
                 lessons = lessons,
                 day = 4,
                 categoryColor = { category, context -> passion },

@@ -12,7 +12,7 @@ class JournalAnswerExistUseCase : KoinComponent {
      * The function checks if a journal answer already exists in the local repository.
      * @return the _id_ that matched or null
      */
-    suspend operator fun invoke(lessonDay: Int, manifestationId: Int, question: Int) =
-        localRepository.journalAnswerExist(lessonDay, manifestationId, question)
+    suspend operator fun invoke(lessonDay: Int, question: Int) =
+        localRepository.journalAnswerExist(lessonDay, question)
 
 }

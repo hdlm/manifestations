@@ -10,9 +10,11 @@ import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.util.Utily
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.domain.SessionModel
+import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
@@ -34,11 +36,16 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
     private val manifestationInfoUseCase: ManifestationInfoUseCase by inject()
     private val manifestationInsertUseCase: ManifestationInsertUseCase by inject()
     private val manifestationDeleteUseCase: ManifestationDeleteUseCase by inject()
-    private val manifestationInsertWorkerUseCase: ManifestationInsertWorkerUseCase by inject()
+    private val lessonInfoUseCase: LessonInfoUseCase by inject()
     val util: Utily by inject()
     private val categoryHelper: CategoryHelper by inject()
 
     val flowOfManifestations = manifestationInfoUseCase.invoke().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(CommonValues.FLOW_WHILESUBSCRIBED),
+        initialValue = emptyList()
+    )
+    val flowOfLessons = lessonInfoUseCase.invoke().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(CommonValues.FLOW_WHILESUBSCRIBED),
         initialValue = emptyList()
@@ -61,8 +68,10 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
 
             com.budoxr.manifestations.commons.util.combine(
                 flowOfManifestations,
+                flowOfLessons,
                 refreshing
             ) { _,
+                lessons,
                 refreshing ->
 
                 if (refreshing) {
@@ -71,7 +80,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
                 }
 
                 delay(50)
-                ManifestationScreenUiState.Ready
+                ManifestationScreenUiState.Ready(lessons)
 
             }.catch { throwable ->
                 throwable.printStackTrace()
@@ -152,7 +161,9 @@ sealed interface ManifestationScreenUiState {
         val errorMessage: String? = null
     ) : ManifestationScreenUiState
 
-    object Ready : ManifestationScreenUiState
+    data class Ready(
+        val lessons: List<ManifestationWithLessonsAndJournals> = emptyList(),
+    ) : ManifestationScreenUiState
 
 }
 
