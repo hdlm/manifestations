@@ -48,6 +48,7 @@ import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.onBooleanType
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.mapper.copy
@@ -75,6 +76,7 @@ data class ManifestationState(
     val onItemDeleteClick: (ManifestationModel) -> Unit,
     val dateDifference: (String, String) -> Long,
     val onLongPress: onIntType,
+    val onBackButtonClick: onDismissType,
     val navigateToJournals: onIntType
 )
 
@@ -210,6 +212,10 @@ fun ManifestationScreenReady(
     var page by remember { mutableStateOf(page) }
     var showDialog by remember { mutableStateOf(false) }
 
+    val onBackButtonClick: onDismissType = {
+        val firstPop = navController.popBackStack()
+        Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned first pop: $firstPop")
+    }
     val onLongPress: onIntType = { id ->
         Log.d(TAG, "onLongPress() -> invoked, id: $id")
         onEditMode.invoke(id)
@@ -235,6 +241,7 @@ fun ManifestationScreenReady(
         onItemDeleteClick = onItemDeleteClick,
         dateDifference = viewModel::dateDifference,
         onLongPress = onLongPress,
+        onBackButtonClick = onBackButtonClick,
         navigateToJournals = navigateToJournals
     )
 
@@ -264,6 +271,7 @@ fun ManifestationScreenReady(
                     ManifestationForm(
                         item = emptyManifestationModel().copy(id = nextId),
                         isDarkTheme = isDarkTheme,
+                        onBackButtonClick = onBackButtonClick,
                         saveManifestation = viewModel::saveManifestation,
                         modifier = Modifier.padding(horizontal = horizontalMargin)
                     )
@@ -274,6 +282,7 @@ fun ManifestationScreenReady(
                     ManifestationForm(
                         item = manifestations.find { it.id == selectedItem }!!,
                         isDarkTheme = isDarkTheme,
+                        onBackButtonClick = onBackButtonClick,
                         saveManifestation = viewModel::saveManifestation,
                         modifier = Modifier.padding(horizontal = horizontalMargin)
                     )
@@ -390,6 +399,7 @@ fun ManifestationScreenPreview() {
         onItemDeleteClick = { _ ->},
         dateDifference = { _, _ -> 5L },
         onLongPress = { _ ->},
+        onBackButtonClick = { },
         navigateToJournals = { _ ->}
     )
 

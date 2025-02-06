@@ -2,12 +2,16 @@ package com.budoxr.manifestations.ui.components
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,15 +36,18 @@ import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.CATEGORIES
 import com.budoxr.manifestations.commons.CommonValues.oneDayMillis
 import com.budoxr.manifestations.commons.fromFechaTimeDb
+import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
+import com.google.common.math.LinearTransformation.horizontal
 import java.util.Date
 
 @Composable
 fun ManifestationForm(
     item: ManifestationModel,
     isDarkTheme: Boolean,
+    onBackButtonClick: onDismissType,
     saveManifestation: (ManifestationModel, Context) -> Unit,
     modifier: Modifier
 ) {
@@ -50,12 +57,15 @@ fun ManifestationForm(
     val focusManager: FocusManager = LocalFocusManager.current
     val context = LocalContext.current
     val lineSpacing = dimensionResource(R.dimen.line_spacing_1)
+    val lineSpacing2x = dimensionResource(R.dimen.line_spacing_2)
+    val horizontalMargin = dimensionResource(R.dimen.margin_horizontal)
 
     var overview by remember { mutableStateOf(TextFieldValue(item.overview)) }
     var description by remember { mutableStateOf(TextFieldValue(item.description)) }
     var creationDate by remember { mutableStateOf(item.creationDate.fromFechaTimeDb()) }
     var dueDate by remember { mutableStateOf(item.dueDate.fromFechaTimeDb()) }
     var category = remember { mutableStateOf(TextFieldValue(item.category)) }
+
 
     val onCreationDateSelected: (Long?) -> Unit = { millis ->
         Log.d(TAG, "onCreationDateSelected() -> invoked, millis: $millis")
@@ -144,6 +154,20 @@ fun ManifestationForm(
             modifier = Modifier
         )
 
+        Spacer(modifier = Modifier.padding(vertical = lineSpacing2x))
+        Button( onClick = onBackButtonClick,
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = horizontalMargin)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = stringResource(R.string.button_back),
+                    modifier = Modifier.padding(horizontal = horizontalMargin)
+                )
+            }
+        }
+
     }
 
     // save every time the compose / re-compose is called
@@ -184,6 +208,7 @@ fun ManifestationFormItemPreview() {
             ManifestationForm(
                 item = item,
                 isDarkTheme = false,
+                onBackButtonClick = {},
                 saveManifestation = { _, _ -> },
                 modifier = Modifier.padding(horizontal = marginHorizontal)
             )

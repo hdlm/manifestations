@@ -52,6 +52,7 @@
     <string name="label_select">Select</string>
     <string name="title_manifestation_empty">You can\'t create a new journal</string>
     <string name="msg_manifestation_empty">You have to create a manifestation first</string>
+    <string name="button_back">Back</string>
 
 
     <!-- Setting -->
