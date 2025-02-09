@@ -64,7 +64,7 @@ android {
 
     buildTypes {
         debug {
-//            buildConfigField("boolean", "DEBUG", "true")
+            buildConfigField("boolean", "CAPTURE_JSON", "true")
             isDebuggable = true
             isShrinkResources = false
             isMinifyEnabled = false
@@ -72,6 +72,7 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
+            buildConfigField("boolean", "CAPTURE_JSON", "false")
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true

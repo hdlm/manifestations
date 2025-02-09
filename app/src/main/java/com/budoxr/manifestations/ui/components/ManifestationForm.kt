@@ -40,7 +40,6 @@ import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
-import com.google.common.math.LinearTransformation.horizontal
 import java.util.Date
 
 @Composable

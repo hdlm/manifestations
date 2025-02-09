@@ -1,9 +1,11 @@
 package com.budoxr.manifestations.commons.util
 
+import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.toLocalDate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.TimeUnit
@@ -32,9 +34,9 @@ class Utily {
     @Throws(Exception::class)
     fun <T> performAsyncOperation(
         scope: CoroutineScope,
-        timeout: Long,
-        timeUnit: TimeUnit,
-        dispatcher: CoroutineDispatcher,
+        timeout: Long = CommonValues.WAIT_DEFERRED,
+        timeUnit: TimeUnit = TimeUnit.SECONDS,
+        dispatcher: CoroutineDispatcher = Dispatchers.IO,
         operation: suspend () -> T
     ): Deferred<T> = scope.async(dispatcher) {
         withTimeout(timeUnit.toMillis(timeout)) {

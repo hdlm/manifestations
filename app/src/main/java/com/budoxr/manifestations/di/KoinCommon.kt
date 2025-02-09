@@ -36,9 +36,11 @@ import com.budoxr.manifestations.presentation.usecase.JournalAnswerExistUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.JournalInsertUseCase
+import com.budoxr.manifestations.presentation.usecase.LessonCountUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonInsertUseCase
+import com.budoxr.manifestations.presentation.usecase.LessonLastRecordUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
@@ -93,6 +95,8 @@ object Modules {
         factory { ManifestationDeleteUseCase() }
         factory { LessonInfoUseCase() }
         factory { LessonInsertUseCase() }
+        factory { LessonCountUseCase() }
+        factory { LessonLastRecordUseCase() }
         factory { LessonDeleteUseCase() }
         factory { JournalInfoUseCase() }
         factory { JournalInsertUseCase() }

@@ -32,7 +32,7 @@
     <string name="label_delete_confirmation">Ha seleccionado a AAA para borrarlo de su lista. ¿Confirma que desea continuar?.</string>
     <string name="button_validation_confirm">Continuar</string>
     <string name="button_validation_cancel">Cancelar</string>
-    <string name="button_add_journal">Add journals</string>
+    <string name="button_show_journal">journals</string>
     <string-array name="categories_array">
         <item name="Health">Health</item>
         <item name="Wealth">Wealth</item>

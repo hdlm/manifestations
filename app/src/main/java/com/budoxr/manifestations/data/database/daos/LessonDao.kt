@@ -71,4 +71,13 @@ interface LessonDao {
     suspend fun getAllLessonsByManifestationId(manifestationId: Int): List<ManifestationWithLessonsAndJournals>
 
 
+    @Query("SELECT * FROM lesson WHERE manifestation_id = :manifestationId AND day = :day")
+    suspend fun getLessonByDay(day: Int, manifestationId: Int): LessonEntity?
+
+    @Query("SELECT COUNT(*) FROM lesson WHERE manifestation_id = :manifestationId")
+    suspend fun countByManifestationId(manifestationId: Int): Int
+
+    @Query("SELECT * FROM lesson WHERE manifestation_id = :manifestationId ORDER BY id DESC LIMIT 1")
+    suspend fun getLastLesson(manifestationId: Int): LessonEntity?
+
 }

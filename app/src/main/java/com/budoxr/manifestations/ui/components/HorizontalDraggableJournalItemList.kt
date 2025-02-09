@@ -335,7 +335,7 @@ fun DraggableJournalItemPreview() {
         questionIdx = 2,
         questionSlug = "como te va?",
         answer = "La respuesta es simple",
-        responseDate = Date().toFechaTimeDb()
+        responseDate = System.currentTimeMillis()
     )
     val item = LessonWithJournals()
         .apply {

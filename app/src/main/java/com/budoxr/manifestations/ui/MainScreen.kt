@@ -57,19 +57,15 @@ fun MainScreen(
         Screens.Expand,
         Screens.LessonScreen,
         Screens.ManifestationScreen,
-        Screens.JournalScreen,
         Screens.SettingScreen
     )
 
-    val appName =  stringResource(id = R.string.app_name)
     val context = LocalContext.current
     val currentRoute = currentRoute(navController)
     var expanded by remember { mutableStateOf(false) }
-    var topAppBarTitle by remember { mutableStateOf(appName) }
+    var topAppBarTitle by remember { mutableStateOf(Screens.LessonScreen.title) }
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
     var showSettings by remember { mutableStateOf(false) }
-    var manifestationId by remember { mutableStateOf(0) }
-
     var isFloatingActionVisible by remember { mutableStateOf(false)}
     var isDrawerVisible by remember { mutableStateOf(true)}
 
@@ -81,15 +77,16 @@ fun MainScreen(
         val value = navController.popBackStack()
         Log.d(TAG, "onBackButtonClick() -> clicked\n\treturned value: $value")
     }
-    val onEditMode: onIntType = { id ->
-        Log.d(TAG, "onEditMode() -> invoked, id: $id")
+    val onEditMode: onIntType = { manifestationId ->
+        Log.d(TAG, "onEditMode() -> invoked, manifestationId: $manifestationId")
         val currentScreen = LocalPref.getSession()?.currentScreen ?: ""
         when (currentScreen) {
             Screens.ManifestationScreen.route -> {
                 isFloatingActionVisible = false
                 isDrawerVisible = false
                 val screenName = Screens.ManifestationScreen.route.substringBefore('/')
-                val destination = "${screenName}/2/$id"
+                val destination = "${screenName}/2/$manifestationId"
+                Log.d(TAG, "from Manifestation to destination: $destination")
                 navController.navigate(destination)
             }
             Screens.JournalScreen.route -> {
@@ -97,7 +94,8 @@ fun MainScreen(
                 isDrawerVisible = false
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
                 // screen name, page, hashCode
-                val destination = "${screenName}/2/$id/0"
+                val destination = "${screenName}/2/$manifestationId/0"
+                Log.d(TAG, "from Journal to destination: $destination")
                 navController.navigate(destination)
             }
             else -> {
@@ -122,6 +120,15 @@ fun MainScreen(
         Log.d(TAG, "onSettingsButtonClick() -> invoked")
         showSettings = true
     }
+    val navigateToJournals: onIntType = { manifestationId ->
+        Log.d(TAG, "navigateToJournals() -> invoked, manifestation-Id: $manifestationId")
+        isFloatingActionVisible = true
+        isDrawerVisible = false
+        topAppBarTitle = Screens.JournalScreen.title
+        val screenName = Screens.JournalScreen.route.substringBefore('/')
+        val destination = "${screenName}/0/$manifestationId/0"  // screen, page, manifestationId, lesson
+        navController.navigate(destination)
+    }
     val onFloatingActionButtonClick: onDismissType = {
         Log.d(TAG, "onFloatingActionButtonClick() -> invoked")
 
@@ -132,6 +139,7 @@ fun MainScreen(
                 isDrawerVisible = false
                 val screenName = Screens.ManifestationScreen.route.substringBefore('/')
                 val destination = "${screenName}/1/0"
+                Log.d(TAG, "from Manifestation to destination: $destination")
                 navController.navigate(destination)
             }
             Screens.JournalScreen.route -> {
@@ -141,6 +149,7 @@ fun MainScreen(
                 val screenName = Screens.JournalScreen.route.substringBefore('/')
                 // screen name, page, lesson
                 val destination = "${screenName}/1/${session.manifestation}/${session.lesson}"
+                Log.d(TAG, "from Journal to destination: $destination")
                 topAppBarTitle = Screens.JournalScreen.title
                 navController.navigate(destination)
             }
@@ -170,8 +179,10 @@ fun MainScreen(
                                     Screens.Expand -> { Icon(Screens.Expand.icon, contentDescription = stringResource( id = R.string.content_description_icon )) }
                                     Screens.LessonScreen -> Icon(Screens.LessonScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.ManifestationScreen -> Icon(Screens.ManifestationScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
-                                    Screens.JournalScreen -> Icon(Screens.JournalScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
                                     Screens.SettingScreen -> Icon(Screens.SettingScreen.icon, contentDescription =  stringResource( id = R.string.content_description_icon ))
+                                    else -> {
+                                        // do nothing
+                                    }
                                 }
                             },
                             badge = {
@@ -185,30 +196,33 @@ fun MainScreen(
                                     Log.d(TAG, "expanded: $expanded")
                                 }
                                 else {
-                                    if (screen.route == Screens.LessonScreen.route ) {
-                                        topAppBarTitle = screen.title
-                                        isFloatingActionVisible = false
-                                        navController.navigate(screen.route) {
-                                            popUpTo(navController.graph.findStartDestination().id){
-                                                saveState = true
+                                    when (screen.route) {
+                                        Screens.LessonScreen.route -> {
+                                            topAppBarTitle = screen.title
+                                            isFloatingActionVisible = false
+                                            navController.navigate(screen.route) {
+                                                popUpTo(navController.graph.findStartDestination().id){
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
                                         }
-                                    } else if (screen.route == Screens.SettingScreen.route) {
-                                        onSettingsButtonClick.invoke()
-                                    } else {
-                                        topAppBarTitle = screen.title
-                                        isFloatingActionVisible = true
-                                        val screenName = screen.route.substringBefore('/')
-                                        val destination = "${screenName}/0/0"
-                                        navController.navigate(destination) {
-                                            popUpTo(navController.graph.findStartDestination().id){
-                                                saveState = true
+                                        Screens.SettingScreen.route -> {
+                                            onSettingsButtonClick.invoke()
+                                        }
+                                        else -> {
+                                            topAppBarTitle = screen.title
+                                            isFloatingActionVisible = true
+                                            val screenName = screen.route.substringBefore('/')
+                                            val destination = "${screenName}/0/0"
+                                            navController.navigate(destination) {
+                                                popUpTo(navController.graph.findStartDestination().id){
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
                                         }
                                     }
-
                                 }
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -232,6 +246,7 @@ fun MainScreen(
                 onFloatingActionButtonClick = onFloatingActionButtonClick,
                 onBackButtonClick = onBackButtonClick,
                 onEditMode = onEditMode,
+                navigateToJournals = navigateToJournals,
                 onSaveButtonClick = onSaveButtonClick,
             )
 
@@ -247,6 +262,7 @@ fun MainScreen(
             isDarkTheme = isDarkTheme,
             onBackButtonClick = onBackButtonClick,
             onEditMode = onEditMode,
+            navigateToJournals = navigateToJournals,
             onSaveButtonClick = onSaveButtonClick,
         )
 
@@ -274,6 +290,7 @@ fun MainScaffold(
     onFloatingActionButtonClick: onDismissType,
     onBackButtonClick: onDismissType,
     onEditMode: onIntType,
+    navigateToJournals: onIntType,
     onSaveButtonClick: onDismissType,
 ) {
     val iconSize = dimensionResource(R.dimen.icon_topbar_size)
@@ -361,6 +378,7 @@ fun MainScaffold(
             innerPadding = innerPadding,
             isDarkTheme = isDarkTheme,
             onEditMode = onEditMode,
+            navigateToJournals = navigateToJournals
         )
     }
 }
@@ -369,6 +387,8 @@ fun MainScaffold(
 @Composable
 private fun currentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val destination: String? =  navBackStackEntry?.destination?.route
+    Log.d(TAG, "currentRoute() -> called, destination: ${destination?.substringBefore('/')}")
     return navBackStackEntry?.destination?.route
 }
 

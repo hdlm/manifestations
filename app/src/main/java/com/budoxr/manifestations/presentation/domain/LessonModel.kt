@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class LessonModel(
     val id: Int? = null,
-    @Json(name = "manifestation_id") val manifestationId: Int? = null,
+    @Json(name = "manifestation_id") var manifestationId: Int? = null,
     @Json(name = "day") val day: Int,
     @Json(name = "subject") val subject: String,
     val summary: List<String>,

@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG) {
             Log.d("MyApp", "Debug mode enabled")
         } else {
-            Log.d("MyApp", "Debug mode disabled")
+            Log.d("MyApp", "Release mode disabled")
         }
 
         try {
@@ -91,7 +91,6 @@ class MainActivity : ComponentActivity() {
 
         }
     }
-
 
 
     fun askReadExternalStoragePermission(): Boolean {
@@ -137,7 +136,5 @@ class MainActivity : ComponentActivity() {
     }
 
 }
-
-
 
 private const val TAG = "che.MainActivity"

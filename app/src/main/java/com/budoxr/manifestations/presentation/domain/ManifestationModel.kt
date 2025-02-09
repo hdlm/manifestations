@@ -1,7 +1,5 @@
 package com.budoxr.manifestations.presentation.domain
 
-import java.util.Date
-
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

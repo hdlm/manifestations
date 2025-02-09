@@ -19,6 +19,17 @@ interface LessonLocalRepository {
 
     fun allLessonsByManifestationIdFlow(manifestationId: Int): Flow<List<ManifestationWithLessonsAndJournals>>
 
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getLessonsByDay(day: Int, manifestationId: Int): LessonEntity?
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun countLessonsByManifestationId(manifestationId: Int): Int
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getLastLesson(manifestationId: Int): LessonEntity?
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread

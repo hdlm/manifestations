@@ -84,7 +84,7 @@ data class ManifestationState(
 fun ManifestationScreen(
     navController: NavController,
     page: Int,
-    id: Int,
+    manifestationId: Int,
     isDarkTheme: Boolean,
     innerPadding: PaddingValues,
     onEditMode: onIntType,
@@ -117,7 +117,7 @@ fun ManifestationScreen(
             val manifestations by viewModel.flowOfManifestations.collectAsStateWithLifecycle(initialValue = emptyList())
             ManifestationScreenReady(
                 page = page,
-                id = id,
+                id = manifestationId,
                 innerPadding = innerPadding,
                 manifestations = manifestations,
                 navController = navController,

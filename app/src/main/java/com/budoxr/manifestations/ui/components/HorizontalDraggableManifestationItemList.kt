@@ -281,7 +281,7 @@ fun HorizontalDraggableManifestationItemList(
                             onClick = { navigateToJournals.invoke(item.id!!) }
                         ) {
                             Text(
-                                text = stringResource(R.string.button_add_journal),
+                                text = stringResource(R.string.button_show_journal),
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center
                             )
