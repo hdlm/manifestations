@@ -66,7 +66,6 @@ import com.budoxr.manifestations.ui.theme.gray
 import com.budoxr.manifestations.ui.theme.grayLight
 import com.budoxr.manifestations.ui.theme.orange
 import com.budoxr.manifestations.ui.theme.passion
-import java.util.Date
 import kotlin.math.roundToInt
 
 
@@ -319,8 +318,8 @@ fun DraggableJournalItemPreview() {
         id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-        creationDate = Date().toFechaTimeDb(),
-        dueDate = Date().toFechaTimeDb(),
+        creationDate = System.currentTimeMillis(),
+        dueDate = System.currentTimeMillis(),
         category = CATEGORIES.WEALTH.key,
     )
     val lessonEntity = LessonEntity(

@@ -67,7 +67,7 @@ fun String.fromFechaTimeDb(): Date {
 
 fun Date.toFechaTimeDb(): String {
     val patternOut: String  = "yyyy-MM-dd kk:mm:ss"
-    val sdf = SimpleDateFormat(patternOut, Locale("en", "US"))
+    val sdf = SimpleDateFormat(patternOut, Locale.getDefault())
     val fecha = sdf.format(this)
     return fecha
 }

@@ -11,8 +11,8 @@ data class ManifestationEntity(
     val overview: String,
     val description: String,
     @ColumnInfo(name = "creation_date")
-    val creationDate: String,
+    val creationDate: Long,
     @ColumnInfo(name = "due_date")
-    val dueDate: String,
+    val dueDate: Long,
     val category: String,
 )
