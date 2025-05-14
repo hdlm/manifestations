@@ -1,6 +1,5 @@
 package com.budoxr.manifestations.presentation.presenters
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,18 +23,17 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.component.inject
+import org.koin.core.component.get
 import java.io.Reader
 
-class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent {
+class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), KoinComponent {
 
+    private val localStorage : LocalStorage = get()
     private val configInfoUseCase: ConfigInfoUseCase by inject()
-    private val localStorage : LocalStorage by inject()
     private val utily: Utily by inject()
 
-
-    private val lessons = localStorage.getLessons(context).shareIn(
+    private val lessons = localStorage.getLessons(ttsHelper.context).shareIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(FLOW_WHILESUBSCRIBED)
     )
@@ -45,6 +43,9 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
     val uiState: StateFlow<LessonScreenUiState>
         get() = _uiState
 
+    val textToSpeechHelper: TextToSpeechHelper
+        get() = ttsHelper
+
     private val _sessionModel: SessionModel by inject()
     val session: SessionModel
         get() = _sessionModel
@@ -53,7 +54,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
     val meditationContent: TextContent
         get() = _meditationContent
 
-    private var _textToSpeech: TextToSpeechHelper = get()
+    private var _textToSpeech = textToSpeechHelper
     val textToSpeech: TextToSpeechHelper
         get() = _textToSpeech
 
@@ -120,7 +121,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
 
 
     fun loadMeditation(fileName: String) {
-        val file = localStorage.loadFileStreamFromAssets(context, fileName)
+        val file = localStorage.loadFileStreamFromAssets(ttsHelper.context, fileName)
         val reader = file.reader()
         val paragraphs = getParagraphs(reader)
         Log.d(TAG, "loadMeditation() -> filename: $fileName, loaded.")
@@ -172,7 +173,7 @@ class LessonViewModel(private val context: Context) : ViewModel(), KoinComponent
     }
 
     fun restartSpeak() {
-        _textToSpeech.restart(context)
+        _textToSpeech.restart(ttsHelper.context)
     }
 
 }

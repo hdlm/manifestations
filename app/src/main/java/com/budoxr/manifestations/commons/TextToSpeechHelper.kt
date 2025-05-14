@@ -20,13 +20,15 @@ import java.util.UUID
 import kotlin.getValue
 
 @OptIn(DelicateCoroutinesApi::class)
-class TextToSpeechHelper(private val context: Context) : KoinComponent, TextToSpeech.OnInitListener {
+class TextToSpeechHelper(private val _context: Context) : KoinComponent, TextToSpeech.OnInitListener {
     private val configInfoUseCase: ConfigInfoUseCase by inject()
     private var _tts: TextToSpeech? = null
     private val _config = MutableStateFlow(emptyConfigModel())
     val config: MutableStateFlow<ConfigModel>
         get() = _config
 
+    val context: Context
+        get() = _context
 
     var onDone : onDismissType = {}
     var onError : onStringType = {}

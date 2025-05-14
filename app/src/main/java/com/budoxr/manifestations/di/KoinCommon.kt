@@ -59,7 +59,7 @@ object Modules {
         single { SessionModel() }
         factory<LocalStorage> { LocalStorageImpl() }
         factory { CheckPermissionUseCase() }
-        viewModel { LessonViewModel(get()) }
+        viewModel { LessonViewModel( TextToSpeechHelper(get()) ) }
         viewModel { ManifestationViewModel() }
         viewModel { JournalViewModel(androidContext()) }
         viewModel { SettingViewModel() }
