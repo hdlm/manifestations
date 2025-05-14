@@ -11,15 +11,15 @@ interface JournalLocalRepository {
     @WorkerThread
     suspend fun allJournals(lessonId: Int): List<LessonWithJournals>
 
-    fun allJournalsFlow(lessonId: Int): Flow<List<LessonWithJournals>>
+    fun allJournalsFlow(manifestationId: Int): Flow<List<LessonWithJournals>>
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun journalAnswerExist(lessonDay: Int, question: Int): Int?
+    suspend fun getJournalByQuestion(questionIdx: Int, lessonId: Int): JournalEntity?
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(journal: JournalEntity)
+    suspend fun insert(journal: JournalEntity): Long
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread

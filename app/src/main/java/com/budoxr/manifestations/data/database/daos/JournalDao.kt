@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface JournalDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertJournal(journal: JournalEntity)
+    suspend fun insertJournal(journal: JournalEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllJournal(journals: List<JournalEntity>)
@@ -30,11 +30,11 @@ interface JournalDao {
                 lesson.*
             FROM lesson 
             INNER JOIN journal ON lesson.id = journal.lesson_id 
-            WHERE lesson.id = :lessonId
+            WHERE lesson.manifestation_id = :manifestationId
             ORDER BY lesson.day, journal.question_idx ASC
         """
     )
-    fun observeAllJournals(lessonId: Int): Flow<List<LessonWithJournals>>
+    fun observeAllJournals(manifestationId: Int): Flow<List<LessonWithJournals>>
 
     @Query(
         """
@@ -42,20 +42,20 @@ interface JournalDao {
                 lesson.*
             FROM lesson 
             INNER JOIN journal ON lesson.id = journal.lesson_id 
-            WHERE lesson.id = :lessonId
+            WHERE lesson.manifestation_id = :manifestationId
             ORDER BY lesson.day, journal.question_idx ASC
         """
     )
-    suspend fun getAllJournals(lessonId: Int): List<LessonWithJournals>
+    suspend fun getAllJournals(manifestationId: Int): List<LessonWithJournals>
 
 
     @Query(
         """
-           SELECT COUNT(*) FROM journal WHERE lesson_id = :lessonId 
-                AND question_idx = :question 
+           SELECT * FROM journal WHERE lesson_id = :lessonId 
+                AND question_idx = :questionIdx 
         """
     )
-    suspend fun journalAnswerExist(lessonId: Int, question: Int): Int
+    suspend fun getJournalByQuestion(lessonId: Int, questionIdx: Int): JournalEntity?
 
 
 }

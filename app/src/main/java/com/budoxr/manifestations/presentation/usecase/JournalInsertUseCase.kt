@@ -9,10 +9,8 @@ class JournalInsertUseCase : KoinComponent {
     private val localRepository: JournalLocalRepository
         get() = get()
 
-    suspend operator fun invoke(journal: JournalEntity): Unit {
-        localRepository.insert(journal)
-
-    }
+    suspend operator fun invoke(journal: JournalEntity) : Int =
+        localRepository.insert(journal).toInt()
 
     suspend operator fun invoke(journals: List<JournalEntity>): Unit {
         localRepository.insertAll(journals)

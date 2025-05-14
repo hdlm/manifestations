@@ -8,11 +8,12 @@ class JournalAnswerExistUseCase : KoinComponent {
     private val localRepository: JournalLocalRepository
         get() = get()
 
+    //TODO eliminar este use case
     /**
      * The function checks if a journal answer already exists in the local repository.
      * @return the _id_ that matched or null
      */
-    suspend operator fun invoke(lessonDay: Int, question: Int) =
-        localRepository.journalAnswerExist(lessonDay, question)
+//    suspend operator fun invoke(lessonDay: Int, question: Int) =
+//        localRepository.journalAnswerExist(lessonDay, question)
 
 }

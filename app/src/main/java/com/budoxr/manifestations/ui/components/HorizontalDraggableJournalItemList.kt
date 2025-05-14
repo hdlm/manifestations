@@ -56,9 +56,9 @@ import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.data.database.entities.JournalEntity
 import com.budoxr.manifestations.data.database.entities.LessonEntity
-import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
 import com.budoxr.manifestations.presentation.domain.LessonModel
+import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import com.budoxr.manifestations.ui.theme.alert
 import com.budoxr.manifestations.ui.theme.bright
@@ -66,16 +66,19 @@ import com.budoxr.manifestations.ui.theme.gray
 import com.budoxr.manifestations.ui.theme.grayLight
 import com.budoxr.manifestations.ui.theme.orange
 import com.budoxr.manifestations.ui.theme.passion
+import java.util.Date
+import kotlin.hashCode
+import kotlin.invoke
 import kotlin.math.roundToInt
-
+import kotlin.times
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HorizontalDraggableJournalItemList(
-    manifestation: ManifestationEntity,
+    manifestation: ManifestationModel,
     item: JournalEntity,
     lessons: List<LessonModel>,
-    day: Long,
+    days: Long,
     categoryColor: (String, Context) -> Color,
     onItemDeleteClick: (JournalEntity) -> Unit,
     /** use the hashCode of the item object */
@@ -88,8 +91,8 @@ fun HorizontalDraggableJournalItemList(
     val separator = 2.dp
     val questions  by remember { mutableStateOf(listOf<String>()) }
 
-    val context = LocalContext.current
 
+    val context = LocalContext.current
     val density = LocalDensity.current
     val decayAnimationSpec = rememberSplineBasedDecay<Float>()
 
@@ -191,98 +194,26 @@ fun HorizontalDraggableJournalItemList(
                 }
                 .anchoredDraggable(state, Orientation.Horizontal),
         ) {
-            Card(
-                shape = MaterialTheme.shapes.medium,
-                border = BorderStroke(1.dp, gray),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
-                modifier = modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                onLongPress.invoke(item.hashCode())
-                            }
-                        )
-                    }
-                    .size(
-                        width = with(density) { contentSize.width.toDp() * factor },
-                        with(density) { contentSize.height.toDp() })
 
-            ) {
-                Column (modifier = modifier
-                    .fillMaxWidth()
-                    .padding(top = marginHorizontal, start = marginHorizontal, end = marginHorizontal)
-                ) {
-                    Text(
-                        text = manifestation.overview,
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.padding(vertical = lineSpacing))
-                    Text(
-                        text = manifestation.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.padding(vertical = separator))
-                    Row (modifier = Modifier.fillMaxWidth() ) {
-                        Column (verticalArrangement = Arrangement.Bottom) {
-                            Row (verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = stringResource(R.string.label_days) + ":",
-                                    style = MaterialTheme.typography.labelMedium,
-                                )
-                                Spacer(modifier = Modifier.padding(horizontal = separator))
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                        .clip(CircleShape)
-                                        .clip(MaterialTheme.shapes.small)
-                                        .background( if(day >= 15) grayLight else if(day < 15 && day >= 5) orange else if(day < 5 && day >= 1) Color.Magenta else passion )
-                                ) {
-                                    Text( modifier = Modifier.padding(horizontal = lineSpacing, vertical = 3.dp),
-                                        text = day.toString(), style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                }
-                            }
+            JournalCardItem(
+                modifier = Modifier
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            onLongPress.invoke(item.hashCode())
                         }
-                        Column (modifier = Modifier
-                            .weight(1f),
-                            verticalArrangement = Arrangement.Bottom,
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            Box (
-                                modifier = modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .background(categoryColor(manifestation.category, context)),
-                                contentAlignment = Alignment.BottomEnd
-                            ) {
-                                Text(
-                                    text = manifestation.category,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier
-                                        .padding(horizontal = lineSpacing, vertical = 3.dp)
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.padding(vertical = lineSpacing))
-                    val journalQuestions = lessons.find { it.day == day.toInt() }!!.journal
-                    repeat(journalQuestions.size) { idx ->
-                        HorizontalDraggableJournalQuestionList(
-                            number = (idx + 1).toString(),
-                            question = journalQuestions[idx],
-                            answer = item.answer
-                        )
-                    }
-
+                    )
                 }
-
-            }
-
+                .size(
+                    width = with(density) { contentSize.width.toDp() * factor },
+                    with(density) { contentSize.height.toDp() }
+                ),
+                manifestation = manifestation,
+                item = item,
+                lessons = lessons,
+                days = days,
+                categoryColor = categoryColor(manifestation.category, context)
+            )
         }
 
     }
@@ -314,12 +245,12 @@ fun HorizontalDraggableJournalQuestionList(
 @Preview(showBackground = true)
 @Composable
 fun DraggableJournalItemPreview() {
-    val manifestationEntity = ManifestationEntity(
+    val manifestationModel = ManifestationModel(
         id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-        creationDate = System.currentTimeMillis(),
-        dueDate = System.currentTimeMillis(),
+        creationDate = Date(System.currentTimeMillis()).toFechaTimeDb(),
+        dueDate = Date(System.currentTimeMillis()).toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )
     val lessonEntity = LessonEntity(
@@ -354,10 +285,10 @@ fun DraggableJournalItemPreview() {
     ManifestationsTheme {
         Surface (modifier = Modifier.fillMaxWidth()) {
             HorizontalDraggableJournalItemList(
-                manifestation = manifestationEntity,
+                manifestation = manifestationModel,
                 item = journal,
                 lessons = lessons,
-                day = 4,
+                days = 4,
                 categoryColor = { category, context -> passion },
                 onItemDeleteClick = { _ -> },
                 onLongPress = { _ -> },

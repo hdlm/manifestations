@@ -6,14 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.budoxr.manifestations.data.database.entities.LessonEntity
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessons
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LessonDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLesson(lesson: LessonEntity)
+    suspend fun insertLesson(lesson: LessonEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLessons(lessons: List<LessonEntity>)
@@ -33,7 +33,7 @@ interface LessonDao {
             ORDER BY lesson.day ASC
         """
     )
-    fun observeAllLessons(): Flow<List<ManifestationWithLessonsAndJournals>>
+    fun observeAllLessons(): Flow<List<ManifestationWithLessons>>
 
     @Query(
         """
@@ -44,31 +44,23 @@ interface LessonDao {
             ORDER BY lesson.day ASC
         """
     )
-    suspend fun getAllLessons(): List<ManifestationWithLessonsAndJournals>
+    suspend fun getAllLessons(): List<ManifestationWithLessons>
 
     @Query(
         """
-            SELECT 
-                manifestation.*
-            FROM manifestation 
-            INNER JOIN lesson ON manifestation.id = lesson.manifestation_id 
+            SELECT * FROM manifestation 
             WHERE manifestation.id = :manifestationId
-            ORDER BY lesson.day ASC
         """
     )
-    fun observeAllLessonsByManifestationId(manifestationId: Int): Flow<List<ManifestationWithLessonsAndJournals>>
+    fun observeAllLessonsByManifestationId(manifestationId: Int): Flow<List<ManifestationWithLessons>>
 
     @Query(
         """
-            SELECT 
-                manifestation.*
-            FROM manifestation 
-            INNER JOIN lesson ON manifestation.id = lesson.manifestation_id 
+            SELECT * FROM manifestation 
             WHERE manifestation.id = :manifestationId
-            ORDER BY lesson.day ASC
         """
     )
-    suspend fun getAllLessonsByManifestationId(manifestationId: Int): List<ManifestationWithLessonsAndJournals>
+    suspend fun getAllLessonsByManifestationId(manifestationId: Int): List<ManifestationWithLessons>
 
 
     @Query("SELECT * FROM lesson WHERE manifestation_id = :manifestationId AND day = :day")

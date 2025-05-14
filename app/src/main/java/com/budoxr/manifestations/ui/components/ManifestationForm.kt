@@ -161,7 +161,7 @@ fun ManifestationForm(
             Row(
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = stringResource(R.string.button_back),
+                Text(text = stringResource(R.string.button_save),
                     modifier = Modifier.padding(horizontal = horizontalMargin)
                 )
             }

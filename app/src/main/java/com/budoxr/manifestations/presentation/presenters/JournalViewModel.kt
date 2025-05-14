@@ -6,15 +6,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budoxr.manifestations.commons.CategoryHelper
-import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.CommonValues.FLOW_WHILESUBSCRIBED
 import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.commons.onIntType
 import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.database.entities.JournalEntity
 import com.budoxr.manifestations.data.database.entities.LessonEntity
 import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessons
 import com.budoxr.manifestations.data.mapper.emptyLessonModel
 import com.budoxr.manifestations.data.repositories.LocalStorage
 import com.budoxr.manifestations.presentation.domain.LessonsWrapper
@@ -30,7 +30,6 @@ import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonLastRecordUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +40,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 import kotlin.getValue
 
 class JournalViewModel(private val context: Context) : ViewModel(), KoinComponent {
@@ -67,8 +65,8 @@ class JournalViewModel(private val context: Context) : ViewModel(), KoinComponen
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(FLOW_WHILESUBSCRIBED),
     )
-    private val _manifestationWithlessons = MutableStateFlow<List<ManifestationWithLessonsAndJournals>>(emptyList())
-    val manifestationWithLessons: StateFlow<List<ManifestationWithLessonsAndJournals>>
+    private val _manifestationWithlessons = MutableStateFlow<List<ManifestationWithLessons>>(emptyList())
+    val manifestationWithLessons: StateFlow<List<ManifestationWithLessons>>
         get() = _manifestationWithlessons
 
     private val _journals = MutableStateFlow<List<LessonWithJournals>>(emptyList<LessonWithJournals>())
@@ -159,19 +157,13 @@ class JournalViewModel(private val context: Context) : ViewModel(), KoinComponen
         }
     }
 
-    fun collectJournals(lessonId: Int): Unit {
+    fun collectJournals(manifestationId: Int): Unit {
         viewModelScope.launch(Dispatchers.IO) {
-            journalInfoUseCase.invoke(lessonId)
+            journalInfoUseCase.invoke(manifestationId)
                 .collect {
                     _journals.value = it
                 }
         }
-    }
-
-    private suspend fun saveLesson(lesson: LessonEntity, scope: CoroutineScope) {
-        Log.d(TAG, "saveLesson() -> called, lesson: ${lesson.day} of manifestation: ${lesson.manifestationId}")
-        lessonInsertUseCase.invoke(lesson = lesson, scope = scope)
-
     }
 
     fun deleteLesson(lesson: LessonEntity) {
@@ -182,33 +174,19 @@ class JournalViewModel(private val context: Context) : ViewModel(), KoinComponen
 
     }
 
-    fun saveJournal(lesson: LessonEntity, journal: JournalEntity) {
-        Log.d(TAG, "saveJournal() -> called, answer: ${journal.answer}")
-
+    fun saveLesson(lesson: LessonEntity, onDone: onIntType) {
         viewModelScope.launch(Dispatchers.IO) {
-            val countBefore = util.performAsyncOperation(scope = this) {
-                lessonInfoUseCase.invoke(lesson.manifestationId)
-            }.await()
+            val generatedId = lessonInsertUseCase.invoke(lesson = lesson)
+            Log.d( TAG, "saveLesson() -> called, inserting the new Lesson in the database:\n\tmanifestationId: $${lesson.manifestationId}, lessonId: ${lesson.id}\n\tgeneratedId: $generatedId" )
+            onDone.invoke(generatedId)
+        }
 
-            saveLesson(lesson = lesson, scope = this)
-
-            Log.d(TAG, "count before the insertion: $countBefore")
-            var countAfter = countBefore
-            do {
-                countAfter = util.performAsyncOperation(scope = this) {
-                    lessonInfoUseCase.invoke(lesson.manifestationId)
-                }.await()
-            } while( countAfter == countBefore )
-            Log.d(TAG, "count after the insertion: $countAfter")
-
-            val newLesson = util.performAsyncOperation(scope = this) {
-                lessonlastRecordUseCase.invoke(lesson.manifestationId)
-            }.await()
-            newLesson?.let {
-                Log.d(TAG, "inserting the new Journal in the database")
-                journal.lessonId = it.id!!
-                journalInsertUseCase.invoke(journal)
-            }
+    }
+    fun saveJournal(journal: JournalEntity, lessonId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newJournal = journal.copy(lessonId = lessonId)
+            val generatedJournalId = journalInsertUseCase.invoke(newJournal)
+            Log.d(TAG, "saveJournal() -> called, inserting the new Journal in the database:\n\tlessonId: $${newJournal.lessonId}, generatedId: $generatedJournalId")
         }
 
     }

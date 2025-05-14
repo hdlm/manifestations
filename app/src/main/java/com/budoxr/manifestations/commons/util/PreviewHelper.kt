@@ -8,7 +8,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
-object JSONHelper {
+object PreviewHelper {
     fun getManifestationFromJSON(json: String): List<ManifestationModel>? =
         try {
             val moshi = Moshi.Builder()

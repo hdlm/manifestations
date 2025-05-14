@@ -13,20 +13,14 @@ class JournalLocalRepositoryImpl : JournalLocalRepository, KoinComponent {
     override suspend fun allJournals(lessonId: Int): List<LessonWithJournals> =
         journalDao.getAllJournals(lessonId)
 
-    override fun allJournalsFlow(lessonId: Int): Flow<List<LessonWithJournals>> =
-        journalDao.observeAllJournals(lessonId)
+    override fun allJournalsFlow(manifestationId: Int): Flow<List<LessonWithJournals>> =
+        journalDao.observeAllJournals(manifestationId)
 
+    override suspend fun getJournalByQuestion(questionIdx: Int, lessonId: Int): JournalEntity? =
+        journalDao.getJournalByQuestion(lessonId, questionIdx)
 
-    override suspend fun journalAnswerExist(
-        lessonDay: Int,
-        question: Int
-    ): Int =
-        journalDao.journalAnswerExist(lessonDay, question)
-
-
-    override suspend fun insert(journal: JournalEntity) {
+    override suspend fun insert(journal: JournalEntity): Long =
         journalDao.insertJournal(journal)
-    }
 
     override suspend fun insertAll(journals: List<JournalEntity>) {
         journalDao.insertAllJournal(journals)

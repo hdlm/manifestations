@@ -115,6 +115,20 @@ object Modules {
     }
 
     val unitTestModule = module {
+        single { AppScope() }
+        factory { Utily() }
+        single { SessionModel() }
+        factory<LocalStorage> { LocalStorageImpl() }
+        factory { CheckPermissionUseCase() }
+        viewModel { LessonViewModel(get()) }
+        viewModel { ManifestationViewModel() }
+        viewModel { JournalViewModel(androidContext()) }
+        viewModel { SettingViewModel() }
+        single { CategoryHelper() }
+        factory { BackupUseCase() }
+        factory { RestoreUseCase() }
+        factory { ExportDatabaseUseCase() }
+        factory { ImportDatabaseUseCase() }
     }
 
 }

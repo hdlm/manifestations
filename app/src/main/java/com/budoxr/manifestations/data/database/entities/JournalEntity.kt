@@ -20,7 +20,7 @@ import androidx.room.PrimaryKey
 )
 data class JournalEntity(
     @PrimaryKey(autoGenerate = true) val id: Int?,
-    @ColumnInfo(name = "lesson_id") var lessonId: Int,
+    @ColumnInfo(name = "lesson_id") val lessonId: Int,
     @ColumnInfo(name = "question_idx") val questionIdx: Int,
     @ColumnInfo(name = "question_slug") val questionSlug: String?,
     @ColumnInfo(name = "answer") val answer: String?,

@@ -10,7 +10,7 @@ import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.util.Utily
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessonsAndJournals
+import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessons
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.domain.SessionModel
@@ -18,7 +18,6 @@ import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
-import com.budoxr.manifestations.presentation.usecase.ManifestationInsertWorkerUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationLastIdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -162,7 +161,7 @@ sealed interface ManifestationScreenUiState {
     ) : ManifestationScreenUiState
 
     data class Ready(
-        val lessons: List<ManifestationWithLessonsAndJournals> = emptyList(),
+        val lessons: List<ManifestationWithLessons> = emptyList(),
     ) : ManifestationScreenUiState
 
 }
