@@ -57,11 +57,11 @@ object Modules {
         single { TextToSpeechHelper(androidContext()) }
         factory { Utily() }
         single { SessionModel() }
-        factory<LocalStorage> { LocalStorageImpl() }
+        factory<LocalStorage> { LocalStorageImpl(androidContext()) }
         factory { CheckPermissionUseCase() }
         viewModel { LessonViewModel( TextToSpeechHelper(get()) ) }
         viewModel { ManifestationViewModel() }
-        viewModel { JournalViewModel(androidContext()) }
+        viewModel { JournalViewModel() }
         viewModel { SettingViewModel() }
         single { CategoryHelper() }
         factory { BackupUseCase() }
@@ -118,11 +118,11 @@ object Modules {
         single { AppScope() }
         factory { Utily() }
         single { SessionModel() }
-        factory<LocalStorage> { LocalStorageImpl() }
+        factory<LocalStorage> { LocalStorageImpl(androidContext()) }
         factory { CheckPermissionUseCase() }
         viewModel { LessonViewModel(get()) }
         viewModel { ManifestationViewModel() }
-        viewModel { JournalViewModel(androidContext()) }
+        viewModel { JournalViewModel() }
         viewModel { SettingViewModel() }
         single { CategoryHelper() }
         factory { BackupUseCase() }

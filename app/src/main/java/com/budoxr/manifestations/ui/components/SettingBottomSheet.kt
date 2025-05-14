@@ -1,6 +1,5 @@
 package com.budoxr.manifestations.ui.components
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -57,6 +56,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 
+//TODO los niveles de la velocidad del speech son: 8:lento, 9:normal, 10:rapido
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingBottomSheet(
@@ -112,10 +112,10 @@ fun SettingContentBottomSheet(
     isWriteGranted: Boolean,
     askReadExternalStoragePermission: () -> Boolean,
     askWriteExternalStoragePermission: () -> Boolean,
-    onBackup: (Context) -> Unit,
-    onRestore: (Context) -> Unit,
-    onImport: (Context, Uri, () -> Boolean) -> Unit,
-    onExport: (Context, Uri, () -> Boolean) -> Unit,
+    onBackup: () -> Unit,
+    onRestore: () -> Unit,
+    onImport: (Uri, () -> Boolean) -> Unit,
+    onExport: (Uri, () -> Boolean) -> Unit,
     onSpeechRateChange: onFloatType,
     config: ConfigModel
 ) {
@@ -142,9 +142,9 @@ fun SettingContentBottomSheet(
         selectedFolderUri?.let {
             Log.d(TAG, "Selected folder URI: $it")
             if (isExport) {
-                onExport.invoke(context, it, askWriteExternalStoragePermission)
+                onExport.invoke(it, askWriteExternalStoragePermission)
             } else {
-                onImport.invoke(context, it, askReadExternalStoragePermission)
+                onImport.invoke(it, askReadExternalStoragePermission)
             }
         } ?: run {
             Log.d(TAG, "No folder selected")
@@ -163,12 +163,12 @@ fun SettingContentBottomSheet(
 
     val onBackupButtonClick: onDismissType = {
         Log.d(TAG, "onBackupButtonClick() -> invoked")
-        onBackup.invoke(context)
+        onBackup.invoke()
 
     }
     val onRestoreButtonClick: onDismissType = {
         Log.d(TAG, "onRestoreButtonClick() -> invoked")
-        onRestore.invoke(context)
+        onRestore.invoke()
 
     }
     val onImportButtonClick: onDismissType = {

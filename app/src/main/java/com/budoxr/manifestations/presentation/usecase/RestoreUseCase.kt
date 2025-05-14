@@ -10,8 +10,8 @@ import kotlin.getValue
 class RestoreUseCase : KoinComponent {
     private val localRepository: LocalStorage by inject()
 
-    suspend operator fun invoke(context: Context) : List<ManifestationModel> {
-        return  localRepository.restoreDatabase(context)
+    suspend operator fun invoke() : List<ManifestationModel> {
+        return  localRepository.restoreDatabase()
     }
 
 }

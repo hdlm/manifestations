@@ -40,10 +40,11 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.component.get
 import kotlin.getValue
 
-class JournalViewModel(private val context: Context) : ViewModel(), KoinComponent {
-    private val localStorage: LocalStorage by inject()
+class JournalViewModel() : ViewModel(), KoinComponent {
+    private val localStorage: LocalStorage = get()
     private val manifestationInfoUseCase : ManifestationInfoUseCase by inject()
     private val lessonInfoUseCase : LessonInfoUseCase by inject()
     private val lessonCountUseCase : LessonCountUseCase by inject()
@@ -57,7 +58,7 @@ class JournalViewModel(private val context: Context) : ViewModel(), KoinComponen
     private val categoryHelper: CategoryHelper by inject()
     val util: Utily by inject()
 
-    private val lessons = localStorage.getLessons(context).shareIn(
+    private val lessons = localStorage.getLessons().shareIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(FLOW_WHILESUBSCRIBED)
     )

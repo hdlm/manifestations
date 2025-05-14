@@ -66,14 +66,14 @@ class SettingViewModel : ViewModel(), KoinComponent {
      * The function it is responsible to copy the [com.budoxr.manifestations.presentation.domain.ManifestationModel](manifestations)
      * registered to a json file into the private storage directory of the app.
      */
-    fun backup(context: Context) {
+    fun backup() {
 
         viewModelScope.launch(Dispatchers.IO) {
             val manifestations = util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
                 manifestationInfoUseCase.invoke(this)
             }.await()
             val models = util.transformList(manifestations) { it.toModel() }
-            backupUseCase.invoke(context, models)
+            backupUseCase.invoke(models)
 
         }
     }
@@ -83,17 +83,17 @@ class SettingViewModel : ViewModel(), KoinComponent {
      * The function it is responsible to recover the [com.budoxr.manifestations.presentation.domain.ManifestationModel](manifestations)
      * registered previously saved in the private storage directory of the app.
      */
-    fun restore(context: Context) {
+    fun restore() {
 
         viewModelScope.launch(Dispatchers.IO) {
-            val recoveredManifestations = restoreUseCase.invoke(context)
+            val recoveredManifestations = restoreUseCase.invoke()
             val entities = util.transformList(recoveredManifestations) { it.toEntity() }
             manifestationInsertUseCase.invoke(entities)
         }
     }
 
 
-    fun export(context: Context, selectedFolderUri: Uri,  askWriteExternalStoragePermission: () -> Boolean ) {
+    fun export(selectedFolderUri: Uri,  askWriteExternalStoragePermission: () -> Boolean ) {
         _isWriteGranted.value = askWriteExternalStoragePermission.invoke()
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -101,17 +101,17 @@ class SettingViewModel : ViewModel(), KoinComponent {
                 manifestationInfoUseCase.invoke(this)
             }.await()
             val models = util.transformList(manifestations) { it.toModel() }
-            exportDbUseCase.invoke(context, models, selectedFolderUri)
+            exportDbUseCase.invoke(models, selectedFolderUri)
 
         }
 
     }
 
-    fun import(context: Context, selectedFolderUri: Uri,  askReadExternalStoragePermission: () -> Boolean) {
+    fun import(selectedFolderUri: Uri,  askReadExternalStoragePermission: () -> Boolean) {
         _isReadGranted.value = askReadExternalStoragePermission.invoke()
 
         viewModelScope.launch(Dispatchers.IO) {
-            val manifestations = importDbUseCase.invoke(context, selectedFolderUri)
+            val manifestations = importDbUseCase.invoke(selectedFolderUri)
             manifestationInsertUseCase.invoke(util.transformList(manifestations) { it.toEntity() })
         }
     }

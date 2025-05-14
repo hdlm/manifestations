@@ -33,7 +33,7 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
     private val configInfoUseCase: ConfigInfoUseCase by inject()
     private val utily: Utily by inject()
 
-    private val lessons = localStorage.getLessons(ttsHelper.context).shareIn(
+    private val lessons = localStorage.getLessons().shareIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(FLOW_WHILESUBSCRIBED)
     )
@@ -121,7 +121,7 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
 
 
     fun loadMeditation(fileName: String) {
-        val file = localStorage.loadFileStreamFromAssets(ttsHelper.context, fileName)
+        val file = localStorage.loadFileStreamFromAssets(fileName)
         val reader = file.reader()
         val paragraphs = getParagraphs(reader)
         Log.d(TAG, "loadMeditation() -> filename: $fileName, loaded.")

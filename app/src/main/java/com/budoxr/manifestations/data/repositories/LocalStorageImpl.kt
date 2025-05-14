@@ -24,11 +24,10 @@ import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
-class LocalStorageImpl : LocalStorage{
+class LocalStorageImpl(context: Context) : LocalStorage(context) {
 
     @Throws(IOException::class)
     override fun loadFileStreamFromAssets(
-        context: Context,
         filename: String
     ): File = File(context.cacheDir, filename)
         .also {
@@ -46,7 +45,6 @@ class LocalStorageImpl : LocalStorage{
 
     @Throws(IOException::class)
     override fun loadFileReaderFromAssets(
-        context: Context,
         filename: String
     ): String {
         val reader: FileReader
@@ -142,7 +140,6 @@ class LocalStorageImpl : LocalStorage{
 
     @Throws(IOException::class)
     override suspend fun backupDatabase(
-        context: Context,
         manifestations: List<ManifestationModel>
     ) {
         Log.d(TAG, "backing up the database, count of registers: ${manifestations.size}")
@@ -157,7 +154,7 @@ class LocalStorageImpl : LocalStorage{
     }
 
     @Throws(FileNotFoundException::class)
-    override suspend fun restoreDatabase(context: Context): List<ManifestationModel> {
+    override suspend fun restoreDatabase(): List<ManifestationModel> {
         Log.d(TAG, "restoring the database")
 
         val jsonString = readerFromFile(context, BACKUP_FILE)
@@ -171,7 +168,7 @@ class LocalStorageImpl : LocalStorage{
 
 
     @Throws(IOException::class)
-    override suspend fun exportDatabase(context: Context, manifestations: List<ManifestationModel>, selectedFolderUri: Uri) : Unit {
+    override suspend fun exportDatabase(manifestations: List<ManifestationModel>, selectedFolderUri: Uri) : Unit {
         Log.d(TAG, "backing up the database, count of registers: ${manifestations.size}")
 
         val moshi = Moshi.Builder()
@@ -188,7 +185,6 @@ class LocalStorageImpl : LocalStorage{
 
     @Throws(FileNotFoundException::class)
     override suspend fun importDatabase(
-        context: Context,
         selectedFolderUri: Uri
     ): List<ManifestationModel> {
         Log.d(TAG, "restoring the database")
@@ -206,12 +202,12 @@ class LocalStorageImpl : LocalStorage{
 
 
     @Throws(IOException::class)
-    override fun getLessons(context: Context): Flow<LessonsWrapper> = flow {
+    override fun getLessons(): Flow<LessonsWrapper> = flow {
         val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
         val jsonAdapter = moshi.adapter(LessonsWrapper::class.java)
-        val lessonsJson = loadFileReaderFromAssets(context, filenameLessons)
+        val lessonsJson = loadFileReaderFromAssets(filenameLessons)
         val listOfLesson = jsonAdapter.fromJson(lessonsJson)
         listOfLesson?.let {
             emit(it)
