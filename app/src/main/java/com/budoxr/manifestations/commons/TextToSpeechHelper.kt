@@ -24,7 +24,6 @@ import kotlin.getValue
 class TextToSpeechHelper(val context: Context) : KoinComponent, TextToSpeech.OnInitListener {
     private val configInfoUseCase: ConfigInfoUseCase by inject()
     private var _tts: TextToSpeech? = null
-    //TODO cambiar emptyConfigModel por defaultConfigModel
     private val _config = MutableStateFlow(defaultConfigModel())
     val config: MutableStateFlow<ConfigModel>
         get() = _config
