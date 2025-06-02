@@ -1,13 +1,12 @@
 package com.budoxr.manifestations.presentation.presenters
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budoxr.manifestations.commons.CommonValues
 import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.util.Utily
-import com.budoxr.manifestations.data.mapper.emptyConfigModel
+import com.budoxr.manifestations.data.mapper.defaultConfigModel
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.data.mapper.toModel
 import com.budoxr.manifestations.presentation.domain.ConfigModel
@@ -23,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
 
@@ -43,7 +41,7 @@ class SettingViewModel : ViewModel(), KoinComponent {
 
     private val _isReadGranted = MutableStateFlow(false)
     private val _isWriteGranted = MutableStateFlow(false)
-    private val _config = MutableStateFlow(emptyConfigModel())
+    private val _config = MutableStateFlow(defaultConfigModel())
 
     val isReadGranted : MutableStateFlow<Boolean>
         get() = _isReadGranted

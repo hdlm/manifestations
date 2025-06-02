@@ -1,6 +1,8 @@
 package com.budoxr.manifestations.ui
 
 import android.util.Log
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +39,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -91,18 +96,19 @@ fun LessonScreen(
     innerPadding: PaddingValues,
     viewModel: LessonViewModel = koinViewModel()
 ) {
-
+    var isSpeaking = remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val observer = LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_START -> {
                 Log.i(TAG, "compose / recompose")
-                viewModel.restartSpeak()
+                viewModel.textToSpeechHelper.restart()
             }
             Lifecycle.Event.ON_DESTROY -> {
                 Log.d(TAG, "Composable destroyed")
-                viewModel.textToSpeech.shutdown()
+                viewModel.textToSpeechHelper.shutdown()
+                isSpeaking.value = false
             }
             else -> {
                 // Other lifecycle events can be handled here as needed
@@ -139,6 +145,7 @@ fun LessonScreen(
                 navController = navController,
                 uiState = uiState,
                 viewModel = viewModel,
+                isSpeaking = isSpeaking,
                 isDarkTheme = isDarkTheme,
             )
         }
@@ -212,6 +219,7 @@ fun LessonScreenReady(
     navController: NavController,
     uiState: LessonScreenUiState.Ready,
     viewModel: LessonViewModel,
+    isSpeaking: MutableState<Boolean>,
     isDarkTheme: Boolean,
 ) {
 
@@ -256,13 +264,14 @@ fun LessonScreenReady(
         viewModel.error(errorMessage)
     }
     val onStatusPlayerClick: onIntType = { status ->
-        val statusName = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status].name
-        Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $statusName")
-
         statusPlayer = CommonValues.STATUS_PLAYER.entries.toTypedArray()[status]
+        Log.d(TAG, "onStatusPlayerClick() -> invoked, status: $statusPlayer.name")
+
+
         when (statusPlayer) {
             CommonValues.STATUS_PLAYER.stop -> {
                 viewModel.meditationContent.paragraphCount = 1
+                isSpeaking.value = false
             }
             CommonValues.STATUS_PLAYER.rewind -> {
                 with(viewModel.meditationContent) {
@@ -282,8 +291,8 @@ fun LessonScreenReady(
                         // start playing
                         val fileName = uiState.lessons.lessons[selectedDay-1].meditation!!
                         viewModel.loadMeditation(fileName)
-                        viewModel.textToSpeech.onDone = onDoneParagraph
-                        viewModel.textToSpeech.onError = onErrorTTS
+                        viewModel.textToSpeechHelper.onDone = onDoneParagraph
+                        viewModel.textToSpeechHelper.onError = onErrorTTS
                     }
                     with(viewModel.meditationContent) {
                         Log.i(TAG, "speak now")
@@ -292,6 +301,7 @@ fun LessonScreenReady(
                         viewModel.speak(paragraphCount)
                         paragraphCount++  // fix the issue that repeat two times the first paragraph when start playing
                     }
+                    isSpeaking.value = true
 
                 }
             }
@@ -300,11 +310,13 @@ fun LessonScreenReady(
                     viewModel.meditationContent.paragraphCount--  // fix the issue that skip the next paragraph when pause
                     Log.d(TAG, "\t> paragraph: ${viewModel.meditationContent.paragraphCount}")
                 }
+                isSpeaking.value = false
 
             }
             CommonValues.STATUS_PLAYER.previous -> {
                 Log.d(TAG, "\t> paragraph: ${viewModel.meditationContent.paragraphCount}")
-
+                viewModel.meditationContent.paragraphCount = 0
+                isSpeaking.value = false
             }
         }
     }
@@ -330,6 +342,8 @@ fun LessonScreenReady(
             lessonState = lessonState,
         )
     }
+
+    KeepScreenOnWhileSpeaking(isSpeaking.value)
 
 }
 
@@ -677,5 +691,23 @@ fun LessonScreenPreview() {
 
 }
 
+
+@Composable
+fun KeepScreenOnWhileSpeaking(isSpeaking: Boolean) {
+    Log.d(TAG, "KeepScreenOnWhileSpeaking -> isSpeaking: $isSpeaking")
+    val view = LocalView.current
+    val window = (view.context as? ComponentActivity)?.window ?: return
+
+    DisposableEffect(isSpeaking) {
+        if (isSpeaking) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+}
 
 private const val TAG =  "che.LessonScreen"

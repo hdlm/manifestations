@@ -47,7 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.onFloatType
-import com.budoxr.manifestations.data.mapper.emptyConfigModel
+import com.budoxr.manifestations.data.mapper.defaultConfigModel
 import com.budoxr.manifestations.presentation.domain.ConfigModel
 import com.budoxr.manifestations.presentation.presenters.SettingViewModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
@@ -327,7 +327,7 @@ fun SettingBottomSheetPreview() {
             onImport = viewModel::import,
             onExport = viewModel::export,
             onSpeechRateChange = viewModel::setSpeechRate,
-            config = emptyConfigModel()
+            config = defaultConfigModel()
         )
 
     }

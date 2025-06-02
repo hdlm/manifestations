@@ -419,4 +419,4 @@ fun ManifestationScreenPreview() {
 }
 
 
-private const val TAG =  "ManifestationScreen"
+private const val TAG =  "che.ManifestationScreen"

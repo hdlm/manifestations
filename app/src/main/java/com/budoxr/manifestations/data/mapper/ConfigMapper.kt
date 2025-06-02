@@ -19,7 +19,7 @@ fun ConfigEntity.toModel() =
         speechRate = speechRate
     )
 
-fun emptyConfigModel() =
+fun defaultConfigModel() =
     ConfigModel(
         id = 1,
         language = "es",

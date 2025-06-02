@@ -27,7 +27,7 @@ import org.koin.core.component.inject
 import org.koin.core.component.get
 import java.io.Reader
 
-class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), KoinComponent {
+class LessonViewModel(val textToSpeechHelper: TextToSpeechHelper) : ViewModel(), KoinComponent {
 
     private val localStorage : LocalStorage = get()
     private val configInfoUseCase: ConfigInfoUseCase by inject()
@@ -43,9 +43,6 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
     val uiState: StateFlow<LessonScreenUiState>
         get() = _uiState
 
-    val textToSpeechHelper: TextToSpeechHelper
-        get() = ttsHelper
-
     private val _sessionModel: SessionModel by inject()
     val session: SessionModel
         get() = _sessionModel
@@ -53,10 +50,6 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
     private var _meditationContent: TextContent = TextContent(paragraphs = listOf(), text = "", paragraphCount = 0)
     val meditationContent: TextContent
         get() = _meditationContent
-
-    private var _textToSpeech = textToSpeechHelper
-    val textToSpeech: TextToSpeechHelper
-        get() = _textToSpeech
 
     /** this value avoid to show the same error twice */
     var errorShowed: Boolean = false
@@ -158,10 +151,10 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
                     Log.i(TAG, "make a pause of '$it seconds'")
                     delay(it.toLong() * 1000L)
                     val nextParagraph = _meditationContent.paragraphCount++
-                    textToSpeech.speak(meditationContent.paragraphs[nextParagraph])
+                    textToSpeechHelper.speak(meditationContent.paragraphs[nextParagraph])
                 }
             } else {
-                textToSpeech.speak(meditationContent.paragraphs[paragraphIndex])
+                textToSpeechHelper.speak(meditationContent.paragraphs[paragraphIndex])
             }
         }
 
@@ -170,10 +163,6 @@ class LessonViewModel(private val ttsHelper: TextToSpeechHelper) : ViewModel(), 
     fun stopSpeak() {
         Log.i(TAG, "speak stopped.")
         _meditationContent.paragraphCount = 0
-    }
-
-    fun restartSpeak() {
-        _textToSpeech.restart(ttsHelper.context)
     }
 
 }

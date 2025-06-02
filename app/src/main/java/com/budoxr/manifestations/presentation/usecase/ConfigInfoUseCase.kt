@@ -1,6 +1,6 @@
 package com.budoxr.manifestations.presentation.usecase
 
-import com.budoxr.manifestations.data.mapper.emptyConfigModel
+import com.budoxr.manifestations.data.mapper.defaultConfigModel
 import com.budoxr.manifestations.data.mapper.toModel
 import com.budoxr.manifestations.data.repositories.ConfigLocalRepository
 import com.budoxr.manifestations.presentation.domain.ConfigModel
@@ -12,6 +12,6 @@ class ConfigInfoUseCase : KoinComponent {
         get() = get()
 
     suspend operator fun invoke() : ConfigModel =
-        localRepository.getConfig(1)?.toModel() ?: emptyConfigModel()
+        localRepository.getConfig(1)?.toModel() ?: defaultConfigModel()
 
 }
