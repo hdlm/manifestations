@@ -23,7 +23,7 @@ import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import org.koin.core.error.ApplicationAlreadyStartedException
+import org.koin.core.error.KoinApplicationAlreadyStartedException
 
 class MainActivity : ComponentActivity() {
 
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 androidLogger()
                 modules(appModule, databaseModule, workerModule)
             }
-        } catch (ex: ApplicationAlreadyStartedException) {
+        } catch (ex: KoinApplicationAlreadyStartedException) {
             // ignore
         }
 

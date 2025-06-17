@@ -48,7 +48,7 @@ import com.budoxr.manifestations.presentation.usecase.ManifestationInsertWorkerU
 import com.budoxr.manifestations.presentation.usecase.ManifestationLastIdUseCase
 import com.budoxr.manifestations.presentation.usecase.RestoreUseCase
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 object Modules {
@@ -76,7 +76,7 @@ object Modules {
             AppDatabase::class.java,
             "manifestation.db"
         ).
-        fallbackToDestructiveMigration().build()
+        fallbackToDestructiveMigration(false).build()
 
     fun provideManifestationDao(appDatabase: AppDatabase): ManifestationDao = appDatabase.manifestationDao()
     fun provideLessonDao(appDatabase: AppDatabase): LessonDao = appDatabase.lessonDao()
