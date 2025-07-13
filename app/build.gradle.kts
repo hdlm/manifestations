@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.ksp.kotlin)
 }
 
+ksp {
+    arg("KOIN_DEFAULT_MODULE", "true")
+}
+
 android {
     namespace = "com.budoxr.manifestations"
     compileSdk = 36
@@ -37,7 +41,43 @@ android {
             java.srcDirs("src/main/")
         }
         getByName("test").java.srcDirs("src/test/kotlin")
+    }
 
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            isIncludeAndroidResources = true
+        }
+        animationsDisabled = true
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "CAPTURE_JSON", "true")
+            buildConfigField("boolean", "SAVE_DATA_TO_JSON", "true")
+            isDebuggable = true
+        }
+        release {
+            buildFeatures.buildConfig = true
+            isDebuggable = false
+            buildConfigField("boolean", "CAPTURE_JSON", "false")
+            buildConfigField("boolean", "SAVE_DATA_TO_JSON", "false")
+
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    sourceSets {
+        getByName("main").java.srcDirs("src/main/kotlin")
+        getByName("test").java.srcDirs("src/test/kotlin")
     }
 
     compileOptions {
@@ -48,38 +88,13 @@ android {
     kotlinOptions {
         jvmTarget = "21"
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
-    buildTypes {
-        debug {
-            buildConfigField("boolean", "CAPTURE_JSON", "true")
-            isDebuggable = true
-            isShrinkResources = false
-            isMinifyEnabled = false
-        }
-        release {
-            // Enables code shrinking, obfuscation, and optimization for only
-            // your project's release build type.
-            buildConfigField("boolean", "CAPTURE_JSON", "false")
-            isDebuggable = false
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 
@@ -95,11 +110,10 @@ android {
 
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+//    implementation(libs.androidx.lifecycle.runtime.compose)
+//    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
