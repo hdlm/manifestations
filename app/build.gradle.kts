@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -25,6 +27,14 @@ android {
             useSupportLibrary = true
         }
 
+        testOptions {
+            unitTests {
+                isReturnDefaultValues = true
+                isIncludeAndroidResources = true
+            }
+            animationsDisabled = true
+        }
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments(
@@ -35,21 +45,6 @@ android {
 
     }
 
-    sourceSets {
-        getByName("main") {
-            manifest.srcFile("AndroidManifest.xml")
-            java.srcDirs("src/main/")
-        }
-        getByName("test").java.srcDirs("src/test/kotlin")
-    }
-
-    testOptions {
-        unitTests {
-            isReturnDefaultValues = true
-            isIncludeAndroidResources = true
-        }
-        animationsDisabled = true
-    }
 
     buildTypes {
         debug {
@@ -58,7 +53,6 @@ android {
             isDebuggable = true
         }
         release {
-            buildFeatures.buildConfig = true
             isDebuggable = false
             buildConfigField("boolean", "CAPTURE_JSON", "false")
             buildConfigField("boolean", "SAVE_DATA_TO_JSON", "false")
@@ -76,8 +70,17 @@ android {
     }
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+        getByName("main") {
+            manifest.srcFile("AndroidManifest.xml")
+            java.srcDirs("src/main/")
+        }
         getByName("test").java.srcDirs("src/test/kotlin")
+    }
+
+
+    sourceSets {
+        getByName("main").java.srcDirs("src/main/java")
+        getByName("test").java.srcDirs("src/test/java")
     }
 
     compileOptions {
@@ -85,13 +88,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "21"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -112,14 +119,15 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-//    implementation(libs.androidx.lifecycle.runtime.compose)
-//    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.ui)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.moshi)
@@ -135,10 +143,13 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
     testImplementation(libs.coroutines.test)
+
     implementation(libs.room.runtime)
     ksp(libs.room.compiler.ksp)
     implementation(libs.room.ktx)
+    implementation(libs.room.common)
     androidTestImplementation(libs.room.test)
+
     implementation(libs.exoplayer)
     implementation(libs.workmanager.kotlin.coroutines)
     androidTestImplementation(libs.workmanager.test)
