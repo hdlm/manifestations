@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.File
+import org.gradle.api.GradleException
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,12 +15,12 @@ ksp {
 
 android {
     namespace = "com.budoxr.manifestations"
-    compileSdk = 36
+    compileSdk = AndroidSdk.TARGET
 
     defaultConfig {
         applicationId = "com.budoxr.manifestations"
-        minSdk = 28
-        targetSdk = 36
+        minSdk = AndroidSdk.MIN
+        targetSdk = AndroidSdk.TARGET
         versionCode = 1
         versionName = "1.0"
 
@@ -34,15 +36,6 @@ android {
             }
             animationsDisabled = true
         }
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments(
-                    mapOf("room.schemaLocation" to "$projectDir/schemas")
-                )
-            }
-        }
-
     }
 
 
@@ -69,6 +62,11 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     sourceSets {
         getByName("main") {
             manifest.srcFile("AndroidManifest.xml")
@@ -76,7 +74,6 @@ android {
         }
         getByName("test").java.srcDirs("src/test/kotlin")
     }
-
 
     sourceSets {
         getByName("main").java.srcDirs("src/main/java")
@@ -156,6 +153,7 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    testImplementation(libs.mockk.test)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
