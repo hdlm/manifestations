@@ -65,6 +65,8 @@ class SettingViewModel : ViewModel(), KoinComponent {
      * registered to a json file into the private storage directory of the app.
      */
     fun backup() {
+        //TODO considerar realizar un llamada Room del tipo nested Relationship
+        // https://developer.android.com/training/data-storage/room/relationships/nested
 
         TODO("Implement the method")
 //        viewModelScope.launch(Dispatchers.IO) {
