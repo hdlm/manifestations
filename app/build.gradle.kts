@@ -36,6 +36,8 @@ android {
             }
             animationsDisabled = true
         }
+
+        manifestPlaceholders["enableOnBackInvokedCallback"] = "true"
     }
 
 
@@ -62,22 +64,17 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
+    val isApi33 = compileSdk?.let { it.toInt() >= 33 }
     sourceSets {
-        getByName("main") {
-            manifest.srcFile("AndroidManifest.xml")
-            java.srcDirs("src/main/")
+        if (isApi33 == true) {
+            getByName("main") {
+                manifest.srcFile("src/mainSdk33/AndroidManifest.xml")
+            }
+        } else {
+            getByName("main") {
+                manifest.srcFile("src/main/AndroidManifest.xml")
+            }
         }
-        getByName("test").java.srcDirs("src/test/kotlin")
-    }
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/java")
-        getByName("test").java.srcDirs("src/test/java")
     }
 
     compileOptions {
@@ -99,14 +96,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-
-    applicationVariants.all {
-        if (android.buildToolsVersion >= "33.0.0") {
-            sourceSets {
-                getByName("main").manifest.srcFile("src/mainSdk33/AndroidManifest.xml")
-            }
         }
     }
 
