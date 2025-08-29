@@ -1,10 +1,8 @@
 package com.budoxr.manifestations.presentation.usecase
 
-import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import com.budoxr.manifestations.data.mapper.toModel
 import com.budoxr.manifestations.data.repositories.ManifestationLocalRepository
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
@@ -23,8 +21,5 @@ class ManifestationInfoUseCase : KoinComponent {
                 }
                 models.toList()
             }
-
-    suspend operator fun invoke(scope: CoroutineScope) : List<ManifestationEntity> =
-        localRepository.allManifestations()
 
 }

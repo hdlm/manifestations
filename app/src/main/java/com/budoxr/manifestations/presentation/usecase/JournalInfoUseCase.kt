@@ -13,7 +13,4 @@ class JournalInfoUseCase : KoinComponent {
     operator fun invoke(manifestationId: Int): Flow<List<LessonWithJournals>> =
         localRepository.allJournalsFlow(manifestationId)
 
-    suspend operator fun invoke(manifestationId: Int, isSynchronized: Boolean): List<LessonWithJournals> =
-        localRepository.allJournals(manifestationId)
-
 }

@@ -1,6 +1,7 @@
 package com.budoxr.manifestations.presentation.usecase
 
 import com.budoxr.manifestations.data.repositories.LessonLocalRepository
+import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -13,7 +14,7 @@ class LessonCountUseCase : KoinComponent  {
     private val lessonLocalRepository: LessonLocalRepository
         get() = get()
 
-    suspend operator fun invoke(manifestationId: Int): Int =
-        lessonLocalRepository.countLessonsByManifestationId(manifestationId)
+    operator fun invoke(manifestationId: Int): Flow<Int> =
+        lessonLocalRepository.countLessonsByManifestationIdFlow(manifestationId)
 
 }

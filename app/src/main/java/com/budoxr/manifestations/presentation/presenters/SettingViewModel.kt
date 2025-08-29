@@ -66,14 +66,16 @@ class SettingViewModel : ViewModel(), KoinComponent {
      */
     fun backup() {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val manifestations = util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
-                manifestationInfoUseCase.invoke(this)
-            }.await()
-            val models = util.transformList(manifestations) { it.toModel() }
-            backupUseCase.invoke(models)
+        TODO("Implement the method")
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val manifestations = util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
+//                manifestationInfoUseCase.invoke(this)
+//            }.await()
+//            val models = util.transformList(manifestations) { it.toModel() }
+//            backupUseCase.invoke(models)
+//
+//        }
 
-        }
     }
 
 
@@ -92,16 +94,18 @@ class SettingViewModel : ViewModel(), KoinComponent {
 
 
     fun export(selectedFolderUri: Uri,  askWriteExternalStoragePermission: () -> Boolean ) {
-        _isWriteGranted.value = askWriteExternalStoragePermission.invoke()
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val manifestations = util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
-                manifestationInfoUseCase.invoke(this)
-            }.await()
-            val models = util.transformList(manifestations) { it.toModel() }
-            exportDbUseCase.invoke(models, selectedFolderUri)
-
-        }
+        TODO("Implement the method")
+//        _isWriteGranted.value = askWriteExternalStoragePermission.invoke()
+//
+//
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val manifestations = util.performAsyncOperation(scope = this, timeout = CommonValues.WAIT_DEFERRED, timeUnit = TimeUnit.SECONDS, dispatcher = Dispatchers.IO) {
+//                manifestationInfoUseCase.invoke(this)
+//            }.await()
+//            val models = util.transformList(manifestations) { it.toModel() }
+//            exportDbUseCase.invoke(models, selectedFolderUri)
+//
+//        }
 
     }
 

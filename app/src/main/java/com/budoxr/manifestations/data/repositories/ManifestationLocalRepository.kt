@@ -8,23 +8,14 @@ interface ManifestationLocalRepository {
 
     fun allManifestationsFlow(): Flow<List<ManifestationEntity>>
 
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun allManifestations(): List<ManifestationEntity>
+    fun getLastIdFlow(): Flow<Int>
 
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun getLastId(): Int
-
-    @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(manifestation: ManifestationEntity)
 
-    @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insertAll(manifestations: List<ManifestationEntity>)
 
-    @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun delete(manifestation: ManifestationEntity)
 

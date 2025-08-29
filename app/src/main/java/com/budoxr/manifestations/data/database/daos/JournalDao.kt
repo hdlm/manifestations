@@ -5,7 +5,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.budoxr.manifestations.data.database.entities.JournalEntity
+import com.budoxr.manifestations.data.database.entities.relations.LessonAndJournal
 import com.budoxr.manifestations.data.database.entities.relations.LessonWithJournals
 import kotlinx.coroutines.flow.Flow
 
@@ -23,39 +25,25 @@ interface JournalDao {
 
     @Delete
     suspend fun deleteJournals(journals: List<JournalEntity>)
-    
+
+    @Transaction
     @Query(
-        """
-            SELECT 
-                lesson.*
-            FROM lesson 
-            INNER JOIN journal ON lesson.id = journal.lesson_id 
-            WHERE lesson.manifestation_id = :manifestationId
-            ORDER BY lesson.day, journal.question_idx ASC
-        """
+        "SELECT * FROM lesson WHERE manifestation_id = :manifestationId ORDER BY day"
     )
     fun observeAllJournals(manifestationId: Int): Flow<List<LessonWithJournals>>
 
+    @Transaction
     @Query(
         """
-            SELECT 
-                lesson.*
-            FROM lesson 
-            INNER JOIN journal ON lesson.id = journal.lesson_id 
+            SELECT
+                lesson.id AS lesson_id, lesson.day AS lesson_day, lesson.subject AS lesson_subject, lesson.manifestation_id AS lesson_manifestation_id,
+                journal.id AS journal_id, journal.lesson_id AS journal_lesson_id, journal.question_idx AS journal_question_idx, journal.question_slug AS journal_question_slug, journal.answer AS journal_answer, journal.response_date AS journal_response_date
+            FROM lesson
+            INNER JOIN journal ON lesson.id = journal.lesson_id
             WHERE lesson.manifestation_id = :manifestationId
             ORDER BY lesson.day, journal.question_idx ASC
         """
     )
-    suspend fun getAllJournals(manifestationId: Int): List<LessonWithJournals>
-
-
-    @Query(
-        """
-           SELECT * FROM journal WHERE lesson_id = :lessonId 
-                AND question_idx = :questionIdx 
-        """
-    )
-    suspend fun getJournalByQuestion(lessonId: Int, questionIdx: Int): JournalEntity?
-
+    fun observeLessonAndJournal(manifestationId: Int): Flow<List<LessonAndJournal>>
 
 }

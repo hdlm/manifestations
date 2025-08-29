@@ -129,8 +129,11 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         categoryHelper.getCategoryColor(categoryKey, context)
 
 
-    suspend fun lastId(): Int  =
-        manifestationLastIdUseCase.invoke()
+    fun lastId(): Int  {
+        TODO("Implement the method")
+
+//        manifestationLastIdUseCase.invoke()
+    }
 
 
     fun saveManifestation(manifestation: ManifestationModel, context: Context) {

@@ -5,9 +5,13 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.budoxr.manifestations.data.database.entities.ManifestationEntity
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Data Access Object (DAO) for the Manifestation table.
+ */
 @Dao
 interface ManifestationDao {
 
@@ -20,12 +24,19 @@ interface ManifestationDao {
     @Delete
     suspend fun deleteManifestation(manifestation: ManifestationEntity)
 
-    @Query("SELECT * FROM manifestation")
-    suspend fun getAllManifestations(): List<ManifestationEntity>
-
-    @Query("SELECT * FROM manifestation")
+    /**
+     * Observes all manifestations from the database.
+     * The returned Flow will emit a new list whenever the data changes.
+     */
+    @Transaction
+    @Query("SELECT * FROM manifestation ORDER BY id DESC")
     fun observeAllManifestations(): Flow<List<ManifestationEntity>>
 
+    /**
+     * Observes the last ID from the database.
+     * This is useful for knowing the last inserted ID in a reactive way.
+     */
+    @Transaction
     @Query("SELECT MAX(COALESCE(id, 0)) FROM manifestation")
-    suspend fun getLastId(): Int
+    fun observeLastId(): Flow<Int>
 }

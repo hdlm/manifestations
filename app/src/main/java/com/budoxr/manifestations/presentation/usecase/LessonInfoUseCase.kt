@@ -13,14 +13,7 @@ class LessonInfoUseCase : KoinComponent {
     operator fun invoke(): Flow<List<ManifestationWithLessons>> =
         localRepository.allLessonsFlow()
 
-    suspend operator fun invoke(isSynchronized: Boolean): List<ManifestationWithLessons> =
-        localRepository.allLessons()
-
-
     operator fun invoke(manifestationId: Int): Flow<List<ManifestationWithLessons>> =
         localRepository.allLessonsByManifestationIdFlow(manifestationId)
-
-    suspend operator fun invoke(manifestationId: Int, isSynchronized: Boolean): List<ManifestationWithLessons> =
-        localRepository.allLessonsByManifestationId(manifestationId)
 
 }
