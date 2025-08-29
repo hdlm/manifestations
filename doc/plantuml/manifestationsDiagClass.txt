@@ -1,0 +1,20 @@
+@startuml
+class Lessons {
+ day : Int
+ summary : String[]
+ journal : String[]
+}
+
+class Lesson
+class Day 
+class Summary
+class Journal
+
+Lesson *-- Day
+Lesson o-- "3" Summary
+Lesson o-- "3..*" Journal
+
+note right of Lessons : Implementacion en kotlin
+
+@enduml
+

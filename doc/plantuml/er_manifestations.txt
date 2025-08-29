@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+
+entity journal {
+	id : Int
+	question_idx : Int
+	question_slug : String
+	answer : String?
+	response_date : Long
+	lesson_id : Int
+}
+
+entity lesson {
+	id : Int
+	day : Int
+	subject : String
+	manifestation_id : Int
+}
+
+entity manifestation {
+	id : Int
+	overview : String
+	description : String
+	creation_date : Long
+	due_date : Long
+	category : String
+}
+
+lesson }-- manifestation
+journal }-- lesson
+
+@enduml
