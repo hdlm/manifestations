@@ -5,7 +5,9 @@ import com.squareup.moshi.ToJson
 
 import com.squareup.moshi.*
 
-class LessonModelAdapter {
+class LessonModelAdapter(
+    private val listStringAdapter: JsonAdapter<List<String>>
+) {
     @ToJson
     fun toJson(lessonModel: LessonModel): Map<String, Any> {
         return mapOf(
@@ -21,8 +23,8 @@ class LessonModelAdapter {
         return LessonModel(
             day = (json["day"] as Double).toInt(), // Moshi may parse JSON numbers as Double
             subject = json["subject"] as String,
-            summary = (json["summary"] as List<String>),
-            journal = (json["journal"] as List<String>),
+            summary = listStringAdapter.fromJsonValue(json["summary"]) ?: emptyList(),
+            journal = listStringAdapter.fromJsonValue(json["journal"]) ?: emptyList(),
             meditation = (json["meditation"] as String?)
         )
     }

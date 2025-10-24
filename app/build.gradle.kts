@@ -9,10 +9,6 @@ plugins {
     alias(libs.plugins.ksp.kotlin)
 }
 
-ksp {
-    arg("KOIN_DEFAULT_MODULE", "true")
-}
-
 android {
     namespace = "com.budoxr.manifestations"
     compileSdk = AndroidSdk.TARGET
@@ -119,12 +115,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     ksp(libs.moshi.ksp)
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.compose)
-    implementation(libs.koin.annotations)
-    ksp(libs.koin.ksp)
-    testImplementation(libs.koin.test)
+    implementation(libs.bundles.koin)
     testImplementation(libs.koin.test.junit)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
@@ -132,8 +123,7 @@ dependencies {
 
     implementation(libs.room.runtime)
     ksp(libs.room.compiler.ksp)
-    implementation(libs.room.ktx)
-    implementation(libs.room.common)
+    api(libs.room.ktx)
     androidTestImplementation(libs.room.test)
 
     implementation(libs.exoplayer)
@@ -148,5 +138,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    testImplementation(libs.mockk.test)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.junit.runner)
+    androidTestImplementation(libs.androidx.junit.rules)
+    testImplementation(libs.roboelectric.test)
+    testImplementation(kotlin("test"))
 }
 

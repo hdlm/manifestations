@@ -50,6 +50,9 @@ import com.budoxr.manifestations.presentation.usecase.RestoreUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.budoxr.manifestations.commons.util.moshi.LessonModelAdapter
 
 object Modules {
     val appModule = module {
@@ -69,6 +72,27 @@ object Modules {
         factory { ExportDatabaseUseCase() }
         factory { ImportDatabaseUseCase() }
     }
+
+    val moshiModule = module {
+        // 1. Single instance of Moshi
+        single {
+            Moshi.Builder()
+                // Add the custom adapter, injecting the listStringAdapter (which is defined next)
+                .add(LessonModelAdapter(get()))
+                // .add(KotlinJsonAdapterFactory()) // Add this if you use Moshi Kotlin's reflection
+                .build()
+        }
+
+        // 2. Factory for the required type-safe List<String> adapter
+        factory {
+            val listStringType = Types.newParameterizedType(List::class.java, String::class.java)
+            get<Moshi>().adapter<List<String>>(listStringType)
+        }
+
+        // You may also need a factory for the LessonModel adapter itself if you use it directly
+        // factory { get<Moshi>().adapter(LessonModel::class.java) }
+    }
+
 
     fun provideDataBase(context: Context): AppDatabase =
         Room.databaseBuilder(
