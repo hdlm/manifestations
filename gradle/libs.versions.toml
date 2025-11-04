@@ -1,7 +1,7 @@
 [versions]
 agp = "8.13.0"
 kotlin = "2.2.21"
-ksp = "2.2.20-2.0.4"
+ksp = "2.3.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitX = "1.3.0"
@@ -12,7 +12,6 @@ activityCompose = "1.11.0"
 composeBom = "2025.10.01"
 navigationCompose = "2.9.5"
 moshiVersion = "1.15.2"
-retrofitMoshiVersion = "3.0.0"
 koinVersion = "4.1.1"
 roomVersion = "2.8.3"
 coroutinesVersion = "1.10.2"
@@ -21,6 +20,7 @@ exoplayerVersion = "1.8.0"
 testRunnerVersion = "1.7.0"
 testRulesVersion = "1.7.0"
 roboelectricVersion = "4.16"
+timberVersion = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,7 +43,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofitMoshiVersion" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koinVersion" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinVersion" }
@@ -60,11 +59,12 @@ moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshiVers
 moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshiVersion" }
 moshi-ksp = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshiVersion" }
 exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayerVersion" }
-workmanager-kotlin-coroutines = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workVersion" }
+workmanager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workVersion" }
 workmanager-test = { group = "androidx.work", name = "work-testing", version.ref = "workVersion" }
 androidx-junit-runner = { group = "androidx.test", name = "runner", version.ref = "testRunnerVersion" }
 androidx-junit-rules = { group = "androidx.test", name = "rules", version.ref = "testRulesVersion" }
 roboelectric-test = { group = "org.robolectric", name = "robolectric", version.ref = "roboelectricVersion" }
+timber-log = { group = "com.jakewharton.timber", name = "timber", version.ref = "timberVersion" }
 
 [bundles]
 koin = [ "koin-core", "koin-android", "koin-compose" ]

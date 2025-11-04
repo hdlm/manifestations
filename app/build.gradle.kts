@@ -39,9 +39,9 @@ android {
 
     buildTypes {
         debug {
+            isDebuggable = true
             buildConfigField("boolean", "CAPTURE_JSON", "true")
             buildConfigField("boolean", "SAVE_DATA_TO_JSON", "true")
-            isDebuggable = true
         }
         release {
             isDebuggable = false
@@ -97,7 +97,6 @@ android {
 
 }
 
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -106,6 +105,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
+
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -127,13 +127,14 @@ dependencies {
     androidTestImplementation(libs.room.test)
 
     implementation(libs.exoplayer)
-    implementation(libs.workmanager.kotlin.coroutines)
+    implementation(libs.workmanager) // Standardized from libs.workmanager.kotlin.coroutines
     androidTestImplementation(libs.workmanager.test)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     testImplementation(libs.mockk.test)
     androidTestImplementation(libs.androidx.espresso.core)
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -149,4 +150,5 @@ dependencies {
     testImplementation(libs.roboelectric.test)
     testImplementation(kotlin("test"))
 }
+
 
