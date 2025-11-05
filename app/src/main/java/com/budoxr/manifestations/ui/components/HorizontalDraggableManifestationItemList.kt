@@ -75,7 +75,7 @@ fun HorizontalDraggableManifestationItemList(
     item: ManifestationModel,
     days: Long,
     isDarkTheme: Boolean,
-    categoryColor: (String, Context) -> Color,
+    categoryColor: (String) -> Color,
     onItemDeleteClick: (ManifestationModel) -> Unit,
     onLongPress: onIntType,
     navigateToJournals: onIntType,
@@ -85,8 +85,6 @@ fun HorizontalDraggableManifestationItemList(
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
     val marginHorizontal = dimensionResource(id = R.dimen.margin_horizontal)
     val separator = 2.dp
-
-    val context = LocalContext.current
 
     val density = LocalDensity.current
     val decayAnimationSpec = rememberSplineBasedDecay<Float>()
@@ -261,7 +259,7 @@ fun HorizontalDraggableManifestationItemList(
                             Box (
                                 modifier = modifier
                                     .clip(MaterialTheme.shapes.small)
-                                    .background(categoryColor(item.category, context)),
+                                    .background(categoryColor(item.category)),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
                                 Text(
@@ -314,7 +312,7 @@ fun DraggableManifestationItemPreview() {
                 item = item,
                 days = 4,
                 isDarkTheme = false,
-                categoryColor = { category, context -> passion },
+                categoryColor = { category  -> passion },
                 onItemDeleteClick = { _ -> },
                 onLongPress = { _ -> },
                 navigateToJournals = { _ -> },

@@ -2,7 +2,9 @@ package com.budoxr.manifestations.commons
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import com.budoxr.manifestations.presentation.domain.ManifestationModel
 
 typealias onDismissType = () -> Unit
 typealias onIntType = (Int) -> Unit
@@ -15,3 +17,4 @@ typealias onStringType = (String) -> Unit
 typealias onDismissComposableType = @Composable () -> Unit
 typealias onDismissTypeSuspend = suspend () -> Unit
 typealias onBitmapType = (Context, String) -> Bitmap?
+typealias onManifestationType = (ManifestationModel) -> Unit

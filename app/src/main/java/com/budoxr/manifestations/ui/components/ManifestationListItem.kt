@@ -46,9 +46,9 @@ import java.util.Date
 @Composable
 fun ManifestationListItem(
     item: ManifestationModel,
-    days: Int,
+    days: Long,
     isDarkTheme: Boolean,
-    categoryColor: (String, Context) -> Color,
+    categoryColor: (String) -> Color,
     onLongPress: onIntType,
     modifier: Modifier = Modifier
 ) {
@@ -117,7 +117,7 @@ fun ManifestationListItem(
                     Box (
                         modifier = modifier
                             .clip(MaterialTheme.shapes.small)
-                            .background(categoryColor(item.category, context)),
+                            .background(categoryColor(item.category)),
                     ) {
                         Text(
                             text = item.category,
@@ -161,7 +161,7 @@ fun ManifestationListItemPreview() {
                     item = item,
                     days = 4,
                     isDarkTheme = false,
-                    categoryColor = { category, context -> passion },
+                    categoryColor = { category-> passion },
                     onLongPress = { _ -> },
                     modifier = Modifier
                 )

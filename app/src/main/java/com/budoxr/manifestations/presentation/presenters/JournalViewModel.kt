@@ -43,7 +43,7 @@ import org.koin.core.component.inject
 import org.koin.core.component.get
 import kotlin.getValue
 
-class JournalViewModel() : ViewModel(), KoinComponent {
+class JournalViewModel() : KoinViewModel() {
     private val localStorage: LocalStorage = get()
     private val manifestationInfoUseCase : ManifestationInfoUseCase by inject()
     private val lessonInfoUseCase : LessonInfoUseCase by inject()
@@ -202,7 +202,7 @@ class JournalViewModel() : ViewModel(), KoinComponent {
 
 
     fun categoryColor(categoryKey: String, context: Context): Color =
-        categoryHelper.getCategoryColor(categoryKey, context)
+        categoryHelper.getCategoryColor(categoryKey)
 
     fun dateDifference(startDate: String, endDate: String): Long =
         util.dateDifference(startDate, endDate)

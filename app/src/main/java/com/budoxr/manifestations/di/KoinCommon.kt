@@ -41,11 +41,9 @@ import com.budoxr.manifestations.presentation.usecase.LessonDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.LessonLastRecordUseCase
-import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertWorkerUseCase
-import com.budoxr.manifestations.presentation.usecase.ManifestationLastIdUseCase
 import com.budoxr.manifestations.presentation.usecase.RestoreUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -53,6 +51,7 @@ import org.koin.dsl.module
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.budoxr.manifestations.commons.util.moshi.LessonModelAdapter
+import com.budoxr.manifestations.presentation.presenters.MainViewModel
 
 object Modules {
     val appModule = module {
@@ -66,7 +65,8 @@ object Modules {
         viewModel { ManifestationViewModel() }
         viewModel { JournalViewModel() }
         viewModel { SettingViewModel() }
-        single { CategoryHelper() }
+        viewModel { MainViewModel() }
+        single { CategoryHelper(androidContext()) }
         factory { BackupUseCase() }
         factory { RestoreUseCase() }
         factory { ExportDatabaseUseCase() }
@@ -115,8 +115,6 @@ object Modules {
         single { provideConfigDao(get()) }
         factory { ManifestationInfoUseCase() }
         factory { ManifestationInsertUseCase() }
-        factory { ManifestationLastIdUseCase() }
-        factory { ManifestationDeleteUseCase() }
         factory { LessonInfoUseCase() }
         factory { LessonInsertUseCase() }
         factory { LessonCountUseCase() }
@@ -148,7 +146,7 @@ object Modules {
         viewModel { ManifestationViewModel() }
         viewModel { JournalViewModel() }
         viewModel { SettingViewModel() }
-        single { CategoryHelper() }
+        single { CategoryHelper(androidContext()) }
         factory { BackupUseCase() }
         factory { RestoreUseCase() }
         factory { ExportDatabaseUseCase() }

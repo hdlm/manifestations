@@ -19,7 +19,7 @@ import com.budoxr.manifestations.di.Modules.databaseModule
 import com.budoxr.manifestations.di.Modules.moshiModule
 import com.budoxr.manifestations.di.Modules.workerModule
 import com.budoxr.manifestations.presentation.domain.SessionModel
-import com.budoxr.manifestations.ui.MainScreen
+import com.budoxr.manifestations.ui.features.MainScreen
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger

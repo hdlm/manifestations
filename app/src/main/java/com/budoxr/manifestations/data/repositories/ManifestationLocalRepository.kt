@@ -8,7 +8,8 @@ interface ManifestationLocalRepository {
 
     fun allManifestationsFlow(): Flow<List<ManifestationEntity>>
 
-    fun getLastIdFlow(): Flow<Int>
+    fun getLastManifestationFlow(): Flow<ManifestationEntity?>
+    suspend fun getLastManifestation(): ManifestationEntity?
 
     @WorkerThread
     suspend fun insert(manifestation: ManifestationEntity)

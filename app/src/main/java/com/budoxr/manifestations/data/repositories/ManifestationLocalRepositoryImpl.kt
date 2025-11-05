@@ -13,8 +13,11 @@ class ManifestationLocalRepositoryImpl : ManifestationLocalRepository, KoinCompo
     override fun allManifestationsFlow(): Flow<List<ManifestationEntity>> =
         manifestationDao.observeAllManifestations()
 
-    override fun getLastIdFlow(): Flow<Int> =
-        manifestationDao.observeLastId()
+    override fun getLastManifestationFlow(): Flow<ManifestationEntity?> =
+        manifestationDao.observeLastManifestation()
+
+    override suspend fun getLastManifestation(): ManifestationEntity? =
+        manifestationDao.getLastManifestation()
 
     override suspend fun insert(manifestation: ManifestationEntity) =
         manifestationDao.insertManifestation(manifestation)

@@ -1,16 +1,10 @@
 package com.budoxr.manifestations.presentation.presenters
 
-import android.content.Context
-import android.util.Log
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budoxr.manifestations.commons.CategoryHelper
 import com.budoxr.manifestations.commons.CommonValues
-import com.budoxr.manifestations.commons.CommonValues.WAIT_DEFAULT
-import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.util.Utily
-import com.budoxr.manifestations.data.database.entities.relations.ManifestationWithLessons
 import com.budoxr.manifestations.data.mapper.toEntity
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.domain.SessionModel
@@ -18,7 +12,6 @@ import com.budoxr.manifestations.presentation.usecase.LessonInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationDeleteUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInfoUseCase
 import com.budoxr.manifestations.presentation.usecase.ManifestationInsertUseCase
-import com.budoxr.manifestations.presentation.usecase.ManifestationLastIdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,12 +19,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 
-class ManifestationViewModel : ViewModel(), KoinComponent {
-    private val manifestationLastIdUseCase : ManifestationLastIdUseCase by inject()
+class ManifestationViewModel : KoinViewModel() {
     private val manifestationInfoUseCase: ManifestationInfoUseCase by inject()
     private val manifestationInsertUseCase: ManifestationInsertUseCase by inject()
     private val manifestationDeleteUseCase: ManifestationDeleteUseCase by inject()
@@ -39,7 +32,7 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
     val util: Utily by inject()
     private val categoryHelper: CategoryHelper by inject()
 
-    val flowOfManifestations = manifestationInfoUseCase.invoke().stateIn(
+    val manifestations = manifestationInfoUseCase.invoke().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(CommonValues.FLOW_WHILESUBSCRIBED),
         initialValue = emptyList()
@@ -60,31 +53,27 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         get() = _sessionModel
 
     /** this value avoid to show the same error twice */
-    var errorShowed: Boolean = false
 
     init {
         viewModelScope.launch {
 
             com.budoxr.manifestations.commons.util.combine(
-                flowOfManifestations,
-                flowOfLessons,
+                manifestations,
                 refreshing
-            ) { _,
-                lessons,
+            ) { manifestations,
                 refreshing ->
 
                 if (refreshing) {
-                    Log.d(TAG, "refreshing: $refreshing")
+                    Timber.tag(TAG).d("refreshing: $refreshing")
                     return@combine ManifestationScreenUiState.Loading
                 }
 
-                delay(50)
-                ManifestationScreenUiState.Ready(lessons)
+                ManifestationScreenUiState.ListManifestation(manifestations = manifestations)
 
             }.catch { throwable ->
                 throwable.printStackTrace()
                 _uiState.value = ManifestationScreenUiState.Error(throwable.message)
-                Log.e(TAG, "error: ${throwable.message}")
+                Timber.tag(TAG).e("error: ${throwable.message}")
             }.collect {
                 _uiState.value = it
             }
@@ -92,30 +81,15 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         refresh(force = false)
     }
 
-    fun loading( onDone: onDismissType ) {
-        viewModelScope.launch {
-            _uiState.value = ManifestationScreenUiState.Loading
-            delay(WAIT_DEFAULT)
-            launch {
-                onDone.invoke()
-                refresh(true)
-            }
-        }
-    }
-
-    fun error(errorMessage: String) {
-        if (!errorShowed) {
-            errorShowed = true
-            _uiState.value = ManifestationScreenUiState.Error(errorMessage)
-        }
-    }
 
     fun refresh(force: Boolean = true ) {
         viewModelScope.launch {
             runCatching {
-                refreshing.value = true
-                delay(20)
-                refreshing.value = false
+                if (force) {
+                    refreshing.value = true
+                    delay(20)
+                    refreshing.value = false
+                }
             }
         }
     }
@@ -125,32 +99,67 @@ class ManifestationViewModel : ViewModel(), KoinComponent {
         util.dateDifference(startDate, endDate)
 
 
-    fun categoryColor(categoryKey: String, context: Context): Color =
-        categoryHelper.getCategoryColor(categoryKey, context)
+    fun categoryColor(categoryKey: String): Color =
+        categoryHelper.getCategoryColor(categoryKey)
 
 
-    fun lastId(): Int  {
-        TODO("Implement the method")
+    /**
+     * The method return the id of the last manifestation added to the database.
+     * If the database is empty, the method return 0.
+     */
+    suspend fun lastManifestationId(): Int =
+        manifestationInfoUseCase.lastId() ?: 0
 
-//        manifestationLastIdUseCase.invoke()
-    }
 
-
-    fun saveManifestation(manifestation: ManifestationModel, context: Context) {
-        Log.d(TAG, "saveManifestation() -> called, id: ${manifestation.id ?: "null"}")
+    fun addManifestation(manifestation: ManifestationModel) {
+        Timber.tag(TAG).d("addManifestation() -> called, id: ${manifestation.id ?: "null"}")
         viewModelScope.launch(Dispatchers.IO) {
-//            manifestationInsertWorkerUseCase.saveManifestationWorker(manifestation, context)
             manifestationInsertUseCase.invoke(manifestation.toEntity())
         }
 
     }
 
-
     fun deleteManifestation(manifestation: ManifestationModel) {
-        Log.d(TAG, "deleteManifestation() -> called, id: ${manifestation.id}")
+        Timber.tag(TAG).d("deleteManifestation() -> called, id: ${manifestation.id}")
         viewModelScope.launch(Dispatchers.IO) {
             manifestationDeleteUseCase.invoke(manifestation.toEntity())
         }
+    }
+
+    fun editManifestation(manifestation: ManifestationModel) {
+        Timber.tag(TAG).d("editManifestation() -> called, id: ${manifestation.id}")
+        TODO ("not implemented")
+    }
+
+
+    fun changeToAddManifestationState() {
+        Timber.tag(TAG).d("changeToAddManifestationState() -> called.")
+        _uiState.update {
+            ManifestationScreenUiState.AddManifestation
+        }
+
+    }
+
+    fun changeToEditManifestationState(manifestation: ManifestationModel) {
+        Timber.tag(TAG).d("changeToEditManifestationState() -> called, id: ${manifestation.id}")
+        _uiState.update {
+            ManifestationScreenUiState.EditManifestation(manifestation)
+        }
+
+    }
+
+    fun changeToDeleteManifestationState(manifestation: ManifestationModel) {
+        Timber.tag(TAG).d("changeToDeleteManifestationState() -> called, id: ${manifestation.id}")
+        _uiState.update {
+            ManifestationScreenUiState.DeleteManifestation(manifestation)
+        }
+
+    }
+
+
+    fun changeToManifestationDetailsState(manifestation: ManifestationModel) {
+        Timber.tag(TAG).d("changeToManifestationDetailsState() -> called, id: ${manifestation.id}")
+        TODO ("not implemented")
     }
 
 }
@@ -163,9 +172,24 @@ sealed interface ManifestationScreenUiState {
         val errorMessage: String? = null
     ) : ManifestationScreenUiState
 
-    data class Ready(
-        val lessons: List<ManifestationWithLessons> = emptyList(),
+    data class ListManifestation(
+        val manifestations: List<ManifestationModel> = emptyList(),
     ) : ManifestationScreenUiState
+
+    data object AddManifestation : ManifestationScreenUiState
+
+    data class EditManifestation(
+        val manifestation: ManifestationModel? = null
+    ) : ManifestationScreenUiState
+
+    data class DeleteManifestation(
+        val manifestation: ManifestationModel? = null
+    ) : ManifestationScreenUiState
+
+    data class ManifestationDetails(
+        val manifestation: ManifestationModel? = null
+    ) : ManifestationScreenUiState
+
 
 }
 

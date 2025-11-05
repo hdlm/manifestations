@@ -62,6 +62,7 @@ import com.budoxr.manifestations.presentation.domain.LessonsWrapper
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.presentation.presenters.JournalScreenUiState
 import com.budoxr.manifestations.presentation.presenters.JournalViewModel
+import com.budoxr.manifestations.presentation.presenters.KoinViewModel
 import com.budoxr.manifestations.ui.components.ComboBox
 import com.budoxr.manifestations.ui.components.HorizontalDraggableJournalItemList
 import com.budoxr.manifestations.ui.components.InfoDialog
@@ -99,7 +100,6 @@ fun JournalScreen(
     page: Int,
     manifestationId: Int,
     lessonDay: Int,
-    innerPadding: PaddingValues,
     onEditMode: onIntType,
     viewModel: JournalViewModel = koinViewModel()
 
@@ -120,11 +120,10 @@ fun JournalScreen(
                     lesson = lessonDay
                 }
             )
-            JournalScreenLoading(innerPadding = innerPadding)
+            JournalScreenLoading()
         }
         is JournalScreenUiState.Error -> {
             JournalScreenError(
-                innerPadding = innerPadding,
                 msg = uiState.errorMessage!!,
                 onRetry = {
                     viewModel.errorShowed = true
@@ -136,7 +135,6 @@ fun JournalScreen(
             JournalScreenReady(
                 page = page,
                 manifestationId = manifestationId,
-                innerPadding = innerPadding,
                 lessons = lessons,
                 journals = journals,
                 navController = navController,
@@ -151,57 +149,49 @@ fun JournalScreen(
 
 @Composable
 fun JournalScreenLoading(modifier: Modifier = Modifier,
-                               innerPadding: PaddingValues
 ) {
 
     val iconSize = dimensionResource(id = R.dimen.icon_huge_size)
     val areaSize = 94.dp
 
-    Surface(modifier = modifier
-        .fillMaxSize()
-        .padding(innerPadding)
-    ) {
-        Box {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(areaSize)
-                    .align(Alignment.Center),
-                strokeWidth = 8.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
+    Box {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(areaSize)
+                .align(Alignment.Center),
+            strokeWidth = 8.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
 
-            Image( modifier = Modifier
-                .align(Alignment.Center)
-                .clip(CircleShape)
-                .size(iconSize),
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = stringResource(id = R.string.content_description_logo),
-                contentScale = ContentScale.Fit,
-            )
-        }
+        Image( modifier = Modifier
+            .align(Alignment.Center)
+            .clip(CircleShape)
+            .size(iconSize),
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = stringResource(id = R.string.content_description_logo),
+            contentScale = ContentScale.Fit,
+        )
     }
 }
 
 
 @Composable
-fun JournalScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.padding(innerPadding)) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Text(
-                text = stringResource(id = R.string.msg_an_error_has_ocurred),
-                modifier = Modifier.padding(16.dp)
-            )
-            Text(
-                text =  msg,
-                modifier = Modifier.padding(16.dp)
-            )
-            Button(onClick = onRetry) {
-                Text(text = stringResource(id = R.string.label_retry))
-            }
+fun JournalScreenError(msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize(),
+    ) {
+        Text(
+            text = stringResource(id = R.string.msg_an_error_has_ocurred),
+            modifier = Modifier.padding(16.dp)
+        )
+        Text(
+            text =  msg,
+            modifier = Modifier.padding(16.dp)
+        )
+        Button(onClick = onRetry) {
+            Text(text = stringResource(id = R.string.label_retry))
         }
     }
 
@@ -211,7 +201,6 @@ fun JournalScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> 
 fun JournalScreenReady(
     page: Int,
     manifestationId: Int,
-    innerPadding: PaddingValues,
     lessons: List<ManifestationWithLessons>,
     journals: List<LessonWithJournals>,
     navController: NavController,
@@ -277,9 +266,8 @@ fun JournalScreenReady(
         onLongPress = onLongPress,
     )
 
-    Surface(modifier = Modifier
+    Column (modifier = Modifier
         .fillMaxSize()
-        .padding(innerPadding)
     ) {
         when (page) {
             0 -> {

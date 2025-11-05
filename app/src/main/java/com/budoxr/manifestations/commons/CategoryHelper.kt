@@ -16,7 +16,7 @@ import com.budoxr.manifestations.ui.theme.wealth
 import org.koin.core.component.KoinComponent
 import com.budoxr.manifestations.R
 
-class CategoryHelper() : KoinComponent {
+class CategoryHelper(private val context: Context) : KoinComponent {
 
     fun getCategoryByName(name: String, context: Context): CATEGORIES? {
         val categories = context.resources.getStringArray(R.array.categories_array)
@@ -26,7 +26,7 @@ class CategoryHelper() : KoinComponent {
 
     }
 
-    fun getCategoryColor(key: String, context: Context): Color =
+    fun getCategoryColor(key: String): Color =
         when (getCategoryByName(key, context)) {
             CATEGORIES.HEALTH -> health
             CATEGORIES.WEALTH -> wealth

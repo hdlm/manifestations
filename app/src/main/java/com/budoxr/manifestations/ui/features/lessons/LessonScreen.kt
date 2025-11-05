@@ -1,4 +1,4 @@
-package com.budoxr.manifestations.ui
+package com.budoxr.manifestations.ui.features.lessons
 
 import android.util.Log
 import android.view.WindowManager
@@ -93,7 +93,6 @@ data class LessonState(
 fun LessonScreen(
     navController: NavController,
     isDarkTheme: Boolean,
-    innerPadding: PaddingValues,
     viewModel: LessonViewModel = koinViewModel()
 ) {
     var isSpeaking = remember { mutableStateOf(false) }
@@ -126,12 +125,11 @@ fun LessonScreen(
                         currentScreen = Screens.LessonScreen.route
                     }
                 )
-                LessonScreenLoading(innerPadding = innerPadding)
+                LessonScreenLoading()
             }
         }
         is LessonScreenUiState.Error -> {
             LessonScreenError(
-                innerPadding = innerPadding,
                 msg = uiState.errorMessage!!,
                 onRetry = {
                     viewModel.errorShowed = false
@@ -141,7 +139,6 @@ fun LessonScreen(
         }
         is LessonScreenUiState.Ready -> {
             LessonScreenReady(
-                innerPadding = innerPadding,
                 navController = navController,
                 uiState = uiState,
                 viewModel = viewModel,
@@ -156,57 +153,49 @@ fun LessonScreen(
 
 @Composable
 fun LessonScreenLoading(modifier: Modifier = Modifier,
-    innerPadding: PaddingValues
 ) {
 
     val iconSize = dimensionResource(id = R.dimen.icon_huge_size)
     val areaSize = 94.dp
 
-    Surface(modifier = modifier
-        .fillMaxSize()
-        .padding(innerPadding)
-    ) {
-        Box {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(areaSize)
-                    .align(Alignment.Center),
-                strokeWidth = 8.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
+    Box {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(areaSize)
+                .align(Alignment.Center),
+            strokeWidth = 8.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
 
-            Image( modifier = Modifier
-                .align(Alignment.Center)
-                .clip(CircleShape)
-                .size(iconSize),
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = stringResource(id = R.string.content_description_logo),
-                contentScale = ContentScale.Fit,
-            )
-        }
+        Image( modifier = Modifier
+            .align(Alignment.Center)
+            .clip(CircleShape)
+            .size(iconSize),
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            contentDescription = stringResource(id = R.string.content_description_logo),
+            contentScale = ContentScale.Fit,
+        )
     }
 }
 
 
 @Composable
-fun LessonScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.padding(innerPadding)) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Text(
-                text = stringResource(id = R.string.msg_an_error_has_ocurred),
-                modifier = Modifier.padding(16.dp)
-            )
-            Text(
-                text =  msg,
-                modifier = Modifier.padding(16.dp)
-            )
-            Button(onClick = onRetry) {
-                Text(text = stringResource(id = R.string.label_retry))
-            }
+fun LessonScreenError(msg: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Text(
+            text = stringResource(id = R.string.msg_an_error_has_ocurred),
+            modifier = Modifier.padding(16.dp)
+        )
+        Text(
+            text =  msg,
+            modifier = Modifier.padding(16.dp)
+        )
+        Button(onClick = onRetry) {
+            Text(text = stringResource(id = R.string.label_retry))
         }
     }
 
@@ -215,7 +204,6 @@ fun LessonScreenError(innerPadding: PaddingValues, msg: String, onRetry: () -> U
 
 @Composable
 fun LessonScreenReady(
-    innerPadding: PaddingValues,
     navController: NavController,
     uiState: LessonScreenUiState.Ready,
     viewModel: LessonViewModel,
@@ -332,16 +320,11 @@ fun LessonScreenReady(
         onStatusPlayerClick = onStatusPlayerClick,
     )
 
-    Surface(modifier = Modifier
-        .fillMaxSize()
-        .padding(innerPadding)
-    ) {
-        LessonScreenBody(
-            isDarkTheme = isDarkTheme,
-            showLessonDetails = showLessonDetails,
-            lessonState = lessonState,
-        )
-    }
+    LessonScreenBody(
+        isDarkTheme = isDarkTheme,
+        showLessonDetails = showLessonDetails,
+        lessonState = lessonState,
+    )
 
     KeepScreenOnWhileSpeaking(isSpeaking.value)
 

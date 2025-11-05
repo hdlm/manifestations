@@ -10,41 +10,59 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.BlendMode.Companion.Color
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
-    /*
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-     */
+// 1. Primarios (Debe ser un tono claro para contrastar el fondo oscuro)
+    primary = Color(0xFF90CAF9), // Un azul claro y brillante
+    onPrimary = Color(0xFF0D47A1), // Texto oscuro sobre el primario claro
+    primaryContainer = Color(0xFF0D47A1),
+    onPrimaryContainer = Color(0xFFBBDEFB),
 
-    primary = purple,
-    secondary = purpleDark,
-    tertiary = purpleLight,
-    background = bright,
-    surface = bright,
-    error = alert,
-    onPrimary = dark,
-    onSecondary = alert,
-    onTertiary = blue,
-    onBackground = dark,
-    onSurface = dark,
-    onError = bright)
+    // 2. Secundarios
+    secondary = Color(0xFFFFB74D), // Un naranja más claro
+    onSecondary = Color(0xFFE65100),
+    secondaryContainer = Color(0xFFE65100),
+    onSecondaryContainer = Color(0xFFFFCCBC),
+
+    // 3. Fondo y Superficie
+    background = darkBackground,
+    onBackground = Color(0xFFE4E1E6), // Texto claro sobre fondo oscuro
+    surface = darkBackground,
+    onSurface = Color(0xFFE4E1E6),
+
+    // 4. Error
+    error = Color(0xFFCF6679),
+    onError = dark
+)
 
 private val LightColorScheme = lightColorScheme(
-    primary = purple,
-    secondary = purpleDark,
-    tertiary = purpleLight,
-    background = bright,
-    surface = bright,
-    error = alert,
-    onPrimary = bright,
-    onSecondary = bright,
+    // 1. Primarios (Botones, AppBar, Iconos importantes)
+    primary = brandPrimary,           // El color principal de la marca (saturado)
+    onPrimary = bright,          // Texto e iconos sobre el primario
+    primaryContainer = brandPrimary, // Un tono más claro para contenedores
+    onPrimaryContainer = bright, // Texto sobre el contenedor primario
+
+    // 2. Secundarios (Filtros, acciones secundarias)
+    secondary = brandSecondary,       // El color secundario para energía
+    onSecondary = dark,
+    secondaryContainer = brandSecondary,
+    onSecondaryContainer = dark,
+
+    tertiary = brandTertiary,
     onTertiary = dark,
-    onBackground = dark,
-    onSurface = dark,
+
+    // 3. Fondo y Superficie (La mayor parte de la UI)
+    background = lightBackground,   // Blanco limpio
+    onBackground = Color(0xFF1C1B1F), // Texto oscuro sobre fondo claro
+    surface = lightBackground,
+    onSurface = Color(0xFF1C1B1F),
+
+    // 4. Error (Alertas)
+    error = alert,
     onError = bright
 )
 

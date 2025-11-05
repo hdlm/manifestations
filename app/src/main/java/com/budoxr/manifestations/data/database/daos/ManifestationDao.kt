@@ -37,6 +37,11 @@ interface ManifestationDao {
      * This is useful for knowing the last inserted ID in a reactive way.
      */
     @Transaction
-    @Query("SELECT MAX(COALESCE(id, 0)) FROM manifestation")
-    fun observeLastId(): Flow<Int>
+    @Query("SELECT * FROM manifestation ORDER by id DESC LIMIT 1")
+    fun observeLastManifestation(): Flow<ManifestationEntity?>
+
+
+    @Transaction
+    @Query("SELECT * FROM manifestation ORDER by id DESC LIMIT 1")
+    suspend fun getLastManifestation(): ManifestationEntity?
 }

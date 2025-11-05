@@ -126,8 +126,9 @@ dependencies {
     api(libs.room.ktx)
     androidTestImplementation(libs.room.test)
 
+    implementation(libs.timber.log)
     implementation(libs.exoplayer)
-    implementation(libs.workmanager) // Standardized from libs.workmanager.kotlin.coroutines
+    implementation(libs.workmanager)
     androidTestImplementation(libs.workmanager.test)
 
     testImplementation(libs.junit)

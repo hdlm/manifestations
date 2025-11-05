@@ -22,4 +22,16 @@ class ManifestationInfoUseCase : KoinComponent {
                 models.toList()
             }
 
+    /**
+     * The method return the id of the last manifestation
+     */
+    fun lastIdFlow() : Flow<Int?> =
+        localRepository.getLastManifestationFlow()
+            .map { entity ->
+                entity?.id
+            }
+
+    suspend fun lastId(): Int? =
+        localRepository.getLastManifestation()?.id
+
 }
