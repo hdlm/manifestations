@@ -249,7 +249,7 @@ fun DraggableJournalItemPreview() {
         id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-        creationDate = Date(System.currentTimeMillis()).toFechaTimeDb(),
+        startDate = Date(System.currentTimeMillis()).toFechaTimeDb(),
         dueDate = Date(System.currentTimeMillis()).toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )

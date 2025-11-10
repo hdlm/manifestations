@@ -62,7 +62,7 @@ fun JournalForm(
     Column (modifier = modifier.fillMaxWidth()
         .verticalScroll(rememberScrollState())
     ) {
-        Label(
+        LabelForm(
             label = stringResource(R.string.label_manifestation),
             value = manifestation.value.text
         )
@@ -70,7 +70,6 @@ fun JournalForm(
             items = lessonDayItems,
             label = stringResource(R.string.label_lesson),
             field = lessonDay,
-            omitLabel = false,
             modifier = Modifier
         )
 

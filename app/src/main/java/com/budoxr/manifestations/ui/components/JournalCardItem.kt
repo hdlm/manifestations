@@ -152,7 +152,7 @@ fun JournalCardItemPreview() {
         id = 1,
         overview = "Yo solo quiero cantar en la radio",
         description = "Para ganar mi primer millon",
-        creationDate = Date(1741268232000L).toFechaTimeDb(),
+        startDate = Date(1741268232000L).toFechaTimeDb(),
         dueDate = Date(1746057600000L).toFechaTimeDb(),
         category = "Passion"
     )

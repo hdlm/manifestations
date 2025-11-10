@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.budoxr.manifestations.commons.NavigateHelper
 import com.budoxr.manifestations.data.repositories.LocalPref
 import com.budoxr.manifestations.presentation.domain.SessionModel
 import com.budoxr.manifestations.ui.navigation.Screens
@@ -15,9 +16,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.inject
 import timber.log.Timber
 
 class MainViewModel : KoinViewModel() {
+    private val navigateHelper: NavigateHelper by inject()
+
     private val _isDrawerVisible = MutableStateFlow(true)
     val isDrawerVisible : Boolean
         get() = _isDrawerVisible.asStateFlow().value
@@ -139,10 +143,26 @@ class MainViewModel : KoinViewModel() {
         Timber.tag(TAG).d("onBackButtonClick() -> clicked")
     }
 
-    fun floatingActionButtonClick(currentScreen: String) {
-        Timber.tag(TAG).d("floatingActionButtonClick() -> clicked, currentScreen: $currentScreen")
-        //TODO add functionality
+    fun floatingActionButtonClick(currentRoute: String) {
+        val screen = navigateHelper.getScreenFromRoute(currentRoute)
+        if (screen != null) {
+            when (screen) {
+                is Screens.ManifestationScreen -> {
+                    //TODO navigate to add manifestation form screen
 
+                }
+                else -> {
+                    //TODO not implemented
+                }
+            }
+        }
+
+    }
+
+
+    fun navigateTo(route: String, navController: NavHostController) {
+        val screenName = route.substringBefore("/")
+        navigateHelper.navigateTo(route = route, navController = navController)
     }
 
     @Composable

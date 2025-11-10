@@ -11,8 +11,6 @@ import com.budoxr.manifestations.ui.features.lessons.LessonScreen
 import com.budoxr.manifestations.ui.features.manifestations.ManifestationScreen
 
 
-
-
 @Composable
 fun AppNavigation(
     navController: NavHostController,
@@ -31,7 +29,6 @@ fun AppNavigation(
         }
 
         composable(Screens.ManifestationScreen.route) { _ ->
-
             ManifestationScreen(
                 navController = navController,
                 isDarkTheme = isDarkTheme,

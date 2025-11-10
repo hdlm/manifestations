@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "manifestation")
 data class ManifestationEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int?,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val overview: String,
     val description: String,
-    @ColumnInfo(name = "creation_date") val creationDate: Long,
-    @ColumnInfo(name = "due_date") val dueDate: Long,
+    @ColumnInfo(name = "start_date") val startDate: String,
+    @ColumnInfo(name = "due_date") val dueDate: String,
     val category: String,
 )

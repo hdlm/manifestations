@@ -3,6 +3,7 @@ package com.budoxr.manifestations.ui.features
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -10,8 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.presentation.presenters.MainViewModel
 import com.budoxr.manifestations.ui.components.SettingBottomSheet
@@ -36,9 +39,6 @@ fun MainScreen(
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
     var showSettings by remember { mutableStateOf(false) }
     val isDrawerVisible = viewModel.isDrawerVisible
-
-    var innerPadding by remember { mutableStateOf(PaddingValues()) }
-
 
 
     //#region high-order functions
@@ -140,13 +140,13 @@ fun MainScreen(
     //#endregion
 
 
-
-
     if (isDrawerVisible) {
         MainScreenDrawer(
+            navController = navController,
             expanded = expanded,
             currentRoute = currentRoute,
-            navigationItems = navigationItems
+            navigationItems = navigationItems,
+            navigateTo = viewModel::navigateTo,
         ) {
             MainScaffold(
                 navController = navController,

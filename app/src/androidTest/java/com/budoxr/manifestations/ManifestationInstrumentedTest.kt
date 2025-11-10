@@ -92,7 +92,7 @@ class ManifestationInstrumentedTest : KoinComponent {
             id = null,
             overview = "USD 1K en ingresos mensuales",
             description = "Estoy feliz y agradecido por haber recibido un total de ingresos mensuales de USD 3K",
-            creationDate = Date().toFechaTimeDb(),
+            startDate = Date().toFechaTimeDb(),
             dueDate = Date().toFechaTimeDb(),
             category = CATEGORIES.SPIRITUALITY.key,
         )

@@ -332,7 +332,6 @@ fun JournalScreenBody(
                 items = journalState.manifestationMenuItems,
                 label = stringResource(R.string.label_manifestation),
                 field = manifestation,
-                omitLabel = false,
                 modifier = Modifier
             )
             Spacer(modifier = Modifier.padding(vertical = lineSpacing))

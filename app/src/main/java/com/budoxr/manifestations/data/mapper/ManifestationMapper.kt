@@ -12,8 +12,8 @@ fun ManifestationModel.toEntity() =
         id = id,
         overview = overview,
         description = description,
-        creationDate = creationDate.fromFechaTimeDb().time,
-        dueDate = dueDate.fromFechaTimeDb().time,
+        startDate = startDate,
+        dueDate = dueDate,
         category = category,
     )
 
@@ -22,8 +22,8 @@ fun ManifestationEntity.toModel() =
         id = id,
         overview = overview,
         description = description,
-        creationDate = Date(creationDate).toFechaTimeDb(),
-        dueDate = Date(dueDate).toFechaTimeDb(),
+        startDate = startDate,
+        dueDate = startDate,
         category = category,
     )
 
@@ -33,7 +33,7 @@ fun emptyManifestationModel() =
         id = null,
         overview = "",
         description = "",
-        creationDate = Date().toFechaTimeDb(),
+        startDate = Date().toFechaTimeDb(),
         dueDate = Date().toFechaTimeDb(),
         category = "",
     )

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -32,22 +31,23 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 
 @Composable
 fun ComboBox(
     items: Array<String>,
     label: String,
     field: MutableState<TextFieldValue>,
-    omitLabel: Boolean = true,
     enabled: Boolean = true,
     modifier: Modifier
 ) {
 
-    var expanded = remember { mutableStateOf( false ) }
-    var selectedIndex = remember { mutableStateOf( 0 ) }
+    val expanded = remember { mutableStateOf( false ) }
+    val selectedIndex = remember { mutableStateOf( 0 ) }
 
     ComboBoxText(
         modifier = modifier,
@@ -195,4 +195,24 @@ private fun ComboBoxButtonIcon(modifier: Modifier,
         }
 
     }
+}
+
+
+@Composable
+@Preview(showBackground = true)
+private fun ComboBoxPreview() {
+    val items = arrayOf("Item 1", "Item 2", "Item 3")
+    val label = "List of Items"
+    val field = remember { mutableStateOf(TextFieldValue()) }
+
+    ManifestationsTheme {
+        ComboBox(
+            items = items,
+            label = label,
+            field = field,
+            enabled = true,
+            modifier = Modifier
+        )
+    }
+
 }

@@ -4,16 +4,18 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 
 typealias onDismissType = () -> Unit
 typealias onIntType = (Int) -> Unit
-typealias onLongType = (Long) -> Unit
+typealias onLongType = (Long?) -> Unit
 typealias onFloatType = (Float) -> Unit
 typealias onDoubleType = (Double) -> Unit
 typealias onBooleanType = (Boolean) -> Unit
 typealias onBooleanReturn = () -> Boolean
 typealias onStringType = (String) -> Unit
+typealias onNavigateType = (String, NavHostController) -> Unit
 typealias onDismissComposableType = @Composable () -> Unit
 typealias onDismissTypeSuspend = suspend () -> Unit
 typealias onBitmapType = (Context, String) -> Bitmap?

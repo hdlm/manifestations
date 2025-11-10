@@ -20,7 +20,7 @@ import com.budoxr.manifestations.ui.theme.grayDark
 
 
 @Composable
-fun Label(label: String, value: String) {
+fun LabelForm(label: String, value: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,14 +53,14 @@ fun Label(label: String, value: String) {
 
 @Composable
 @Preview(showBackground = true)
-fun LabelPreview() {
+fun LabelFormPreview() {
     ManifestationsTheme {
         Column(modifier = Modifier.fillMaxWidth()
             .padding(16.dp)
             .background(bright)
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            Label(label = "Nam", value = "John Doe")
+            LabelForm(label = "Nam", value = "John Doe")
 
         }
     }

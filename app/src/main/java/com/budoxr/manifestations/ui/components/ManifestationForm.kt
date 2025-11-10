@@ -40,6 +40,7 @@ import com.budoxr.manifestations.commons.onDismissType
 import com.budoxr.manifestations.commons.toFechaTimeDb
 import com.budoxr.manifestations.presentation.domain.ManifestationModel
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
+import timber.log.Timber
 import java.util.Date
 
 @Composable
@@ -61,19 +62,19 @@ fun ManifestationForm(
 
     var overview by remember { mutableStateOf(TextFieldValue(item.overview)) }
     var description by remember { mutableStateOf(TextFieldValue(item.description)) }
-    var creationDate by remember { mutableStateOf(item.creationDate.fromFechaTimeDb()) }
+    var creationDate by remember { mutableStateOf(item.startDate.fromFechaTimeDb()) }
     var dueDate by remember { mutableStateOf(item.dueDate.fromFechaTimeDb()) }
-    var category = remember { mutableStateOf(TextFieldValue(item.category)) }
+    val category = remember { mutableStateOf(TextFieldValue(item.category)) }
 
 
     val onCreationDateSelected: (Long?) -> Unit = { millis ->
-        Log.d(TAG, "onCreationDateSelected() -> invoked, millis: $millis")
+        Timber.tag(TAG).d("onCreationDateSelected() -> invoked, millis: $millis")
         if (millis != null) {
             creationDate = Date( millis + oneDayMillis )
         }
     }
     val onDueDateSelected: (Long?) -> Unit = { millis ->
-        Log.d(TAG, "onDueDateSelected() -> invoked, millis: $millis")
+        Timber.tag(TAG).d("onDueDateSelected() -> invoked, millis: $millis")
         if (millis != null) {
             dueDate = Date( millis + oneDayMillis )
         }
@@ -131,16 +132,16 @@ fun ManifestationForm(
 
 //        DatePickerDocked()
         DatePickerFieldToModal(
-            label = stringResource(R.string.label_creation_date),
+            label = stringResource(R.string.label_start_date),
             date = creationDate.time - oneDayMillis,
-            onDateSelected = onCreationDateSelected,
+            onDateChange = onCreationDateSelected,
             modifier = Modifier
         )
 
         DatePickerFieldToModal(
             label = stringResource(R.string.label_due_date),
             date = dueDate.time - oneDayMillis,
-            onDateSelected = onDueDateSelected,
+            onDateChange = onDueDateSelected,
             modifier = Modifier.padding(vertical = lineSpacing)
         )
 
@@ -149,7 +150,6 @@ fun ManifestationForm(
             items = categoriesArray,
             label = stringResource(R.string.label_category),
             field = category,
-            omitLabel = false,
             modifier = Modifier
         )
 
@@ -175,7 +175,7 @@ fun ManifestationForm(
             id = item.id,
             overview = overview.text,
             description = description.text,
-            creationDate = creationDate.toFechaTimeDb(),
+            startDate = creationDate.toFechaTimeDb(),
             dueDate = dueDate.toFechaTimeDb(),
             category = category.value.text,
         ),
@@ -194,7 +194,7 @@ fun ManifestationFormItemPreview() {
         id = null,
         overview = "Ingreso de USD 6K",
         description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
-        creationDate = Date().toFechaTimeDb(),
+        startDate = Date().toFechaTimeDb(),
         dueDate = Date().toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )

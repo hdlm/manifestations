@@ -301,7 +301,7 @@ fun DraggableManifestationItemPreview() {
         id = 2,
         overview = "Facturacion mensual de USD 250K",
         description = "Estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-        creationDate = Date().toFechaTimeDb(),
+        startDate = Date().toFechaTimeDb(),
         dueDate = Date().toFechaTimeDb(),
         category = CATEGORIES.WEALTH.key,
     )

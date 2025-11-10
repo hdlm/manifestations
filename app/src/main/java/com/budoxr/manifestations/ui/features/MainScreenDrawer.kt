@@ -27,14 +27,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
+import com.budoxr.manifestations.commons.onNavigateType
+import com.budoxr.manifestations.commons.onStringType
 import com.budoxr.manifestations.ui.navigation.Screens
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
+import timber.log.Timber
 
 @Composable
 fun MainScreenDrawer(
+    navController: NavHostController,
     expanded: Boolean,
     currentRoute: String?,
     navigationItems: List<Screens>,
+    navigateTo: onNavigateType,
     content: @Composable () -> Unit
 ) {
     PermanentNavigationDrawer(
@@ -67,11 +72,12 @@ fun MainScreenDrawer(
                         label = { if (expanded && !screen.equals(Screens.Expand)) Text(screen.title) else null },
                         selected = currentRoute == screen.route,
                         onClick = {
-                            //TODO implement here
+                            Timber.tag(TAG).i("navigate to: ${screen.route.substringBefore('/')}")
+                            navigateTo.invoke(screen.route, navController)
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
-                    if(screen.route == Screens.Expand.route) Spacer(Modifier.height(24.dp))
+                    if(screen == Screens.Expand) Spacer(Modifier.height(24.dp))
                 }
 
             }
@@ -103,8 +109,10 @@ private fun MainScreenDrawerPreview() {
 
     ManifestationsTheme {
         MainScreenDrawer(
+            navController = navController,
             expanded = true,
             currentRoute = currentRoute.invoke(navController),
+            navigateTo = { _, _ ->},
             navigationItems = navigationItems,
         ) {
             Column(modifier = Modifier
@@ -117,3 +125,6 @@ private fun MainScreenDrawerPreview() {
         }
     }
 }
+
+
+private const val TAG = "che.MainScreenDrawer"

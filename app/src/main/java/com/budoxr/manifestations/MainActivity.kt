@@ -3,7 +3,6 @@ package com.budoxr.manifestations
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +24,8 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.error.KoinApplicationAlreadyStartedException
+import timber.log.Timber
+import timber.log.Timber.DebugTree
 
 class MainActivity : ComponentActivity() {
 
@@ -33,11 +34,11 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        Log.d(TAG, "registerForActivityResult() -> returned, granted: $granted")
+        Timber.tag(TAG).d("registerForActivityResult() -> returned, granted: $granted")
         if (granted) {
             // permission is granted
         } else {
-            Log.d(TAG, "permission: \'$requestedPermission\', denied.")
+            Timber.tag(TAG).d("permission: \'$requestedPermission\', denied.")
         }
     }
 
@@ -50,14 +51,15 @@ class MainActivity : ComponentActivity() {
             for (key in intent.extras!!.keySet()) {
 //                val value = intent.extras!![key]
                 val value = intent.extras?.getString(key)  // fix the deprecated warning of the line above
-                Log.d(TAG, "Key: $key Value: $value")
+                Timber.tag(TAG).d("Key: $key Value: $value")
             }
         }
 
         if (BuildConfig.DEBUG) {
-            Log.d("MyApp", "Debug mode enabled")
+            Timber.plant(DebugTree())
+            Timber.tag("MyApp").d("Debug mode enabled")
         } else {
-            Log.d("MyApp", "Release mode disabled")
+            Timber.tag("MyApp").d("Release mode disabled")
         }
 
         try {
@@ -95,11 +97,11 @@ class MainActivity : ComponentActivity() {
 
 
     fun askReadExternalStoragePermission(): Boolean {
-        Log.i(TAG, "askReadExternalStoragePermission() -> called")
+        Timber.tag(TAG).i("askReadExternalStoragePermission() -> called")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            Log.i(TAG, "Read External Storage permission granted")
+            Timber.tag(TAG).i("Read External Storage permission granted")
             return true
 
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -116,11 +118,11 @@ class MainActivity : ComponentActivity() {
     }
 
     fun askWriteExternalStoragePermission(): Boolean {
-        Log.i(TAG, "askWriteExternalStoragePermission() -> called")
+        Timber.tag(TAG).i("askWriteExternalStoragePermission() -> called")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            Log.i(TAG, "Write External Storage permission granted")
+            Timber.tag(TAG).i("Write External Storage permission granted")
             return true
 
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {

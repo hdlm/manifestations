@@ -84,11 +84,6 @@ fun ManifestationScreen(
     val manifestationScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
     when (val uiState = manifestationScreenUiState) {
         is ManifestationScreenUiState.Loading -> {
-            LocalPref.saveSession(
-                viewModel.session.apply {
-                    currentScreen = Screens.ManifestationScreen.route
-                }
-            )
             ManifestationScreenLoading()
         }
         is ManifestationScreenUiState.ListManifestation -> {
@@ -385,7 +380,7 @@ fun ManifestationScreenPreview() {
             id = 1,
             overview = "Ingreso de USD 6K",
             description = "Estoy muy feliz y agradecido por por haber manifestado antes del 7 de mayo del 2025, ingresos por USD 6K",
-            creationDate = Date().toFechaTimeDb(),
+            startDate = Date().toFechaTimeDb(),
             dueDate = Date().toFechaTimeDb(),
             category = CATEGORIES.WEALTH.key,
         ),
@@ -393,7 +388,7 @@ fun ManifestationScreenPreview() {
             id = 2,
             overview = "Facturacion mensual de USD 250K",
             description = "estoy muy feliz y agradecido haber manifestado antes del 7 de Mayo del 2025, una facturacion mensual de ingresos por USD 250K.",
-            creationDate = Date().toFechaTimeDb(),
+            startDate = Date().toFechaTimeDb(),
             dueDate = Date().toFechaTimeDb(),
             category = CATEGORIES.WEALTH.key,
         ),

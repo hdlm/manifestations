@@ -48,7 +48,7 @@ interface LessonDao {
     @Transaction
     @Query("""
         SELECT 
-            T1.id AS manifestation_id, T1.overview AS manifestation_overview, T1.description AS manifestation_description, T1.creation_date AS manifestation_creation_date, T1.due_date AS manifestation_due_date, T1.category AS manifestation_category,
+            T1.id AS manifestation_id, T1.overview AS manifestation_overview, T1.description AS manifestation_description, T1.start_date AS manifestation_start_date, T1.due_date AS manifestation_due_date, T1.category AS manifestation_category,
             T2.id AS lesson_id, T2.day AS lesson_day, T2.subject AS lesson_subject, T2.manifestation_id AS lesson_manifestation_id
         FROM manifestation T1
         INNER JOIN lesson T2 

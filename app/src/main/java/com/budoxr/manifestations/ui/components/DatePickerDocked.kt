@@ -97,7 +97,7 @@ fun DatePickerDocked() {
 fun DatePickerFieldToModal(
     label: String,
     date: Long?,
-    onDateSelected: (Long?) -> Unit,
+    onDateChange: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedDate by remember { mutableStateOf<Long?>(date) }
@@ -131,7 +131,7 @@ fun DatePickerFieldToModal(
         DatePickerModal(
             onDateSelected = {
                 selectedDate = it
-                onDateSelected(selectedDate)
+                onDateChange(selectedDate)
             },
             onDismiss = { showModal = false }
         )

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.budoxr.manifestations.commons.AppScope
 import com.budoxr.manifestations.commons.CategoryHelper
+import com.budoxr.manifestations.commons.NavigateHelper
 import com.budoxr.manifestations.commons.TextToSpeechHelper
 import com.budoxr.manifestations.commons.util.Utily
 import com.budoxr.manifestations.data.database.AppDatabase
@@ -52,21 +53,26 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.budoxr.manifestations.commons.util.moshi.LessonModelAdapter
 import com.budoxr.manifestations.presentation.presenters.MainViewModel
+import com.budoxr.manifestations.presentation.presenters.ManifestationAddFormViewModel
 
 object Modules {
     val appModule = module {
-        single { AppScope() }
-        single { TextToSpeechHelper(androidContext()) }
-        factory { Utily() }
-        single { SessionModel() }
-        factory<LocalStorage> { LocalStorageImpl(androidContext()) }
-        factory { CheckPermissionUseCase() }
         viewModel { LessonViewModel( TextToSpeechHelper(get()) ) }
         viewModel { ManifestationViewModel() }
         viewModel { JournalViewModel() }
         viewModel { SettingViewModel() }
         viewModel { MainViewModel() }
+        viewModel { ManifestationAddFormViewModel() }
+
+        single { AppScope() }
+        single { SessionModel() }
+        single { TextToSpeechHelper(androidContext()) }
         single { CategoryHelper(androidContext()) }
+        single { NavigateHelper() }
+
+        factory { Utily() }
+        factory<LocalStorage> { LocalStorageImpl(androidContext()) }
+        factory { CheckPermissionUseCase() }
         factory { BackupUseCase() }
         factory { RestoreUseCase() }
         factory { ExportDatabaseUseCase() }

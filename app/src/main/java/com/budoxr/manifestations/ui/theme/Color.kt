@@ -4,13 +4,13 @@ import androidx.compose.ui.graphics.Color
 
 val purple= Color(0xFF7F55D4)
 val purpleDark = Color(0xFF5D32C5)
-val purpleLight = Color(0xFFFD2C4EF)
+val purpleLight = Color(0xFFD2C4EF)
 
 //val brandPrimary = Color(0xFF3D98F4)
 val brandPrimary = Color(0xFF7F55D4)
-val brandSecondary = Color(0xFFFD2C4EF)
+val brandSecondary = Color(0xFFD2C4EF)
 val brandTertiary = Color(0xFFE2C4EF)
-val lightBackground = Color(0xFF1C1B1F)
+val lightBackground = Color(0xFFFFFFFF)
 val darkBackground = Color(0xFF121212)
 
 val dark = Color(0xFF121212)

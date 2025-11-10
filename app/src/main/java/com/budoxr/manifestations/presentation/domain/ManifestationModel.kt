@@ -8,7 +8,7 @@ data class ManifestationModel(
     val id: Int?,
     val overview: String,
     val description: String,
-    @field:Json(name = "creation_date") val creationDate: String,
+    @field:Json(name = "start_date") val startDate: String,
     @field:Json(name = "due_date") val dueDate: String,
     val category: String,
 )
