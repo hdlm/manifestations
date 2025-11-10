@@ -70,6 +70,7 @@ fun JournalForm(
             items = lessonDayItems,
             label = stringResource(R.string.label_lesson),
             field = lessonDay,
+            onSelectedItem = { _ -> },
             modifier = Modifier
         )
 

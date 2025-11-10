@@ -1,5 +1,6 @@
 package com.budoxr.manifestations.presentation.presenters
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewModelScope
@@ -34,8 +35,8 @@ class MainViewModel : KoinViewModel() {
         }
 
     private val _expanded = MutableStateFlow(true)
-    val expanded : Boolean
-        get() = _expanded.asStateFlow().value
+    val expanded : StateFlow<Boolean>
+        get() = _expanded.asStateFlow()
 
     private val _sessionModel = LocalPref.getSession() ?: SessionModel()
     val session: SessionModel
@@ -48,12 +49,7 @@ class MainViewModel : KoinViewModel() {
             _topAppBarTitle.update { value }
         }
 
-    val navigationItems = listOf(
-        Screens.Expand,
-        Screens.LessonScreen,
-        Screens.ManifestationScreen,
-        Screens.SettingScreen
-    )
+    val navigationItems = navigateHelper.allMenuScreens
 
     private val _uiState = MutableStateFlow<MainScreenUiState>(MainScreenUiState.Manifestations)
     val uiState : StateFlow<MainScreenUiState>
@@ -85,9 +81,10 @@ class MainViewModel : KoinViewModel() {
     }
 
 
+    //TODO this method was replaced by [NavigateHelper] class
     fun onDrawerClick(navController: NavHostController, screen: Screens, ) {
         if (screen.route == Screens.Expand.route) {
-            _expanded.update { !expanded }
+            _expanded.update { !expanded.value }
             Timber.tag(TAG).d("onDrawerClick() -> expanded: $expanded")
         } else {
             Timber.tag(TAG)
@@ -143,13 +140,16 @@ class MainViewModel : KoinViewModel() {
         Timber.tag(TAG).d("onBackButtonClick() -> clicked")
     }
 
-    fun floatingActionButtonClick(currentRoute: String) {
+    fun floatingActionButtonClick(currentRoute: String, navController: NavHostController) {
+        Timber.tag(TAG).d("floatingActionButtonClick() -> invoked, currentRoute: $currentRoute")
         val screen = navigateHelper.getScreenFromRoute(currentRoute)
         if (screen != null) {
             when (screen) {
                 is Screens.ManifestationScreen -> {
-                    //TODO navigate to add manifestation form screen
-
+                    _isFloatingActionVisible.update { false }
+                    _isDrawerVisible.update { false }
+                    val destination = Screens.ManifestationAddFormScreen.route
+                    navController.navigate(destination)
                 }
                 else -> {
                     //TODO not implemented
@@ -161,8 +161,11 @@ class MainViewModel : KoinViewModel() {
 
 
     fun navigateTo(route: String, navController: NavHostController) {
-        val screenName = route.substringBefore("/")
-        navigateHelper.navigateTo(route = route, navController = navController)
+        navigateHelper.navigateTo(
+            route = route,
+            navController = navController,
+            switchExpanded = ::switchExpanded
+        )
     }
 
     @Composable
@@ -171,6 +174,12 @@ class MainViewModel : KoinViewModel() {
         val destination: String? =  navBackStackEntry?.destination?.route
         Timber.tag(TAG).d("currentRoute() -> called, destination: ${destination?.substringBefore('/')}")
         return navBackStackEntry?.destination?.route
+    }
+
+
+    fun switchExpanded() {
+        Timber.tag(TAG).i("switch 'Expanded': ${expanded}")
+        _expanded.update { !expanded.value }
     }
 
     fun changeToManifestationScreen() {

@@ -10,12 +10,16 @@ class NavigateHelper {
      * The method handles navigating to the indicated screen.
      * @param route The name of the screen to navigate to.
      */
-    fun navigateTo(route: String, navController: NavHostController) {
+    fun navigateTo(
+        route: String,
+        navController: NavHostController,
+        switchExpanded: onDismissType,
+    ) {
         Timber.tag(TAG).i("navigateTo: $route")
 
         when (val screen = getScreenFromRoute(route)) {
             is Screens.Expand -> {
-                //TODO not implemented yet
+                switchExpanded.invoke()
             }
             is Screens.LessonScreen,
             Screens.ManifestationScreen,
@@ -38,6 +42,14 @@ class NavigateHelper {
         return screen
     }
 
+    val allMenuScreens: List<Screens>
+        get() = listOf(
+            Screens.Expand,
+            Screens.LessonScreen,
+            Screens.ManifestationScreen,
+            Screens.JournalScreen,
+            Screens.SettingScreen
+        )
 
     companion object {
         private const val TAG = "che.NavigateHelper"
@@ -46,11 +58,3 @@ class NavigateHelper {
 }
 
 
-val allMenuScreens: List<Screens>
-    get() = listOf(
-        Screens.Expand,
-        Screens.LessonScreen,
-        Screens.ManifestationScreen,
-        Screens.JournalScreen,
-        Screens.SettingScreen
-    )

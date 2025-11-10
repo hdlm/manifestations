@@ -40,7 +40,7 @@ fun MainScaffold(
     topAppBarTitle: String,
     isDarkTheme: Boolean,
     isFloatingActionVisible: Boolean,
-    onFloatingActionButtonClick: onDismissType,
+    onFloatingActionButtonClick: (NavHostController) -> Unit,
     onBackButtonClick: (NavHostController) -> Unit,
     content: onDismissComposableType = { },
 ) {
@@ -63,7 +63,7 @@ fun MainScaffold(
         floatingActionButton = {
             if (isFloatingActionVisible) {
                 FloatingActionButton(onClick = {
-                    onFloatingActionButtonClick.invoke()
+                    onFloatingActionButtonClick.invoke(navController)
                 }) {
                     Icon(Icons.Default.Add, contentDescription = stringResource(R.string.content_description_icon))
                 }
@@ -108,7 +108,7 @@ private fun MainScaffoldPreview() {
             isDarkTheme = false,
             isFloatingActionVisible = true,
             onFloatingActionButtonClick = {},
-            onBackButtonClick = {navController -> } ,
+            onBackButtonClick = { navController -> } ,
         ) {
             Column(modifier = Modifier
                 .fillMaxSize(),

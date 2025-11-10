@@ -15,6 +15,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
+import com.budoxr.manifestations.commons.onIntType
+import com.budoxr.manifestations.commons.onStringType
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 
 @Composable
@@ -23,6 +25,7 @@ fun FieldFormCombo(
     label: String,
     field: String,
     enabled: Boolean = true,
+    onSelectedItem: onIntType,
 ) {
     val value = remember { mutableStateOf(TextFieldValue(field)) }
 
@@ -38,6 +41,7 @@ fun FieldFormCombo(
         label = label,
         field = value,
         enabled = enabled,
+        onSelectedItem = onSelectedItem,
         modifier = Modifier
     )
 
@@ -59,6 +63,7 @@ private fun FieldFormComboPreview() {
                 label = label,
                 field = field,
                 enabled = true,
+                onSelectedItem = { _ ->}
             )
         }
     }

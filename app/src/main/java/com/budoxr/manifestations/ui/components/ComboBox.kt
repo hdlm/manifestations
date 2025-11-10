@@ -35,6 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
+import com.budoxr.manifestations.commons.onIntType
+import com.budoxr.manifestations.commons.onStringType
 import com.budoxr.manifestations.ui.theme.ManifestationsTheme
 
 @Composable
@@ -43,6 +45,7 @@ fun ComboBox(
     label: String,
     field: MutableState<TextFieldValue>,
     enabled: Boolean = true,
+    onSelectedItem: onIntType,
     modifier: Modifier
 ) {
 
@@ -56,7 +59,8 @@ fun ComboBox(
         label = label,
         selectedIndex = selectedIndex,
         expanded = expanded,
-        enabled = enabled
+        enabled = enabled,
+        onSelectedItem = onSelectedItem,
     )
 
 }
@@ -80,13 +84,15 @@ fun ComboBoxIcon(
 }
 
 @Composable
-private fun ComboBoxText(modifier: Modifier,
-                         field: MutableState<TextFieldValue>,
-                         items: Array<String>,
-                         label: String,
-                         selectedIndex: MutableState<Int>,
-                         expanded: MutableState<Boolean>,
-                         enabled: Boolean = true,
+private fun ComboBoxText(
+    modifier: Modifier,
+     field: MutableState<TextFieldValue>,
+     items: Array<String>,
+     label: String,
+     selectedIndex: MutableState<Int>,
+     expanded: MutableState<Boolean>,
+     enabled: Boolean = true,
+     onSelectedItem: onIntType,
 ) {
     val iconSize = dimensionResource(id = R.dimen.icon_tiny_size)
     val lineSpacing = dimensionResource(id = R.dimen.line_spacing_1)
@@ -161,6 +167,7 @@ private fun ComboBoxText(modifier: Modifier,
                         field.value = TextFieldValue(nameCategory)
                         selectedIndex.value = index
                         expanded.value = false
+                        onSelectedItem.invoke(index)
                     }
                 )
             }
@@ -211,6 +218,7 @@ private fun ComboBoxPreview() {
             label = label,
             field = field,
             enabled = true,
+            onSelectedItem = { _ ->},
             modifier = Modifier
         )
     }

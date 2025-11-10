@@ -13,6 +13,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.budoxr.manifestations.R
 import com.budoxr.manifestations.commons.onDismissType
@@ -35,16 +37,19 @@ fun MainScreen(
 
     val context = LocalContext.current
     val currentRoute = viewModel.currentRoute(navController)
-    val expanded = viewModel.expanded
     val isDarkTheme by remember { mutableStateOf( context.resources.getConfiguration().uiMode and Configuration.UI_MODE_NIGHT_MASK === Configuration.UI_MODE_NIGHT_YES ) }
     var showSettings by remember { mutableStateOf(false) }
     val isDrawerVisible = viewModel.isDrawerVisible
 
 
+//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val expanded by viewModel.expanded.collectAsStateWithLifecycle()
+
+
     //#region high-order functions
-    val onFloatingActionButtonClick: onDismissType = {
-        Timber.tag(TAG).d("onFloatingActionButtonClick() -> invoked.")
-        viewModel.floatingActionButtonClick(currentRoute!!)
+    val onFloatingActionButtonClick: (NavHostController) -> Unit = { navController ->
+        Timber.tag(TAG).i("show Add Manifestation Form.")
+        viewModel.floatingActionButtonClick(currentRoute!!, navController)
     }
     //#endregion
 

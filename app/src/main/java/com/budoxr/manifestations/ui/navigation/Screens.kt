@@ -19,6 +19,7 @@ sealed class Screens (
     object Expand: Screens(route = "Expand", title = "Expand", Icons.Default.Menu)
     object LessonScreen: Screens(route = "LessonScreen", title = "Lessons", Icons.Default.School)
     object ManifestationScreen: Screens(route = "ManifestationScreen", title = "Manifestations", Icons.Default.EventAvailable)
+    object ManifestationAddFormScreen: Screens(route = "ManifestationAddFormScreen", title = "Manifestations", Icons.Default.EventAvailable)
     object JournalScreen: Screens(route = "JournalScreen/{page}/{manifestation}/{lesson}", title = "Journals", Icons.AutoMirrored.Filled.EventNote)
     object SettingScreen: Screens(route = "SettingScreen", title = "Setting", Icons.Default.Settings)
 

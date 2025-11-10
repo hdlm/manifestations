@@ -45,6 +45,9 @@
         <item name="Spirituality">Spirituality</item>
     </string-array>
 
+    <!-- ManifestationAddForm -->
+    <string name="label_button_save">Save</string>
+
     <!-- Journal -->
     <string name="label_manifestation">Manifestation</string>
     <string name="label_lesson">Lesson</string>

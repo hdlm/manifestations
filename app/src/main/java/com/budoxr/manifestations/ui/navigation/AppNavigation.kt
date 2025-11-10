@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.budoxr.Exercises.ui.JournalScreen
 import com.budoxr.manifestations.ui.features.lessons.LessonScreen
+import com.budoxr.manifestations.ui.features.manifestations.ManifestationAddFormScreen
 import com.budoxr.manifestations.ui.features.manifestations.ManifestationScreen
 
 
@@ -34,6 +35,13 @@ fun AppNavigation(
                 isDarkTheme = isDarkTheme,
             )
         }
+
+        composable(Screens.ManifestationAddFormScreen.route) { _ ->
+            ManifestationAddFormScreen(
+                isDarkTheme = isDarkTheme,
+            )
+        }
+
 
         composable(Screens.JournalScreen.route, arguments = listOf(
             navArgument("page") { type = NavType.IntType },

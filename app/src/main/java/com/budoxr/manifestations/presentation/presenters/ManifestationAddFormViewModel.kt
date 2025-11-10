@@ -112,7 +112,7 @@ class ManifestationAddFormViewModel : KoinViewModel() {
                 dueDate = form.dueDate,
                 category = form.category
             )
-            Timber.tag(TAG).i("Saving a new manifestation in the database.")
+            Timber.tag(TAG).i("Saving new manifestation in the database.")
             manifestationInsertUseCase.invoke(manifestationEntity)
         }
     }

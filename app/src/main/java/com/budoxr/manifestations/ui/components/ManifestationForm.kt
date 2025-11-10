@@ -44,6 +44,7 @@ import timber.log.Timber
 import java.util.Date
 
 @Composable
+@Deprecated("Replaced by ManifestationAddForm")
 fun ManifestationForm(
     item: ManifestationModel,
     isDarkTheme: Boolean,
@@ -145,13 +146,13 @@ fun ManifestationForm(
             modifier = Modifier.padding(vertical = lineSpacing)
         )
 
-        val categoriesArray: Array<String> = stringArrayResource(id = R.array.categories_array)
-        ComboBox(
-            items = categoriesArray,
-            label = stringResource(R.string.label_category),
-            field = category,
-            modifier = Modifier
-        )
+//        val categoriesArray: Array<String> = stringArrayResource(id = R.array.categories_array)
+//        ComboBox(
+//            items = categoriesArray,
+//            label = stringResource(R.string.label_category),
+//            field = category,
+//            modifier = Modifier
+//        )
 
         Spacer(modifier = Modifier.padding(vertical = lineSpacing2x))
         Button( onClick = onBackButtonClick,
