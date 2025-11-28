@@ -43,6 +43,7 @@ import org.koin.core.component.inject
 import org.koin.core.component.get
 import kotlin.getValue
 
+//TODO remove the manifestation from the lesson #23, it's doesn't have a meditacion
 class JournalViewModel() : KoinViewModel() {
     private val localStorage: LocalStorage = get()
     private val manifestationInfoUseCase : ManifestationInfoUseCase by inject()
